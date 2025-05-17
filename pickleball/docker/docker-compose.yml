@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: picklecoach-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: picklecoach-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
