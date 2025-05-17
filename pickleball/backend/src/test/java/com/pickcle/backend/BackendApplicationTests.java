@@ -1,4 +1,4 @@
-package com.pickcle.backend;
+package com.pickle.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,6 +8,6 @@ class BackendApplicationTests {
 
     @Test
     void contextLoads() {
+        // Test cơ bản để kiểm tra ứng dụng Spring Boot khởi động đúng
     }
-
 }
