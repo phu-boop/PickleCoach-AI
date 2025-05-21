@@ -1,59 +1,62 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import Button from './Button';
 function Header() {
   return (
-    <header className="bg-gray-100 text-black p-4 flex items-center justify-between">
+    <header className="bg-while text-black p-4 flex items-center justify-between shadow-lg">
       {/* Logo và Menu trong cùng một div */}
       <div className="flex items-center space-x-6">
         {/* Logo */}
         <div className="flex items-center">
-          <img src="../assets/images/logo-lockup.svg" alt="Pickleheads Logo" className="h-8" />
+          <img src="https://www.pickleheads.com/assets/logo-lockup.svg" alt="Pickleheads Logo" className="w-50" />
         </div>
-
+        <p className="border-l-2 border-gray-300 h-10"></p>
         {/* Menu */}
-        <nav className="flex space-x-6">
-          <a href="#" className="flex items-center text-gray-700 hover:text-blue-500">
+        <nav className="flex space-x-5 font-bold text-lg">
+          <a href="#" 
+            className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Play
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
-          <a href="#" className="flex items-center text-gray-700 hover:text-blue-500">
+
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Organize
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
-          <a href="#" className="flex items-center text-gray-700 hover:text-blue-500">
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Earn
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
-          <a href="#" className="flex items-center text-gray-700 hover:text-blue-500">
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Learn
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
-          <a href="#" className="flex items-center text-gray-700 hover:text-blue-500">
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Gear
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
         </nav>
       </div>
 
       {/* Buttons */}
-      <div className="flex items-center space-x-4">
-        <button className="text-gray-700 hover:text-blue-500">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      <div className="flex items-center space-x-6">
+        <button className="w-10 h-10 flex items-center justify-center bg-[#2d93ad]      rounded-full hover:bg-[#227e96] cursor-pointer">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2"
+              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </button>
-        <button className="text-blue-500 hover:underline">Log in</button>
-        <button className="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600">
-          Join for free
-        </button>
+        <p className="border-l-2 border-gray-300 h-10"></p>
+        <button className="text-black font-bold text-lg cursor-pointer ">Log in</button>
+        <Button 
+        children={"Join for free"}
+        >
+        </Button>
       </div>
     </header>
   );
