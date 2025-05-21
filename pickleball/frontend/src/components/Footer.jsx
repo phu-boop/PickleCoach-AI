@@ -77,7 +77,7 @@ function Footer() {
         {/* Social Media and Legal Links */}
         <div className="container mx-auto px-4 flex flex-col items-center space-y-4">
           {/* Social Media Icons */}
-          <div className="flex justify-center items-center gap-6 bg-[#2c92a5] py-8">
+          <div className="flex justify-center items-center gap-6 py-8">
             <div className="flex items-center justify-center space-x-6">
               {/* Facebook */}
               <a href="#" className="bg-[#0c0c3f] w-14 h-14 flex items-center justify-center rounded-full hover:opacity-80 transition">
