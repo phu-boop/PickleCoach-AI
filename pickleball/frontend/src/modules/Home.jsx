@@ -1,7 +1,14 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { useState } from 'react';
+import { FiPlus, FiMinus } from "react-icons/fi";
 import Button from '../components/Button';
 export default function SearchSection() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const toggleIndex = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
   return (
     <>
     
@@ -189,6 +196,381 @@ export default function SearchSection() {
         </div>
       </div>
     </div>
+    <div className="max-w-7xl mx-auto py-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div className="space-y-8 border-r border-dotted pr-6 border-[#1a96b7]">
+          <h2 className="text-4xl font-extrabold text-[#1a96b7] mb-10">Learn to play</h2>
+          {miniGuides.map((guide, index) => (
+            <div key={index} className="flex items-start gap-5">
+              <img
+                src={guide.image}
+                alt={`Guide ${index + 1}`}
+                className="w-40 h-28 md:w-48 md:h-32 object-cover rounded-xl"
+              />
+              <div>
+                <span className="inline-block bg-[#bbedff] text-[#0a0b3d] text-sm font-bold px-2 py-1 rounded">
+                  Guides
+                </span>
+                <h3 className="mt-2 text-lg font-bold text-[#111943]">
+                  {guide.title}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Right side - Video feature */}
+        <div className="space-y-6">
+          <div className="relative">
+            <img
+              src="https://cdn.filestackcontent.com/resize=w:1200,h:800,fit:crop/auto_image/Snd9sKdGSCCGKnyrJymM"
+              alt="Virtual Clinic"
+              className="rounded-xl w-full h-auto object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 bg-[#2ca6c9] rounded-full flex items-center justify-center shadow-lg cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white ml-1"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-x-3">
+            <span className="bg-[#bbedff] font-bold text-[#0a0b3d] text-sm px-2 py-1 rounded">Guides</span>
+            <span className="bg-[#bbedff] font-bold text-[#0a0b3d] text-sm px-2 py-1 rounded">Learn</span>
+          </div>
+
+          <h3 className="text-3xl font-extrabold text-[#111943]">
+            How To Play Pickleball: Free Virtual Clinic for Beginners
+          </h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-3">
+            <button className="cursor-pointer bg-gradient-to-b from-[#2ca6c9] to-[#1a96b7] hover:from-[#2d93ad] hover:to-[#226a7c] text-white font-bold px-6 py-3 rounded-full shadow transition duration-300">
+              Watch Now
+            </button>
+            <p className="text-[#111943] font-medium">
+              <a href="#" className="text-[#2ca6c9] font-semibold hover:underline inline-flex items-center">
+                OR read our guides
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="ml-1 h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="bg-[#d9f7ff] rounded-2xl p-6 container-main flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* Left: Icon + Text */}
+      <div className="flex items-center gap-4 w-2/5">
+        {/* Replace this with actual image if needed */}
+        <div className="text-4xl"><img src="https://www.pickleheads.com/images/duotone-icons/news.svg" alt="" className='w-[56px] mr-3'/></div>
+        <p className="text-[#0076a3] font-bold text-[28px] flex-1">
+          Epic points, pro tips & more –<br className="hidden md:block" /> delivered weekly to your inbox
+        </p>
+      </div>
+
+      {/* Right: Form */}
+      <div className=" w-full md:w-3/6">
+        <input
+          type="email"
+          placeholder="Your email address"
+          className="w-7/10 px-4 py-3 rounded-l-2xl shadow text-base font-semibold text-[#001933] placeholder:font-normal outline-none bg-white"
+        />
+        <button
+          className="bg-gradient-to-b from-[#2ca6c9] to-[#1a96b7] hover:from-[#2d93ad] hover:to-[#226a7c] text-white font-bold px-6 py-3 rounded-r-2xl shadow transition duration-300"
+        >
+          Sign me up
+        </button>
+
+        <p className="text-sm text-gray-500 mt-2 text-center md:text-left">
+          By signing up for the newsletter, you agree to our{' '}
+          <a href="#" className="underline">privacy policy</a> and <a href="#" className="underline">terms of use</a>.
+        </p>
+      </div>
+      </div>
+      <div className="relative h-[680px] py-16 container-main mt-10">
+      <div className="max-w-7xl mx-auto relative">
+        {/* VIDEO chính (bên phải) */}
+        <div className="relative w-full lg:w-[70%] float-right">
+          <video
+            controls
+            className="w-full rounded-xl border-4 border-black shadow-lg"
+            autoPlay
+          >
+            <source src="https://storage.googleapis.com/pbv-pro/home-video-970.mp4" type="video/mp4" />
+            Trình duyệt không hỗ trợ video.
+          </video>
+
+          {/* Text overlay video */}
+          <div className="absolute bottom-16 left-4 bg-[#d9f7ff] px-6 py-4 rounded-xl shadow-md max-w-[90%] opacity-70">
+            <p className="text-black font-semibold leading-snug text-base">
+              🎯 Active Play Detection (APD) tracks every player and shot, <br />
+              recreating your game in 3D to maximize learning
+            </p>
+          </div>
+        </div>
+
+        {/* ẢNH ĐIỆN THOẠI (nổi bên trái như overlay) */}
+        <div className="absolute -top-10 -left-0 w-[433px] z-10">
+          <div className="border-[6px] border-black rounded-3xl overflow-hidden shadow-xl">
+            <img
+              src="https://pb.vision/assets/mobile-recording-example-4dc4535b.png"
+              alt="Mobile recording"
+              className="w-full"
+            />
+          </div>
+
+          {/* Bubble text nhỏ ở dưới */}
+          <div className="absolute -bottom-12 left-2 bg-[#d9f7ff] px-4 py-3 rounded-xl shadow-md w-[280px] opacity-90">
+            <p className="font-semibold text-black text-base leading-snug">
+              📱 Simply record, <br /> upload, and improve
+            </p>
+          </div>
+
+        {/* Mũi tên nối lên */}
+        <div className="absolute bottom-[-60px] left-[20%] mt-3">
+          {/* Đầu mũi tên (hướng lên) */}
+          <div className="absolute w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-gray-300 transform -translate-x-1/2 left-1/2 top-0"></div>
+          {/* Đường thẳng của mũi tên */}
+          <div className="absolute w-0.5 h-35 bg-gray-300 transform -translate-x-1/2 left-1/2 top-[7px]"></div>
+        </div>
+        <Button
+        children={"upload video"}
+        className={'absolute bottom-[-260px] left-[20%] transform -translate-x-1/2 mt-3 px-4 py-3'}
+        ></Button>
+        <div className="absolute bottom-[-60px] left-[50%] mt-3">
+          {/* Đường dọc (từ trên xuống) */}
+          <div className="absolute w-0.5 h-45 bg-gray-300 transform -translate-x-1/2 left-1/2 top-0"></div>
+          {/* Đường ngang (từ trái sang phải) */}
+          <div className="absolute w-38 h-0.5 bg-gray-300 transform -translate-y-1/2 top-[179px] left-0"></div>
+          {/* Đầu mũi tên (hướng sang trái) */}
+          <div className="absolute w-0 h-0 border-y-8 border-r-8 border-y-transparent border-r-transparent border-l-8 border-l-gray-300 transform -translate-y-1/2 top-[179px] left-[148px]"></div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div className="bg-[#ddf7fe]">
+      <div className="container-main py-19">
+        <h2 className="text-[32px] font-grandstander font-bold text-[#0a0b3d] mb-4">
+          Find courts, games, and lessons wherever you go
+        </h2>
+        <div className="flex space-x-6 mb-4">
+          <button className="text-black font-black uppercase border-b-2 border-black">Cities</button>
+          <button className="text-gray-400 font-black uppercase">States</button>
+          <button className="text-gray-400 uppercase font-black">Countries</button>
+          <button className="text-gray-400 uppercase font-black">Court Types</button>
+          <button className="text-gray-400 uppercase font-black">Amenities</button>
+        </div>
+        <div className="relative">
+          <button className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
+            ←
+          </button>
+          <div className="flex overflow-x-auto scrollbar-hide space-x-8">
+            {cities.map((city, index) => (
+              <div
+                key={index}
+                className="w-60 rounded-xl overflow-hidden shadow-md bg-white"
+              >
+                <div className="relative h-40">
+                  <img
+                    src={city.image}
+                    alt={city.city}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h3 className="text-white text-2xl font-bold drop-shadow-md">
+                      {city.city}
+                    </h3>
+                  </div>
+                </div>
+                <div className="bg-blue-50 p-4 text-sm">
+                  <div className="flex justify-between py-1">
+                    <span>Locations</span>
+                    <span className="text-sky-600 font-semibold">{city.locations}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span>Courts</span>
+                    <span className="text-sky-600 font-semibold">{city.courts}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span>Games</span>
+                    <span className="text-sky-600 font-semibold">{city.games}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#2A96AC] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-md hover:bg-[#24839A] transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={3}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div className='bg-[#d9f7ff]'>
+        <div className='container-main border-t-4 border-dotted border-[#A2DFFF]'>
+          <div className="bg-[#d9f6ff] py-12 px-4 sm:px-8 max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-[#061137] mb-10 font-grandstander">Frequently Asked Questions</h2>
+            {faqData.map((faq, index) => (
+              <div
+                key={index}
+                className={`bg-white rounded-lg p-6 mb-4 transition-all duration-300 ${
+                  openIndex === index ? "shadow-md" : ""
+                }`}
+              >
+                <button
+                  onClick={() => toggleIndex(index)}
+                  className="w-full flex justify-between items-center text-left"
+                >
+                  <span className="text-lg font-bold text-[#061137] font-grandstander ">
+                    {faq.question}
+                  </span>
+                  <span className="text-[#2A96AC] text-xl cursor-pointer">
+                    {openIndex === index ? <FiMinus /> : <FiPlus />}
+                  </span>
+                </button>
+                {openIndex === index && (
+                  <div className="mt-4 text-gray-700 whitespace-pre-line">{faq.answer}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+    </div>
+    <section className="text-center py-12 bg-white container-main">
+      <div className='flex justify-between mb-10'>
+        <h2 className="text-3xl md:text-4xl font-bold text-[#0D0D3F] my-2 font-grandstander">
+          Join the fastest growing pickleball community
+        </h2>
+        <Button
+        children={"Join for free"}
+        className={'py-1'}
+        ></Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full">
+        {/* Item 1 */}
+        <div>
+          <h3 className="text-3xl font-extrabold text-cyan-500 drop-shadow-[2px_2px_0px_#FACC15]">
+            420,600
+          </h3>
+          <p className="text-cyan-700 font-semibold text-lg mb-2">members</p>
+          <p className="text-gray-700 text-sm">
+            Join a community of pickleball players and find new friends to play with.
+          </p>
+        </div>
+
+        {/* Item 2 */}
+        <div>
+          <h3 className="text-3xl font-extrabold text-cyan-500 drop-shadow-[2px_2px_0px_#FACC15]">
+            2,624,300
+          </h3>
+          <p className="text-cyan-700 font-semibold text-lg mb-2">games</p>
+          <p className="text-gray-700 text-sm">
+            Browse games and open play sessions anywhere you go.
+          </p>
+        </div>
+
+        {/* Item 3 */}
+        <div>
+          <h3 className="text-3xl font-extrabold text-cyan-500 drop-shadow-[2px_2px_0px_#FACC15]">
+            20,900
+          </h3>
+          <p className="text-cyan-700 font-semibold text-lg mb-2">locations</p>
+          <p className="text-gray-700 text-sm">
+            Find every place to play pickleball in your local area.
+          </p>
+        </div>
+
+        {/* Item 4 */}
+        <div>
+          <h3 className="text-3xl font-extrabold text-cyan-500 drop-shadow-[2px_2px_0px_#FACC15]">
+            8,500
+          </h3>
+          <p className="text-cyan-700 font-semibold text-lg mb-2">cities</p>
+          <p className="text-gray-700 text-sm">
+            Now available worldwide. Find courts & games anywhere!
+          </p>
+        </div>
+      </div>
+    </section>
     </>
   );
 }
+const miniGuides = [
+  {
+    title: "Cách chơi pickleball - 9 quy tắc đơn giản dành cho người mới bắt đầu",
+    image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F6600e8971938f3d573f194fdc48f079ab32f51c6-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
+  },
+  {
+    title: "Xếp hạng kỹ năng chơi pickleball của tôi là bao nhiêu? Hãy làm bài kiểm tra này để...",
+    image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2Fd6feb1e7dcddd082cc630123aea5dee4fc4900f8-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
+  },
+  {
+    title: "Cách tổ chức giải đấu nhỏ trên Pickleheads",
+    image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F93f647a93b9c1101b141e9c6815c700e5d515b4d-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
+  },
+];
+
+const cities = [
+    { city: 'Chicago', locations: 68, courts: 309, games: 162, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
+    { city: 'New York', locations: 62, courts: 231, games: 317, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
+    { city: 'Seattle', locations: 62, courts: 249, games: 379, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
+    { city: 'San Diego', locations: 58, courts: 261, games: 445, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
+    { city: 'Ottawa', locations: 56, courts: 206, games: 285, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
+    { city: 'Austin', locations: 55, courts: 216, games: 515, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
+  ];
+
+
+  const faqData = [
+  {
+    question: "Do I need to bring my own chalk or net?",
+    answer:
+      "It depends! Some courts have permanent nets and lines. Others require players to bring their own net or draw their own lines.\n\nWhen you search on Pickleheads, you can filter by the type of lines (permanent, chalk or tape) and the type of net (pickleball net, tennis net or bring your own).\n\nPlease note: our data is only as good as what other Pickleheads provide us with. If you see any incorrect line or net information, be sure to suggest changes to your local court and we’ll update it right away.",
+  },
+  {
+    question: "How can I find pickleball courts with lights?",
+    answer: "Use filters when searching to find courts with lighting features.",
+  },
+  {
+    question: "Which courts are indoor and which courts are outdoor?",
+    answer: "Indoor and outdoor options can be found using the 'type' filter.",
+  },
+  {
+    question: "Is it possible to see only free public pickleball courts?",
+    answer: "Yes! Use the 'free to play' filter on the search page.",
+  },
+  {
+    question: "Can I reserve a court through Pickleheads?",
+    answer: "Reservations depend on court partnerships. Check the court details page.",
+  },
+  {
+    question: "How can I update information for my local court?",
+    answer: "Use the 'suggest edit' button on any court's detail page.",
+  },
+  {
+    question: "What equipment do I need to play pickleball?",
+    answer: "You'll need a paddle, a pickleball, and optionally court shoes.",
+  },
+];
