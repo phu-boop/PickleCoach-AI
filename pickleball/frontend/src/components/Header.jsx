@@ -1,0 +1,65 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import Button from './Button';
+function Header() {
+  return (
+    <header className="bg-while text-black p-4 flex items-center justify-between shadow-lg">
+      {/* Logo và Menu trong cùng một div */}
+      <div className="flex items-center space-x-6">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img src="https://www.pickleheads.com/assets/logo-lockup.svg" alt="Pickleheads Logo" className="w-50" />
+        </div>
+        <p className="border-l-2 border-gray-300 h-10"></p>
+        {/* Menu */}
+        <nav className="flex space-x-5 font-bold text-lg">
+          <a href="#" 
+            className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
+            Play
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
+          </a>
+
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
+            Organize
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
+          </a>
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
+            Earn
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
+          </a>
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
+            Learn
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
+          </a>
+          <a href="#" 
+          className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
+            Gear
+            <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
+          </a>
+        </nav>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex items-center space-x-6">
+        <button className="w-10 h-10 flex items-center justify-center bg-[#2d93ad]      rounded-full hover:bg-[#227e96] cursor-pointer">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2"
+              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </button>
+        <p className="border-l-2 border-gray-300 h-10"></p>
+        <button className="text-black font-bold text-lg cursor-pointer ">Log in</button>
+        <Button 
+        children={"Join for free"}
+        >
+        </Button>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
