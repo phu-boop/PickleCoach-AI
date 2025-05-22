@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@400;600;800&family=Lexend+Variable:wght@300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wdth,wght@75..100,300..700&display=swap');
+@import "tailwindcss";
+:root {
+  --primary-color: #003b95;    /* Màu chính (xanh đậm) */
+  --blue-btn: #006ce4;         /* Màu xanh dương */
+  --font-primary: "Lexend Variable", sans-serif;      /* Font mặc định */
+  --font-secondary: 'Grandstander', cursive; /* Font phụ */
+}
+
+@layer components {
+  .container-main {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: var(--font-primary); /* dùng font chính */
+  }
+
+  .font-grandstander {
+  font-family: var(--font-secondary); /* dùng font Grandstander */
+  }
+}
