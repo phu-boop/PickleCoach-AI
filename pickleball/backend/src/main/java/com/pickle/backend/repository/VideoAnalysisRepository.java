@@ -8,9 +8,9 @@ import java.util.List;
 
 @Repository
 public interface VideoAnalysisRepository extends JpaRepository<VideoAnalysis, String> {
-    // Tìm tất cả video analysis của một learner
+    // Find all video analyses by learner
     List<VideoAnalysis> findByLearnerUserId(String learnerId);
 
-    // Tìm video analysis theo loại chuyển động
+    // Find video analyses by movement
     List<VideoAnalysis> findByClassifiedMovementsContaining(String movement);
 }

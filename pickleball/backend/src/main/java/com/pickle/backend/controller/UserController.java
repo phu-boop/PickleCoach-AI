@@ -2,11 +2,15 @@ package com.pickle.backend.controller;
 
 import com.pickle.backend.entity.User;
 import com.pickle.backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+// import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -15,39 +19,42 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Lấy tất cả user
+    @PreAuthorize("hasRole('admin')")
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // Lấy user theo id
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable String id) {
-        return userService.getUserById(id);
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
+        return userService.getUserById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Tạo mới user
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        User savedUser = userService.createUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
-    // Cập nhật user
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable String id, @RequestBody User userDetails) {
-        return userService.updateUser(id, userDetails);
+    public ResponseEntity<User> updateUser(@PathVariable String id, @Valid @RequestBody User userDetails) {
+        User updatedUser = userService.updateUser(id, userDetails);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    // Xóa user
+    @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable String id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // Tìm user theo email
     @GetMapping("/email/{email}")
-    public Optional<User> findByEmail(@PathVariable String email) {
-        return userService.findByEmail(email);
+    public ResponseEntity<User> findByEmail(@PathVariable String email) {
+        return userService.findByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

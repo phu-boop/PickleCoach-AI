@@ -1,8 +1,10 @@
 package com.pickle.backend.controller;
 
 import com.pickle.backend.entity.Coach;
-import com.pickle.backend.repository.CoachRepository;
+import com.pickle.backend.service.CoachService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,54 +13,51 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/coaches")
 public class CoachController {
-
     @Autowired
-    private CoachRepository coachRepository;
+    private CoachService coachService;
 
-    // Lấy tất cả coach
     @GetMapping
+    @PreAuthorize("hasRole('admin')")
     public List<Coach> getAllCoaches() {
-        return coachRepository.findAll();
+        return coachService.getAllCoaches();
     }
 
-    // Lấy coach theo id
-    @GetMapping("/{id}")
-    public Optional<Coach> getCoachById(@PathVariable String id) {
-        return coachRepository.findById(id);
+    @GetMapping("/{coachId}")
+    @PreAuthorize("hasRole('admin') or principal.userId == #coachId")
+    public ResponseEntity<Coach> getCoachById(@PathVariable String coachId) {
+        Optional<Coach> coach = coachService.getCoachById(coachId);
+        return coach.map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Tạo mới coach
     @PostMapping
+    @PreAuthorize("hasRole('admin')")
     public Coach createCoach(@RequestBody Coach coach) {
-        return coachRepository.save(coach);
+        return coachService.createCoach(coach);
     }
 
-    // Cập nhật coach
-    @PutMapping("/{id}")
-    public Coach updateCoach(@PathVariable String id, @RequestBody Coach coachDetails) {
-        return coachRepository.findById(id).map(coach -> {
-            coach.setCertifications(coachDetails.getCertifications());
-            coach.setAvailability(coachDetails.getAvailability());
-            coach.setSpecialties(coachDetails.getSpecialties());
-            return coachRepository.save(coach);
-        }).orElseThrow(() -> new RuntimeException("Coach not found with id " + id));
+    @PutMapping("/{coachId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Coach> updateCoach(@PathVariable String coachId, @RequestBody Coach coachDetails) {
+        return ResponseEntity.ok(coachService.updateCoach(coachId, coachDetails));
     }
 
-    // Xóa coach
-    @DeleteMapping("/{id}")
-    public void deleteCoach(@PathVariable String id) {
-        coachRepository.deleteById(id);
+    @DeleteMapping("/{coachId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Void> deleteCoach(@PathVariable String coachId) {
+        coachService.deleteCoach(coachId);
+        return ResponseEntity.ok().build();
     }
 
-    // Tìm coach theo chuyên môn
     @GetMapping("/specialty/{specialty}")
-    public List<Coach> findBySpecialty(@PathVariable String specialty) {
-        return coachRepository.findBySpecialtiesContaining(specialty);
+    @PreAuthorize("hasAnyRole('admin', 'learner')")
+    public List<Coach> getCoachesBySpecialty(@PathVariable String specialty) {
+        return coachService.getCoachesBySpecialty(specialty);
     }
 
-    // Tìm coach theo chứng chỉ
     @GetMapping("/certification/{certification}")
-    public List<Coach> findByCertification(@PathVariable String certification) {
-        return coachRepository.findByCertificationsContaining(certification);
+    @PreAuthorize("hasAnyRole('admin', 'learner')")
+    public List<Coach> getCoachesByCertification(@PathVariable String certification) {
+        return coachService.getCoachesByCertification(certification);
     }
 }
