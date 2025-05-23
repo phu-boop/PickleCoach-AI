@@ -22,86 +22,84 @@ const LoginPage = () => {
   return (
     <>
       {submitted && check ? (
-        <div>
-          <div className="flex items-center justify-center h-screen bg-gray-100">
-            <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-              {/* Tiêu đề */}
-              <h2 className="text-lg font-semibold text-teal-600 mb-4">Sign in with</h2>
+       <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="relative w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
+          {/* Tiêu đề */}
+          <h2 className="text-2xl font-black text-[#2b8ba3] mb-4">Sign in with</h2>
 
-              {/* Nút đăng nhập với Facebook, Google, Apple */}
-              <div className="flex justify-between mb-4">
-                <button
-                  className="flex items-center justify-center w-1/3 py-2 mx-1 bg-gray-100 rounded-lg border border-gray-300 hover:bg-gradient-to-b hover:from-[#1d6172] hover:to-[#0a2f38] hover:text-white transition-colors duration-300"
-                >
-                  <FaFacebookF className="mr-2 text-blue-600" />
-                  Facebook
-                </button>
-                <button
-                  className="flex items-center justify-center w-1/3 py-2 mx-1 bg-gray-100 rounded-lg border border-gray-300 hover:bg-gradient-to-b hover:from-[#1d6172] hover:to-[#0a2f38] hover:text-white transition-colors duration-300"
-                >
-                  <FaGoogle className="mr-2 text-red-500" />
-                  Google
-                </button>
-                <button
-                  className="flex items-center justify-center w-1/3 py-2 mx-1 bg-gray-100 rounded-lg border border-gray-300 hover:bg-gradient-to-b hover:from-[#1d6172] hover:to-[#0a2f38] hover:text-white transition-colors duration-300"
-                >
-                  <FaApple className="mr-2 text-black" />
-                  Apple
-                </button>
-              </div>
-
-              {/* Dòng "or" */}
-              <div className="relative mb-4">
-                <hr className="border-gray-300" />
-                <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-gray-500">
-                  or
-                </span>
-              </div>
-
-              {/* Trường nhập Email hoặc Số điện thoại */}
-              <input
-                type="text"
-                placeholder="Email Address or Phone Number"
-                className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-
-              {/* Nút Continue */}
-              <button
-                className="w-full py-3 bg-teal-600 text-white rounded-full hover:bg-gradient-to-b hover:from-[#1d6172] hover:to-[#0a2f38] transition-colors duration-300"
-              >
-                Continue
-              </button>
-
-              {/* Text phụ và liên kết Sign up */}
-              <p className="text-sm text-gray-500 mt-4 text-center">
-                We'll ask for your password next.
-              </p>
-              <p className="text-sm text-center mt-2">
-                New here?{' '}
-                <a href="#" className="text-teal-600 font-semibold hover:underline">
-                  Sign up! →
-                </a>
-              </p>
-            </div>
-          </div>
-          <div className='absolute top-10 right-8'>
+          {/* Nút đăng nhập với Facebook, Google, Apple */}
+          <div className="flex justify-between mb-4">
             <button
-              className="cursor-pointer flex items-center justify-center gap-1 px-[13px] py-[6px] bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border-3 border-[#ea6645] transition-colors duration-300"
-              onClick={handleCancel}
+              className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
             >
-              Cancel
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <FaFacebookF className="mr-2 text-blue-600" />
+              Facebook
+            </button>
+            <button
+              className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
+            >
+              <FaGoogle className="mr-2 text-red-500" />
+              Google
+            </button>
+            <button
+              className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
+            >
+              <FaApple className="mr-2 text-black" />
+              Apple
             </button>
           </div>
+
+          {/* Dòng "or" */}
+          <div className="relative mb-4">
+            <hr className="border-gray-300" />
+            <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-gray-500">
+              or
+            </span>
+          </div>
+
+          {/* Trường nhập Email hoặc Số điện thoại */}
+          <input
+            type="text"
+            placeholder="Email Address or Phone Number"
+            className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+          />
+
+          {/* Nút Continue */}
+          <button
+            className="w-full py-3 bg-[#2c8fa8] text-white rounded-full hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] cursor-pointer transition-colors duration-300"
+          >
+            Continue
+          </button>
+
+          {/* Text phụ và liên kết Sign up */}
+          <p className="text-base text-gray-500 mt-4 text-center">
+            We'll ask for your password next.
+          </p>
+          <p className="text-lg font-bold text-center mt-2">
+            New here?{' '}
+            <a href="#" className="text-[#2c8fa8] font-semibold hover:underline">
+              Sign up! →
+            </a>
+          </p>
         </div>
+        <div className="absolute top-10 right-8">
+          <button
+            className="cursor-pointer flex items-center justify-center gap-1 px-[13px] py-[6px] bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border border-[#ea6645] transition-colors duration-300"
+            onClick={handleCancel}
+          >
+            Cancel
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
       ) : (
         <div className="relative flex items-center justify-center min-h-screen">
           <div className="flex items-center justify-center max-w-99 bg-white">
