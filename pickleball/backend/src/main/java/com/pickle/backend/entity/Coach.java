@@ -1,14 +1,12 @@
 package com.pickle.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -24,22 +22,21 @@ public class Coach {
 
     @NotNull(message = "User is mandatory")
     @OneToOne
-    @MapsId
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 
-    @NotEmpty(message = "Certifications cannot be empty")
     @ElementCollection
-    @Column(name = "certifications")
+    @CollectionTable(name = "coach_certifications", joinColumns = @JoinColumn(name = "userId"))
+    @Column(name = "certification")
     private List<String> certifications;
 
-    @NotEmpty(message = "Availability cannot be empty")
     @ElementCollection
+    @CollectionTable(name = "coach_availability", joinColumns = @JoinColumn(name = "userId"))
     @Column(name = "availability")
-    private List<LocalDateTime> availability;
+    private List<String> availability;
 
-    @NotEmpty(message = "Specialties cannot be empty")
     @ElementCollection
-    @Column(name = "specialties")
+    @CollectionTable(name = "coach_specialties", joinColumns = @JoinColumn(name = "userId"))
+    @Column(name = "specialty")
     private List<String> specialties;
 }
