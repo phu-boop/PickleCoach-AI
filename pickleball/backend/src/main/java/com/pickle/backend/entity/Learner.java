@@ -1,7 +1,6 @@
 package com.pickle.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,17 +22,15 @@ public class Learner {
 
     @NotNull(message = "User is mandatory")
     @OneToOne
-    @MapsId
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 
-    @NotEmpty(message = "Skill level cannot be empty")
     @Column(name = "skillLevel")
     private String skillLevel;
 
-    @NotEmpty(message = "Goals cannot be empty")
     @ElementCollection
-    @Column(name = "goals")
+    @CollectionTable(name = "learner_goals", joinColumns = @JoinColumn(name = "userId"))
+    @Column(name = "goal")
     private List<String> goals;
 
     @Column(name = "progress")
