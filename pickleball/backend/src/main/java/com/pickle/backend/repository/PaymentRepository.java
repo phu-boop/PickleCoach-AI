@@ -8,12 +8,7 @@ import java.util.List;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, String> {
-    // Tìm tất cả thanh toán của một user
     List<Payment> findByUserUserId(String userId);
-
-    // Tìm thanh toán theo trạng thái
     List<Payment> findByStatus(Payment.Status status);
-
-    // Tìm thanh toán theo phương thức
     List<Payment> findByMethod(Payment.Method method);
 }

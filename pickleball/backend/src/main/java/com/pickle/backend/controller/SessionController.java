@@ -3,6 +3,8 @@ package com.pickle.backend.controller;
 import com.pickle.backend.entity.Session;
 import com.pickle.backend.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -12,56 +14,51 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/sessions")
 public class SessionController {
-
     @Autowired
     private SessionService sessionService;
 
     @GetMapping
+    @PreAuthorize("hasRole('admin')")
     public List<Session> getAllSessions() {
         return sessionService.getAllSessions();
     }
 
-    @GetMapping("/{id}")
-    public Optional<Session> getSessionById(@PathVariable String id) {
-        return sessionService.getSessionById(id);
+    @GetMapping("/{sessionId}")
+    @PreAuthorize("hasRole('admin') or principal.userId == #sessionId")
+    public ResponseEntity<Session> getSessionById(@PathVariable String sessionId) {
+        Optional<Session> session = sessionService.getSessionById(sessionId);
+        return session.map(ResponseEntity::ok)
+                      .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('admin', 'coach', 'learner')")
     public Session createSession(@RequestBody Session session) {
         return sessionService.createSession(session);
     }
 
-    @PutMapping("/{id}")
-    public Session updateSession(@PathVariable String id, @RequestBody Session sessionDetails) {
-        return sessionService.updateSession(id, sessionDetails);
+    @PutMapping("/{sessionId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Session> updateSession(@PathVariable String sessionId, @RequestBody Session sessionDetails) {
+        return ResponseEntity.ok(sessionService.updateSession(sessionId, sessionDetails));
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteSession(@PathVariable String id) {
-        sessionService.deleteSession(id);
-    }
-
-    @GetMapping("/coach/{coachId}")
-    public List<Session> getSessionsByCoach(@PathVariable String coachId) {
-        return sessionService.getSessionsByCoach(coachId);
-    }
-
-    @GetMapping("/learner/{learnerId}")
-    public List<Session> getSessionsByLearner(@PathVariable String learnerId) {
-        return sessionService.getSessionsByLearner(learnerId);
+    @DeleteMapping("/{sessionId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Void> deleteSession(@PathVariable String sessionId) {
+        sessionService.deleteSession(sessionId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasRole('admin')")
     public List<Session> getSessionsByStatus(@PathVariable Session.Status status) {
         return sessionService.getSessionsByStatus(status);
     }
 
-    @GetMapping("/between")
-    public List<Session> getSessionsBetween(
-            @RequestParam("start") String start,
-            @RequestParam("end") String end) {
-        LocalDateTime startTime = LocalDateTime.parse(start);
-        LocalDateTime endTime = LocalDateTime.parse(end);
-        return sessionService.getSessionsBetween(startTime, endTime);
+    @GetMapping("/datetime")
+    @PreAuthorize("hasAnyRole('admin', 'coach', 'learner')")
+    public List<Session> getSessionsByDateRange(@RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
+        return sessionService.getSessionsByDateRange(start, end);
     }
 }

@@ -63,7 +63,7 @@ CREATE TABLE payments (
 
 -- Thêm dữ liệu mẫu
 -- Users
-INSERT INTO users (userId, name, email, password, role) 
+INSERT INTO users (user_id, name, email, password, role) 
 VALUES (UUID(), 'Admin User', 'admin@example.com', 'admin123', 'admin'),
        (UUID(), 'Coach User', 'coach@example.com', 'coach123', 'coach'),
        (UUID(), 'Learner User', 'learner@example.com', 'learner123', 'learner');

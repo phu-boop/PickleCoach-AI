@@ -8,9 +8,6 @@ import java.util.List;
 
 @Repository
 public interface LearnerRepository extends JpaRepository<Learner, String> {
-    // Tìm learner theo cấp độ kỹ năng
     List<Learner> findBySkillLevel(String skillLevel);
-
-    // Tìm learner theo mục tiêu
     List<Learner> findByGoalsContaining(String goal);
 }
