@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.pickle.backend.dto.UserRegistrationRequest;
 
 import java.util.List;
 // import java.util.Optional;
@@ -56,5 +57,18 @@ public class UserController {
         return userService.findByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@Valid @RequestBody UserRegistrationRequest request) {
+        try {
+            User user = userService.registerUser(
+                    request.getName(),
+                    request.getEmail(),
+                    request.getPassword()
+            );
+            return ResponseEntity.ok("User registered successfully with ID: " + user.getUserId());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
