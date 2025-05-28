@@ -9,9 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.pickle.backend.dto.UserRegistrationRequest;
-
+import com.pickle.backend.service.JwtService;
 import java.util.List;
-// import java.util.Optional;
+
+// THÊM CÁC IMPORT NÀY:
+import com.pickle.backend.dto.LoginResponse; // Import lớp LoginResponse mới tạo
+import org.springframework.http.MediaType;   // Import MediaType để chỉ định kiểu phản hồi
 
 @RestController
 @RequestMapping("/api/users")
@@ -58,6 +61,7 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody UserRegistrationRequest request) {
         try {
@@ -69,6 +73,19 @@ public class UserController {
             return ResponseEntity.ok("User registered successfully with ID: " + user.getUserId());
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Autowired
+    private JwtService jwtService;
+    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request){
+        if(userService.checkAccount(request.getEmail(), request.getPassword())){
+            String token = jwtService.generateToken(request.getEmail());
+            return ResponseEntity.ok(new LoginResponse(token,"login successful"));
+        }else {
+            // Trả về một đối tượng LoginResponse với token là null và message lỗi
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password"));
         }
     }
 }
