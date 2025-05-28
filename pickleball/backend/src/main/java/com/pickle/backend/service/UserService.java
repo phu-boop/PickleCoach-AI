@@ -76,4 +76,11 @@ public class UserService {
         user.setRole("USER"); // Hoặc một vai trò mặc định khác, ví dụ "USER" hoặc "ROLE_MEMBER"**
         return userRepository.save(user);
     }
+    public boolean checkAccount(String email, String password) {
+        if (userRepository.existsByEmail(email)) {
+            User user = userRepository.findByEmail(email).orElse(null);
+            return (user != null && passwordEncoder.matches(password, user.getPassword()));
+        }
+        return false;
+    }
 }
