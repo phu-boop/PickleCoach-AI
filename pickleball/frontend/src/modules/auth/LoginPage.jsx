@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { FaFacebookF, FaGoogle, FaApple } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 const LoginPage = () => {
   const [check, setCheck] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const Navigate = useNavigate();
 
   const handleCheck = () => {
     setCheck(!check);
@@ -17,8 +20,8 @@ const LoginPage = () => {
   const handleCancel = () => {
     setSubmitted(false);
     setCheck(false);
+    Navigate('/');
   };
-
   return (
     <>
       {submitted && check ? (
@@ -77,9 +80,9 @@ const LoginPage = () => {
           </p>
           <p className="text-lg font-bold text-center mt-2">
             New here?{' '}
-            <a href="#" className="text-[#2c8fa8] font-semibold hover:underline">
+            <button onClick={handleRegister} className="text-[#2c8fa8] font-semibold hover:underline">
               Sign up! →
-            </a>
+            </button>
           </p>
         </div>
         <div className="absolute top-10 right-8">
@@ -149,15 +152,13 @@ const LoginPage = () => {
                 onClick={handleSubmit}
                 disabled={!check}
               >
-                CREATE AN ACCOUNT
+                SING IN
               </button>
 
               {/* Sign In Link */}
               <p className="text-base font-bold text-gray-600 mb-4">
-                Have an account?{' '}
-                <a href="#" className="text-[#2c91aa] hover:underline">
-                  Sign in!
-                </a>
+                Have not an account?{' '}
+                <Link to="/signup" className="text-[#2c91aa] hover:underline cursor-pointer">Sign up!</Link>
               </p>
 
               {/* Footer Links */}
