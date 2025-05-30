@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { FaFacebookF, FaGoogle, FaApple } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from "lucide-react";
+import {ApiLogin} from '../../api/auth'; 
+import Swal from 'sweetalert2';
+import Alert from '../../components/Alert';
 const LoginPage = () => {
   const [check, setCheck] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const Navigate = useNavigate();
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState('');
   const handleCheck = () => {
     setCheck(!check);
   };
@@ -17,11 +24,33 @@ const LoginPage = () => {
     }
   };
 
+  const handleSubmitLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await ApiLogin(email, password);
+      if (response) {
+        Swal.fire({
+          title: response.message,
+          icon: "success",
+          draggable: true,
+          timer: 1500,
+        });
+        Navigate('/'); 
+      }
+    }catch (error) {
+      setMessage("Invalid email or password");
+      console.error('Error during login:', error);
+    }
+  };
+
   const handleCancel = () => {
     setSubmitted(false);
     setCheck(false);
     Navigate('/');
   };
+  const handleRegister = () => {
+    Navigate('/signup');
+  }
   return (
     <>
       {submitted && check ? (
@@ -65,11 +94,36 @@ const LoginPage = () => {
             type="text"
             placeholder="Email Address or Phone Number"
             className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+            onChange={(e) => setEmail(e.target.value)}
           />
+          <div className="relative w-full">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="password"
+              className="w-full p-3 pr-10 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div
+              className="absolute top-3 right-3 cursor-pointer text-gray-500"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </div>
+          </div>
+          { message && (
+            <div className="mb-4">
+            <Alert
+              message={message}
+              type="error"
+              onClose={() => setMessage('')}
+            />
+            </div>
+          )}
 
           {/* Nút Continue */}
           <button
             className="w-full py-3 bg-[#2c8fa8] text-white rounded-full hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] cursor-pointer transition-colors duration-300"
+            onClick={(e) => handleSubmitLogin(e)}
           >
             Continue
           </button>
@@ -80,8 +134,8 @@ const LoginPage = () => {
           </p>
           <p className="text-lg font-bold text-center mt-2">
             New here?{' '}
-            <button onClick={handleRegister} className="text-[#2c8fa8] font-semibold hover:underline">
-              Sign up! →
+            <button onClick={handleRegister} className="text-[#2c8fa8] font-semibold hover:underline cursor-pointer">
+              Sign up!
             </button>
           </p>
         </div>

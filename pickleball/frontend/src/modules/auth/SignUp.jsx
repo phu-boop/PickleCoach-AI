@@ -3,6 +3,7 @@ import { FaFacebookF, FaGoogle, FaApple } from 'react-icons/fa';
 import ApiRegister from '../../api/auth'; // Import hàm gọi API
 import { Navigate, useNavigate } from 'react-router-dom';
 import Alert from '../../components/Alert'; // Import Alert component if needed
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import biểu tượng con mắt
 const SignUp = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -12,9 +13,13 @@ const SignUp = () => {
   });
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị/ẩn mật khẩu
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
   const handleCancel = (e) => {
     e.preventDefault();
@@ -100,14 +105,23 @@ const SignUp = () => {
             onChange={handleInputChange}
             className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
           />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'} // Chuyển đổi type dựa trên trạng thái
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleInputChange}
+              className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+            />
+            <button
+              type="button"
+              onClick={toggleShowPassword}
+              className="absolute right-3 top-4 text-gray-500 cursor-pointer"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Hiển thị biểu tượng tương ứng */}
+            </button>
+          </div>
           {message && (
             <div className="mb-4">
             <Alert type="error" message={message} onClose={() => setMessage('')} />
@@ -127,7 +141,7 @@ const SignUp = () => {
         </p>
         <p className="text-lg font-bold text-center mt-2">
           <a href="/login" className="text-[#2c8fa8] font-semibold hover:underline">
-            Sign in! →
+            Sign in!
           </a>
         </p>
       </div>
