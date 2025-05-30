@@ -52,74 +52,75 @@ Cung cấp nền tảng học Pickleball với:
 - Phân loại cú đánh (forehand, backhand, volley, serve, v.v.).
 - Gợi ý nội dung cá nhân hóa theo kỹ năng và lịch sử học.
 
-## quy trình phát triển
-GIAI ĐOẠN 1: CƠ SỞ HẠ TẦNG & CHỨC NĂNG CỐT LÕI
+##Quy trình phát triển
+
+🚀 GIAI ĐOẠN 1: CƠ SỞ HẠ TẦNG & CHỨC NĂNG CỐT LÕI
 
 🔧 1. Thiết lập hệ thống
 	•	Backend: Spring Boot + MySQL
-	•	Frontend: React.js cho web; React Native cho mobile (Learner App, Coach App)
+	•	Frontend: React.js (Web), React Native (Mobile Learner & Coach Apps)
 	•	AI server: Python (TensorFlow + OpenCV)
 	•	Realtime: WebRTC (video call), WebSocket (thông báo)
 	•	Authentication: JWT + OAuth2
 
 ⸻
 
-👥 2. Chức năng người dùng (Learner)
+👤 2. Chức năng Người học (Learner App)
 	•	Đăng ký / đăng nhập, xác thực email
-	•	Đánh giá kỹ năng đầu vào (form trắc nghiệm / gửi video ngắn)
-	•	Xem chương trình học (REST API trả về nội dung)
-	•	Xem video hướng dẫn
+	•	Đánh giá kỹ năng đầu vào (form hoặc video)
+	•	Xem chương trình học và video hướng dẫn
 	•	Tìm kiếm nội dung
 	•	Theo dõi tiến độ học
-	•	Nhận huy hiệu (achievement system)
+	•	Nhận huy hiệu thành tích
 
 ⸻
 
-🧑‍🏫 3. Chức năng huấn luyện viên (Coach)
-	•	Tạo & xác minh hồ sơ
-	•	Quản lý lịch dạy
+🧑‍🏫 3. Chức năng Huấn luyện viên (Coach App)
+	•	Tạo và xác minh hồ sơ huấn luyện viên
+	•	Quản lý lịch dạy, đặt buổi học
 	•	Gửi bài tập, nhận xét học viên
-	•	Gọi video (tích hợp WebRTC)
-	•	Nhận thanh toán (Stripe/PayPal)
+	•	Gọi video trực tiếp (WebRTC)
+	•	Nhận thanh toán (Stripe / PayPal)
 	•	Xem thống kê hiệu suất học viên
 
 ⸻
 
-🛠️ 4. Portal quản trị viên (Admin)
+🛠️ 4. Portal Quản trị viên (Admin)
 	•	Đăng nhập admin
 	•	Xác minh huấn luyện viên
 	•	Kiểm duyệt nội dung bài học / video
 	•	Quản lý người dùng
-	•	Xem báo cáo, thống kê hệ thống
+	•	Báo cáo, thống kê hệ thống
 
 ⸻
 
-🔹 GIAI ĐOẠN 2: AI & PHÂN TÍCH KỸ THUẬT
+🤖 GIAI ĐOẠN 2: AI & PHÂN TÍCH KỸ THUẬT
 
-🤖 5. Xử lý video AI
-	•	Tích hợp upload video từ Learner
-	•	OpenCV: tách khung hình, phát hiện dáng người (Pose Estimation)
-	•	TensorFlow: phân loại tư thế, cú đánh
-	•	Trả về kết quả phân tích cho người học & huấn luyện viên
+📹 5. Phân tích video bằng AI
+	•	Upload video từ Learner
+	•	OpenCV: tách khung hình, phát hiện dáng người
+	•	TensorFlow: phân loại tư thế, cú đánh (forehand, backhand, serve…)
+	•	Trả kết quả phân tích cho học viên & huấn luyện viên
 
 ⸻
 
 📊 6. Gợi ý nội dung học cá nhân hóa
 	•	Xây dựng hệ thống đánh giá kỹ năng
-	•	Phân tích lịch sử học
-	•	Gợi ý bài học / video phù hợp
+	•	Phân tích lịch sử học tập
+	•	Gợi ý bài học phù hợp theo trình độ
 
 ⸻
 
-🔹 GIAI ĐOẠN 3: TÍNH NĂNG MỞ RỘNG
+🌐 GIAI ĐOẠN 3: TÍNH NĂNG MỞ RỘNG
 
-🌐 7. Cộng đồng người học
+👥 7. Cộng đồng người học
 	•	Tìm bạn luyện tập gần vị trí (Map API)
 	•	Tạo và tham gia sự kiện
-	•	Tương tác (bình luận, thích, theo dõi người chơi khác)
+	•	Tương tác xã hội (bình luận, theo dõi người chơi khác)
 
-💳 8. Thanh toán và đặt lịch
+⸻
+
+💳 8. Thanh toán & Đặt lịch
 	•	Chọn huấn luyện viên
 	•	Xem thời gian trống
 	•	Đặt lịch và thanh toán
-
