@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaFacebookF, FaGoogle, FaApple } from 'react-icons/fa';
-
+import ApiRegister from '../../api/auth'; // Import hàm gọi API
+import { Navigate, useNavigate } from 'react-router-dom';
+import Alert from '../../components/Alert'; // Import Alert component if needed
 const SignUp = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -8,27 +10,38 @@ const SignUp = () => {
     emailOrPhone: '',
     password: ''
   });
-
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
-  const handleSubmit = (e) => {
+  const handleCancel = (e) => {
     e.preventDefault();
-    // Basic validation
-    if (!formData.firstName || !formData.lastName || !formData.emailOrPhone || !formData.password) {
-      alert('Please fill in all fields');
+    navigate('/');
+    console.log('cancel');
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.firstName || !formData.emailOrPhone || !formData.password) {
+      setMessage("Please fill in all fields");
+      return;
+    }else if (formData.password.length < 6) {
+      setMessage("Password must be at least 6 characters long");
+      return;
+    }else if (!formData.emailOrPhone.includes('@') && !/^\d+$/.test(formData.emailOrPhone)) {
+      setMessage("Please enter a valid email or phone number");
       return;
     }
-    // Handle form submission (e.g., API call)
-    console.log('Form submitted:', formData);
+    try {
+      const response = await ApiRegister(formData.firstName, formData.emailOrPhone, formData.password);
+      setMessage(response);
+      navigate('/login'); 
+    } catch (error) {
+      setMessage("email already exists");
+      console.error('Error during registration:', error);
+    }
   };
-
-  const handleCancel = () => {
-    window.location.href = '/';
-  };
-
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="relative w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
@@ -95,10 +108,15 @@ const SignUp = () => {
             onChange={handleInputChange}
             className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
           />
-
+          {message && (
+            <div className="mb-4">
+            <Alert type="error" message={message} onClose={() => setMessage('')} />
+            </div>
+          )}
           <button
             type="submit"
             className="w-full py-3 bg-[#2c8fa8] text-white rounded-full hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] cursor-pointer transition-colors duration-300"
+            onClick={(e)=>{handleSubmit(e)}}
           >
             Sign Up
           </button>
@@ -116,7 +134,7 @@ const SignUp = () => {
       <div className="absolute top-10 right-8">
         <button
           className="cursor-pointer flex items-center justify-center gap-1 px-[13px] py-[6px] bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border border-[#ea6645] transition-colors duration-300"
-          onClick={handleCancel}
+          onClick={(e)=>{handleCancel(e)}}
         >
           Cancel
           <svg
