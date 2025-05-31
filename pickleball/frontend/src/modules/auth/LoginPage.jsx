@@ -28,6 +28,16 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await ApiLogin(email, password);
+      const { token, role } = response;
+      // Lưu token và role vào localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      const role1 = localStorage.getItem('role');
+      console.log('Role:', role1
+
+
+        
+      );
       if (response) {
         Swal.fire({
           title: response.message,
