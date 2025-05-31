@@ -42,6 +42,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.3.0</version> <!-- Phiên bản mới nhất tính đến tháng 5/2025 -->
         </dependency>
         <!-- JWT -->
         <dependency>
