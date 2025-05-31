@@ -4,11 +4,13 @@ package com.pickle.backend.dto;
 public class LoginResponse {
     private String token;
     private String message;
+    private String role;
 
     // Constructor để khởi tạo đối tượng với token và message
-    public LoginResponse(String token, String message) {
+    public LoginResponse(String token, String message,  String role) {
         this.token = token;
         this.message = message;
+        this.role = role;
     }
 
     // Getter cho token. Cần thiết để Jackson có thể chuyển đổi thành JSON.
@@ -21,10 +23,16 @@ public class LoginResponse {
         return message;
     }
 
+    public String getRole() { return  role;}
+
     public void setToken(String token) {
          this.token = token;
     }
     public void setMessage(String message) {
          this.message = message;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
