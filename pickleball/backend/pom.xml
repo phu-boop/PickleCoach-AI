@@ -35,14 +35,18 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version> <!-- Cập nhật phiên bản mới nhất -->
+            <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
         <!-- Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-            <version>3.3.0</version> <!-- Phiên bản mới nhất tính đến tháng 5/2025 -->
+        </dependency>
+        <!-- OAuth2 Client -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
         <!-- JWT -->
         <dependency>
@@ -100,7 +104,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
+                            <version>1.18.34</version> <!-- Khớp với phiên bản dependency -->
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
@@ -111,7 +115,6 @@
         </plugins>
     </build>
 
-    <!-- Thêm kho lưu trữ Maven Central -->
     <repositories>
         <repository>
             <id>central</id>
