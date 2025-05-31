@@ -1,0 +1,79 @@
+import React, { useState } from 'react';
+
+const Sidebar = () => {
+  const [activeMenu, setActiveMenu] = useState('Dashboards');
+
+  const menuItems = [
+    {
+      title: 'Dashboards',
+      icon: '🏠',
+      count: 5,
+      submenu: [],
+    },
+    {
+      title: 'Layouts',
+      icon: '📐',
+      submenu: [],
+    },
+    {
+      title: 'Front Pages',
+      icon: '🏠',
+      pro: true,
+      submenu: [],
+    },
+  ];
+
+  return (
+    <aside className="w-64 bg-white shadow-lg p-4 ">
+      <div className="flex items-center mb-6">
+        <span className="text-2xl font-bold text-purple-600">
+          <img className="max-w-[80%] mt-8 mb-3 mx-auto" src="https://www.pickleheads.com/assets/logo-lockup.svg" alt="Sneat Logo" />
+        </span>
+      </div>
+      <nav className="mt-8">
+        {menuItems.map((item) => (
+          <div key={item.title}>
+            <button
+              onClick={() => setActiveMenu(item.title)}
+              className={`w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded-lg ${
+                activeMenu === item.title ? 'bg-gray-200' : ''
+              }`}
+            >
+              <span className="mr-2 text-xl">{item.icon}</span>
+              <span className="flex-1 text-left">{item.title}</span>
+              {item.count && (
+                <span className="bg-red-500 text-white text-xs px-2 rounded-full">
+                  {item.count}
+                </span>
+              )}
+              {item.pro && (
+                <span className="ml-2 bg-purple-200 text-purple-800 text-xs px-2 rounded-full">
+                  PRO
+                </span>
+              )}
+              {item.submenu.length > 0 && (
+                <span className="ml-auto">▼</span>
+              )}
+            </button>
+            {activeMenu === item.title && item.submenu.length > 0 && (
+              <div className="ml-6 mt-2 space-y-1">
+                {item.submenu.map((sub) => (
+                  <div key={sub.name} className="flex items-center">
+                    <span className="text-gray-600 text-sm">{sub.name}</span>
+                    {sub.pro && (
+                      <span className="ml-2 bg-purple-200 text-purple-800 text-xs px-2 rounded-full">
+                        PRO
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </nav>
+    </aside>
+  );
+};
+
+export default Sidebar;
