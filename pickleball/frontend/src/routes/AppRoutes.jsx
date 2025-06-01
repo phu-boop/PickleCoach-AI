@@ -5,6 +5,7 @@ import LoginPage from "../modules/auth/LoginPage";
 import SignUp from "../modules/auth/SignUp";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../modules/admin/Dashboard";
+import Users from "../modules/admin/User/Users";
 function AppRoutesUser() {
     return (
         <Routes>
@@ -20,7 +21,8 @@ function AppRoutesUser() {
             {/* Admin */}
             <Route path="/admin/" element={<AdminLayout />}>
                 <Route index element={< Dashboard/>} />
-                <Route path="settings" element={<h1>Admin Settings</h1>} />
+                <Route path="dashboards" element={< Dashboard/>} />
+                <Route path="users" element={< Users/>} />
             </Route>
         </Routes>
     );

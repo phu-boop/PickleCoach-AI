@@ -2,6 +2,7 @@ package com.pickle.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Bean
@@ -26,7 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Cho phép công khai
                         .requestMatchers("/api/users/profile").hasRole("USER") // Endpoint cho USER
-                        .requestMatchers("/api/users/**").hasRole("ADMIN") // Endpoint cho ADMIN
+                        .requestMatchers("/api/users/**").hasRole("admin") // Endpoint cho ADMIN
                         .anyRequest().authenticated() // Các request khác cần xác thực
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // Thêm JWT filter
