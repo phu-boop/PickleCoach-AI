@@ -11,13 +11,13 @@ import com.pickle.backend.repository.UserRepository;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
+import java.util.Collections;
 
 @Service
 public class JwtService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
-
     private static final long EXPIRATION_TIME = 86400000; // 1 ngày
 
     private final UserRepository userRepository;
@@ -55,7 +55,6 @@ public class JwtService {
                 .compact();
     }
 
-    // Trích xuất username (email) từ token
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
@@ -83,3 +82,4 @@ public class JwtService {
         }
     }
 }
+
