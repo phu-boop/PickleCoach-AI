@@ -6,6 +6,7 @@ import SignUp from "../modules/auth/SignUp";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../modules/admin/Dashboard";
 import Users from "../modules/admin/User/Users";
+import UserEdit from "../modules/admin/User/UserEdit";
 function AppRoutesUser() {
     return (
         <Routes>
@@ -23,6 +24,7 @@ function AppRoutesUser() {
                 <Route index element={< Dashboard/>} />
                 <Route path="dashboards" element={< Dashboard/>} />
                 <Route path="users" element={< Users/>} />
+                <Route path="users/edit/:userId" element={< UserEdit/>} />
             </Route>
         </Routes>
     );
