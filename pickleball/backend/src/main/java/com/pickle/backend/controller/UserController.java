@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import com.pickle.backend.dto.UserRegistrationRequest;
 import com.pickle.backend.service.JwtService;
 import java.util.List;
-
-// THÊM CÁC IMPORT NÀY:
-import com.pickle.backend.dto.LoginResponse; // Import lớp LoginResponse mới tạo
-import org.springframework.http.MediaType;   // Import MediaType để chỉ định kiểu phản hồi
+import com.pickle.backend.dto.LoginResponse;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/users")
@@ -22,6 +20,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtService jwtService;
 
     @PreAuthorize("hasRole('admin')")
     @GetMapping
@@ -76,8 +77,6 @@ public class UserController {
         }
     }
 
-    @Autowired
-    private JwtService jwtService;
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request){
         if(userService.checkAccount(request.getEmail(), request.getPassword())){
