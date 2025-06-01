@@ -59,12 +59,13 @@ const SignUp = () => {
             <FaFacebookF className="mr-2 text-blue-600" />
             Facebook
           </button>
-          <button
+          <a
+            href="http://localhost:8080/oauth2/authorization/google"
             className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
           >
             <FaGoogle className="mr-2 text-red-500" />
             Google
-          </button>
+          </a>
           <button
             className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
           >

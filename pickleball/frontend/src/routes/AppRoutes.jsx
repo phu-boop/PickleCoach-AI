@@ -3,6 +3,7 @@ import LayoutMain from "../layouts/layoutMain";
 import Home from "../modules/Home";
 import LoginPage from "../modules/auth/LoginPage";
 import SignUp from "../modules/auth/SignUp";
+import OAuth2RedirectHandler from "../modules/auth/OAuth2RedirectHandler";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../modules/admin/Dashboard";
 function AppRoutesUser() {
@@ -17,6 +18,7 @@ function AppRoutesUser() {
             {/* auth */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             {/* Admin */}
             <Route path="/admin/" element={<AdminLayout />}>
                 <Route index element={< Dashboard/>} />

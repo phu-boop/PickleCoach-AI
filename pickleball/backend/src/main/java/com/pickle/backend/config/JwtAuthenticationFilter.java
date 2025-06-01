@@ -5,6 +5,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,17 +21,13 @@ import java.security.Key;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final String TOKEN_PREFIX = "Bearer ";
-    private final String HEADER_STRING = "Authorization";
     private final Key key;
+    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String HEADER_STRING = "Authorization";
 
     public JwtAuthenticationFilter(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
@@ -47,24 +47,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .getBody();
                 String username = claims.getSubject();
                 if (username != null) {
-                    @SuppressWarnings("unchecked")
-                    List<String> authorities = claims.get("roles", List.class) != null 
-                            ? claims.get("roles", List.class) 
-                            : Collections.emptyList();
+                    List<String> roles = claims.get("roles", List.class);
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             username,
                             null,
-                            authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                            roles == null ? Collections.emptyList() : roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             } catch (ExpiredJwtException | MalformedJwtException e) {
-                SecurityContextHolder.clearContext();
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired JWT token");
-                return;
-            } catch (Exception e) {
-                SecurityContextHolder.clearContext();
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT authentication failed");
                 return;
             }
         }
