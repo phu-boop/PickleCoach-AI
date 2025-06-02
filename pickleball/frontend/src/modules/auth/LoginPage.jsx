@@ -34,9 +34,6 @@ const LoginPage = () => {
       localStorage.setItem('role', role);
       const role1 = localStorage.getItem('role');
       console.log('Role:', role1
-
-
-        
       );
       if (response) {
         Swal.fire({
@@ -45,7 +42,11 @@ const LoginPage = () => {
           draggable: true,
           timer: 1500,
         });
-        Navigate('/'); 
+        if (role1 === 'ROLE_admin') {
+          Navigate('/admin');
+        }else{
+          Navigate('/'); 
+        } 
       }
     }catch (error) {
       setMessage("Invalid email or password");
