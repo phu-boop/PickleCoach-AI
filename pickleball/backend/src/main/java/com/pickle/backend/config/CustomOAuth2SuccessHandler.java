@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,13 +40,13 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             newUser.setUserId(UUID.randomUUID().toString());
             newUser.setEmail(email);
             newUser.setName(name);
-            newUser.setPassword(""); // không cần mật khẩu cho Google login
+            newUser.setPassword(""); // Không cần mật khẩu cho Google login
             newUser.setRole("USER");
             return userRepository.save(newUser);
         });
 
-        String token = jwtService.generateToken(user.getEmail(), Collections.singletonList(user.getRole()));
-        
+        String token = jwtService.generateToken(user.getEmail());
+
         // ⚠️ Redirect đến đúng route frontend
         response.sendRedirect("http://localhost:5173/oauth2/redirect?token=" + token + "&role=" + user.getRole());
     }
