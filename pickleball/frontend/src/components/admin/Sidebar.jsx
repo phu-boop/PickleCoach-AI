@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, User, GraduationCap, Dumbbell } from 'lucide-react';
+import { Store, User, GraduationCap, Dumbbell,LogOut } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import Button from '../Button';
 const Sidebar = () => {
+  const { logout, token } = useAuth();
   const [activeMenu, setActiveMenu] = useState('Dashboards');
   const navigate = useNavigate();
   const menuItems = [
@@ -82,6 +85,18 @@ const Sidebar = () => {
           </div>
         ))}
       </nav>
+      { token && (
+        <Button
+          className="mt-6 w-full"
+          onClick={() => {
+            logout();
+            navigate('/login');
+          }}
+        >
+          Log out 
+        </Button>
+      )
+      }
     </aside>
   );
 };
