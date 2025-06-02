@@ -6,8 +6,6 @@ import SignUp from "../modules/auth/SignUp";
 import OAuth2RedirectHandler from "../modules/auth/OAuth2RedirectHandler";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../modules/admin/Dashboard";
-import Users from "../modules/admin/User/Users";
-import UserEdit from "../modules/admin/User/UserEdit";
 function AppRoutesUser() {
     return (
         <Routes>
@@ -24,9 +22,7 @@ function AppRoutesUser() {
             {/* Admin */}
             <Route path="/admin/" element={<AdminLayout />}>
                 <Route index element={< Dashboard/>} />
-                <Route path="dashboards" element={< Dashboard/>} />
-                <Route path="users" element={< Users/>} />
-                <Route path="users/edit/:userId" element={< UserEdit/>} />
+                <Route path="settings" element={<h1>Admin Settings</h1>} />
             </Route>
         </Routes>
     );
