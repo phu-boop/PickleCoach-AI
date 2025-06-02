@@ -21,20 +21,20 @@ public class QuestionController {
     @Autowired
     private OptionRepository optionRepo;
 
-    @GetMapping("/quiz")
-    public List<Question> getQuiz() {
-        return questionRepo.findRandomQuestions();
-    }
+//    @GetMapping("/quiz")
+//    public List<Question> getQuiz() {
+//        return questionRepo.findRandomQuestions();
+//    }
 
-    @PostMapping("/submit")
-    public int submitQuiz(@RequestBody List<AnswerDTO> answers) {
-        int score = 0;
-        for (AnswerDTO answer : answers) {
-            Optional<Option> selected = optionRepo.findById(answer.getOptionId());
-            if (selected.isPresent() && selected.get().isCorrect()) {
-                score++;
-            }
-        }
-        return score;
-    }
+//    @PostMapping("/submit")
+//    public int submitQuiz(@RequestBody List<AnswerDTO> answers) {
+//        int score = 0;
+//        for (AnswerDTO answer : answers) {
+//            Optional<Option> selected = optionRepo.findById(answer.getOptionId());
+//            if (selected.isPresent() && selected.get().isCorrect()) {
+//                score++;
+//            }
+//        }
+//        return score;
+//    }
 }
