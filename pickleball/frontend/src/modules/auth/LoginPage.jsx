@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import {ApiLogin} from '../../api/auth'; 
 import Swal from 'sweetalert2';
 import Alert from '../../components/Alert';
+import { useAuth } from '../../contexts/AuthContext';
 const LoginPage = () => {
   const [check, setCheck] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -14,6 +15,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
+  const {login } = useAuth();
   const handleCheck = () => {
     setCheck(!check);
   };
@@ -29,12 +31,7 @@ const LoginPage = () => {
     try {
       const response = await ApiLogin(email, password);
       const { token, role } = response;
-      // Lưu token và role vào localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
-      const role1 = localStorage.getItem('role');
-      console.log('Role:', role1
-      );
+      login(token, role);
       if (response) {
         Swal.fire({
           title: response.message,
@@ -42,7 +39,7 @@ const LoginPage = () => {
           draggable: true,
           timer: 1500,
         });
-        if (role1 === 'ROLE_admin') {
+        if (role === 'ROLE_admin') {
           Navigate('/admin');
         }else{
           Navigate('/'); 
