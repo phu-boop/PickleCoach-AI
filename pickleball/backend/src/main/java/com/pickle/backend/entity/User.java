@@ -36,4 +36,14 @@ public class User {
     @NotNull(message = "Role is mandatory")
     @Column(name = "role")
     private String role;
+
+    @Column(name = "skill_level")
+    private String skillLevel;
+
+    @Column(name = "preferences")
+    private String preferences;
+
+    public String getRole() {
+        return role;
+    }
 }
