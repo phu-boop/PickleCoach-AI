@@ -65,7 +65,7 @@ function Header() {
           <button onClick={()=>{Navigate('/login')}} className="text-black font-bold text-lg cursor-pointer ">Log in</button>
         } 
         <Button 
-        children={"Join for free"}
+        children={"Learn for free"}
         onClick={()=>{Navigate('/register');}}
         >
         </Button>

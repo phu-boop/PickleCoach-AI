@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import com.pickle.backend.entity.test.Option;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OptionRepository extends JpaRepository<Option, Long> {
-    public List<Option> findById(String id);
+    public Optional<Option> findById(Long id);
+}
