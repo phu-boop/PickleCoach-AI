@@ -11,5 +11,21 @@ public class Question {
     private String level; // EASY, MEDIUM, HARD
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
-    private List<Option> options;
+    private List<Options> options;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
 }
