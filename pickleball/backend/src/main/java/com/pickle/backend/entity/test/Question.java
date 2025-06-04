@@ -1,4 +1,5 @@
 package com.pickle.backend.entity.test;
+import com.pickle.backend.dto.OptionDTO;
 import jakarta.persistence.*;
 import java.util.List;
 @Entity
@@ -10,6 +11,25 @@ public class Question {
     private String content;
     private String level; // EASY, MEDIUM, HARD
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Option> options;
+    public void setContent(String content){
+        this.content = content;
+    }
+
+    public void setOptions(List<Option> options){
+        this.options = options;
+    }
+
+    public List<Option> getOptions(){
+        return options;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }
