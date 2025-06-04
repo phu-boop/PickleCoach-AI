@@ -21,7 +21,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-public class SecurityConfig {
+public class    SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2SuccessHandler oAuth2SuccessHandler;
@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Cho phép công khai
+                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**").permitAll() // Cho phép công khai
                         .requestMatchers("/api/users/profile").hasRole("USER") // Endpoint cho USER
                         .requestMatchers("/api/users/**").hasRole("admin") // Endpoint cho ADMIN
                         .anyRequest().authenticated() // Các request khác cần xác thực
