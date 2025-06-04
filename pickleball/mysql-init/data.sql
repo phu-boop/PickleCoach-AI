@@ -61,38 +61,45 @@ CREATE TABLE payments (
     FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
--- Thêm dữ liệu mẫu
--- Users
-INSERT INTO users (user_id, name, email, password, role) 
-VALUES (UUID(), 'Admin User', 'admin@example.com', 'admin123', 'admin'),
-       (UUID(), 'Coach User', 'coach@example.com', 'coach123', 'coach'),
-       (UUID(), 'Learner User', 'learner@example.com', 'learner123', 'learner');
+-- Cập nhật bảng users
+ALTER TABLE users (
+    userId VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    skill_level VARCHAR(50),
+    preferences TEXT
+);
 
--- Coaches
-INSERT INTO coaches (userId, certifications, availability, specialties)
-SELECT userId, 'Certified Coach Level 1', '2025-05-23 09:00:00', '["forehand", "backhand"]'
-FROM users WHERE email = 'coach@example.com';
+-- Tạo bảng pose_analysis
+CREATE TABLE pose_analysis (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id VARCHAR(255) NOT NULL,
+    video_url TEXT NOT NULL,
+    feedback TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(userId)
+);
 
--- Learners
-INSERT INTO learners (userId, skillLevel, goals, progress)
-SELECT userId, 'Beginner', 'Improve forehand', '{"level": 1, "completedTasks": 2}'
-FROM users WHERE email = 'learner@example.com';
+-- Tạo bảng movement_classification
+CREATE TABLE movement_classification (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id VARCHAR(255) NOT NULL,
+    video_url TEXT NOT NULL,
+    label VARCHAR(50) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(userId)
+);
 
--- Sessions
-INSERT INTO sessions (sessionId, coachId, learnerId, dateTime, status, videoLink, feedback)
-SELECT UUID(), c.userId, l.userId, '2025-05-23 10:00:00', 'scheduled', 'http://example.com/video', 'Good session'
-FROM coaches c
-JOIN learners l ON 1=1
-WHERE c.userId = (SELECT userId FROM users WHERE email = 'coach@example.com')
-AND l.userId = (SELECT userId FROM users WHERE email = 'learner@example.com');
+-- Tạo bảng content
+CREATE TABLE content (
+    id BIGINT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    tags TEXT NOT NULL,
+    url TEXT NOT NULL
+);
 
--- Video Analyses
-INSERT INTO video_analyses (videoId, learnerId, poseData, classifiedMovements, analysisResult)
-SELECT UUID(), userId, '{"keypoints": [1, 2, 3]}', '["swing", "step"]', 'Needs improvement in swing'
-FROM learners
-WHERE userId = (SELECT userId FROM users WHERE email = 'learner@example.com');
+INSERT INTO users (userId, name, email, password, role, skill_level, preferences)
+VALUES ('abc123', 'Test User', 'test@example.com', 'password', 'user', 'beginner', 'forehand,serve');
 
--- Payments
-INSERT INTO payments (paymentId, userId, amount, status, method)
-SELECT UUID(), userId, 50.0, 'completed', 'credit_card'
-FROM users WHERE email = 'learner@example.com';
+INSERT INTO content (id, title, tags, url)
+VALUES (1, 'Hướng dẫn forehand', 'forehand,beginner', 'https://example.com/video1');

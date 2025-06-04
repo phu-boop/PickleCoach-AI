@@ -11,7 +11,6 @@ import com.pickle.backend.repository.UserRepository;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
-import java.util.Collections;
 
 @Service
 public class JwtService {
@@ -61,7 +60,13 @@ public class JwtService {
 
     // Trích xuất roles
     public List<String> extractRoles(String token) {
-        return extractAllClaims(token).get("roles", List.class);
+        List<?> rawRoles = extractAllClaims(token).get("roles", List.class);
+        if (rawRoles == null) {
+            return List.of();
+        }
+        return rawRoles.stream()
+                .map(Object::toString)
+                .toList();
     }
 
     // Lấy tất cả claims
@@ -82,4 +87,3 @@ public class JwtService {
         }
     }
 }
-
