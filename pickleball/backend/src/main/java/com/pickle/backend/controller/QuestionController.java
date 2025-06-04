@@ -1,6 +1,5 @@
-package com.pickle.backend.controller;More actions
+package com.pickle.backend.controller;
 
-import com.pickle.backend.dto.AnswerDTO;
 import com.pickle.backend.entity.test.Options;
 import com.pickle.backend.entity.test.Question;
 import com.pickle.backend.repository.OptionRepository;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -21,7 +19,16 @@ public class QuestionController {
     @Autowired
     private OptionRepository optionRepo;
 
-    
+    @GetMapping("/options")
+    public List<Options> getAllOptions() {
+        return optionRepo.findAll();
+    }
+
+    @GetMapping
+    public List<Question> getAllQuestions() {
+        return questionRepo.findAll();
+    }
+
 //    @GetMapping("/quiz")
 //    public List<Question> getQuiz() {
 //        return questionRepo.findRandomQuestions();
