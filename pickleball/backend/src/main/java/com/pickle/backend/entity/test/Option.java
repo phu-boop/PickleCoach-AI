@@ -32,4 +32,8 @@ public class Option {
     public void setQuestion(Question question){
         this.question = question;
     }
+
+    public String getText() {
+        return content;
+    }
 }

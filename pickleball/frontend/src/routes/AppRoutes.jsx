@@ -11,6 +11,7 @@ import Users from '../modules/admin/User/Users';
 import UserEdit from '../modules/admin/User/UserEdit';
 import ProtectedRoute from '../components/ProtectedRoute';
 import Tests from '../modules/admin/Tests/Tests';
+import EditQuestion from '../modules/admin/Tests/EditQuestion';
 function AppRoutesUser() {
   return (
     <Routes>
@@ -40,6 +41,7 @@ function AppRoutesUser() {
         <Route path="users" element={<Users />} />
         <Route path="users/edit/:userId" element={<UserEdit />} />
         <Route path="tests" element={<Tests />} />
+        <Route path="tests/edit/:id" element={<EditQuestion />} />
       </Route>
     </Routes>
   );
