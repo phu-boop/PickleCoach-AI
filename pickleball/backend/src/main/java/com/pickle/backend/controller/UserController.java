@@ -78,13 +78,14 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request) {
-        if (userService.checkAccount(request.getEmail(), request.getPassword())) {
-            String token = jwtService.generateToken(request.getEmail(), List.of("ROLE_USER"));
-            return ResponseEntity.ok(new LoginResponse(token, "login successful", "ROLE_USER"));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new LoginResponse(null, "Invalid email or password", null));
+    public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request){
+        if(userService.checkAccount(request.getEmail(), request.getPassword())){
+            String role = userService.getRolebyEmail(request.getEmail());
+            String token = jwtService.generateToken(request.getEmail());
+            return ResponseEntity.ok(new LoginResponse(token,"login successful", role));
+        }else {
+            // Trả về một đối tượng LoginResponse với token là null và message lỗi
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null));
         }
     }
 }

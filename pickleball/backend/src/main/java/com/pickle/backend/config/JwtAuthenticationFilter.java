@@ -2,8 +2,7 @@ package com.pickle.backend.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
+
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.security.Key;
-import java.util.Collections;
+import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,14 +39,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             String token = header.replace(TOKEN_PREFIX, "");
             try {
-                Claims claims = Jwts.parser()
-                        .setSigningKey(key)
+                Claims claims = Jwts.parserBuilder()
+                        .setSigningKey(key) // Sử dụng biến key đã khởi tạo
                         .build()
                         .parseClaimsJws(token)
                         .getBody();
                 String username = claims.getSubject();
                 if (username != null) {
-                    List<String> roles = claims.get("roles", List.class);
+                    List<String> roles = ((List<?>) claims.get("roles")).stream()
+                            .map(Object::toString)
+                            .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                            .collect(Collectors.toList());
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             username,
                             null,

@@ -2,8 +2,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
+import {useAuth} from '../contexts/AuthContext';
 function Header() {
   const Navigate = useNavigate();
+  const { token, logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    Navigate('/login');
+  };
   return (
     <header className="bg-while text-black p-4 flex items-center justify-between shadow-lg">
       {/* Logo và Menu trong cùng một div */}
@@ -54,9 +60,12 @@ function Header() {
           </svg>
         </button>
         <p className="border-l-2 border-gray-300 h-10"></p>
-        <button onClick={()=>{Navigate('/login')}} className="text-black font-bold text-lg cursor-pointer ">Log in</button>
+        {(token) ? 
+          <button onClick={()=>{handleLogout()}} className="text-black font-bold text-lg cursor-pointer ">Log out</button> : 
+          <button onClick={()=>{Navigate('/login')}} className="text-black font-bold text-lg cursor-pointer ">Log in</button>
+        } 
         <Button 
-        children={"Join for free"}
+        children={"Learn for free"}
         onClick={()=>{Navigate('/register');}}
         >
         </Button>

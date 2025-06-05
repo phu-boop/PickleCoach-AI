@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class JwtService {
@@ -51,11 +48,13 @@ public class JwtService {
     }
 
     public List<String> extractRoles(String token) {
-        @SuppressWarnings("unchecked")
-        List<String> roles = extractAllClaims(token).get("roles", List.class) != null 
-                ? extractAllClaims(token).get("roles", List.class) 
-                : Collections.emptyList();
-        return roles;
+        List<?> rawRoles = extractAllClaims(token).get("roles", List.class);
+        if (rawRoles == null) {
+            return List.of();
+        }
+        return rawRoles.stream()
+                .map(Object::toString)
+                .toList();
     }
 
     public boolean isTokenExpired(String token) {
