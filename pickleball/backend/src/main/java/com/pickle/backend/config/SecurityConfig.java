@@ -39,15 +39,15 @@ public class    SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**").permitAll() // Cho phép công khai
+                        .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Cho phép công khai
                         .requestMatchers("/api/users/profile").hasRole("USER") // Endpoint cho USER
-                        .requestMatchers("/api/users/**").hasRole("admin") // Endpoint cho ADMIN
+                        .requestMatchers("/api/users/**","/api/questions").hasRole("admin") // Endpoint cho ADMIN
                         .anyRequest().authenticated() // Các request khác cần xác thực
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oAuth2SuccessHandler)
-                )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .successHandler(oAuth2SuccessHandler)
+//                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")

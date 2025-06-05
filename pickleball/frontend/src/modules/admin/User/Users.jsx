@@ -12,7 +12,8 @@ const Users = () => {
     const [newUser, setNewUser] = useState({ name: '', email: '', password: '' });
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-
+    console.log(sessionStorage.getItem('token'));
+    console.log(sessionStorage.getItem('role'));
     const navigate = useNavigate();
 
     const fetchUsersLoad = async () => {

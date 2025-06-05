@@ -17,6 +17,7 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
+
     private static final long EXPIRATION_TIME = 86400000; // 1 ngày
 
     private final UserRepository userRepository;
@@ -54,19 +55,14 @@ public class JwtService {
                 .compact();
     }
 
+    // Trích xuất username (email) từ token
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
 
     // Trích xuất roles
     public List<String> extractRoles(String token) {
-        List<?> rawRoles = extractAllClaims(token).get("roles", List.class);
-        if (rawRoles == null) {
-            return List.of();
-        }
-        return rawRoles.stream()
-                .map(Object::toString)
-                .toList();
+        return extractAllClaims(token).get("roles", List.class);
     }
 
     // Lấy tất cả claims
