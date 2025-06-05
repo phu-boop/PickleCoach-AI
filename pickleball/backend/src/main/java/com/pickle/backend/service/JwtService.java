@@ -14,13 +14,8 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
-<<<<<<< HEAD
-
-    private static final long EXPIRATION_TIME = 86400000; // 1 ngày
-=======
     private static final long EXPIRATION_TIME = 86400000; // 1 ngày (ms)
     private final Key key;
->>>>>>> 02cd8ffab014e0c35b42a1fd345f2cb5d7a21aa5
 
     public JwtService(@Value("${jwt.secret}") String secret) {
         if (secret == null || secret.trim().isEmpty()) {
@@ -39,10 +34,6 @@ public class JwtService {
                 .signWith(key)
                 .compact();
     }
-
-<<<<<<< HEAD
-    // Trích xuất username (email) từ token
-=======
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(key)
@@ -51,7 +42,6 @@ public class JwtService {
                 .getBody();
     }
 
->>>>>>> 02cd8ffab014e0c35b42a1fd345f2cb5d7a21aa5
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
