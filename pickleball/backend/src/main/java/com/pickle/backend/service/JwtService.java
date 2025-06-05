@@ -5,10 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.pickle.backend.entity.User;
-import com.pickle.backend.repository.UserRepository;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
 
@@ -17,69 +14,58 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
+<<<<<<< HEAD
 
     private static final long EXPIRATION_TIME = 86400000; // 1 ngày
+=======
+    private static final long EXPIRATION_TIME = 86400000; // 1 ngày (ms)
+    private final Key key;
+>>>>>>> 02cd8ffab014e0c35b42a1fd345f2cb5d7a21aa5
 
-    private final UserRepository userRepository;
-
-    public JwtService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public JwtService(@Value("${jwt.secret}") String secret) {
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new IllegalArgumentException("JWT secret cannot be null or empty");
+        }
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.SECRET_KEY = secret;
     }
 
-    // Tạo khóa ký JWT
-    private Key getSignInKey() {
-        byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    // Tạo JWT token từ email người dùng
-    public String generateToken(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
-
-        // Thêm "ROLE_" để Spring Security hiểu là role
-        List<String> roles = Arrays.stream(user.getRole().split(","))
-                .map(String::trim)
-                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
-                .toList();
-
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", roles);
-
+    public String generateToken(String email, List<String> roles) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(getSignInKey())
+                .claims(Map.of("roles", roles))
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key)
                 .compact();
     }
 
+<<<<<<< HEAD
     // Trích xuất username (email) từ token
-    public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
-    }
-
-    // Trích xuất roles
-    public List<String> extractRoles(String token) {
-        return extractAllClaims(token).get("roles", List.class);
-    }
-
-    // Lấy tất cả claims
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
+=======
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    // Kiểm tra token có hợp lệ không
-    public boolean isTokenValid(String token) {
-        try {
-            return extractAllClaims(token).getExpiration().after(new Date());
-        } catch (Exception e) {
-            return false;
-        }
+>>>>>>> 02cd8ffab014e0c35b42a1fd345f2cb5d7a21aa5
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    public List<String> extractRoles(String token) {
+        return extractAllClaims(token).get("roles", List.class);
+    }
+
+    public boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    public boolean validateToken(String token, String email) {
+        final String extractedEmail = extractUsername(token);
+        return (extractedEmail.equals(email) && !isTokenExpired(token));
     }
 }
