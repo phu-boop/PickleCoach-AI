@@ -6,28 +6,22 @@ import Button from '../Button';
 const Sidebar = () => {
   const { logout, token } = useAuth();
   const [activeMenu, setActiveMenu] = useState('Dashboards');
-  const navigate = useNavigate();
+
   const menuItems = [
     {
       title: 'Dashboards',
-      icon: <Store size={24} color="#374151" />,
+      icon: '🏠',
       count: 5,
       submenu: [],
     },
     {
-      title: 'Users',
-      icon: <User size={24} />,
+      title: 'Layouts',
+      icon: '📐',
       submenu: [],
     },
     {
-      title: 'Players',
-      icon: <GraduationCap size={24}/>,
-      pro: true,
-      submenu: [],
-    },
-    {
-      title: 'Coaches',
-      icon:  <Dumbbell size={24} />  ,
+      title: 'Front Pages',
+      icon: '🏠',
       pro: true,
       submenu: [],
     },
@@ -44,11 +38,8 @@ const Sidebar = () => {
         {menuItems.map((item) => (
           <div key={item.title}>
             <button
-              onClick={() => {
-                navigate(`/admin/${item.title.toLowerCase()}`);
-                setActiveMenu(item.title)
-              }}
-              className={`w-full flex items-center p-3 cursor-pointer text-gray-700 hover:bg-gray-100 rounded-lg ${
+              onClick={() => setActiveMenu(item.title)}
+              className={`w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded-lg ${
                 activeMenu === item.title ? 'bg-gray-200' : ''
               }`}
             >
