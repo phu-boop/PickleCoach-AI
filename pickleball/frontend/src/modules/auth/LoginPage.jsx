@@ -16,10 +16,11 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const {login } = useAuth();
+  console.log(sessionStorage.getItem('token'));
+   console.log(sessionStorage.getItem('role'));
   const handleCheck = () => {
     setCheck(!check);
   };
-
   const handleSubmit = () => {
     if (check) {
       setSubmitted(true);
