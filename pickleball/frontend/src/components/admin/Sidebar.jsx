@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Store, User, GraduationCap, Dumbbell,LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -7,6 +7,12 @@ const Sidebar = () => {
   const { logout, token } = useAuth();
   const [activeMenu, setActiveMenu] = useState('Dashboards');
   const navigate = useNavigate();
+
+  useEffect(() => {
+  if (token === null) {
+    navigate('/login');
+  }
+  }, [token]);
   const menuItems = [
     {
       title: 'Dashboards',
@@ -88,9 +94,8 @@ const Sidebar = () => {
       { token && (
         <Button
           className="mt-6 w-full"
-          onClick={() => {
+          onClick={ () => {
             logout();
-            navigate('/login');
           }}
         >
           Log out 
