@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, User, GraduationCap, Dumbbell,LogOut } from 'lucide-react';
+import { Store, User, GraduationCap, Dumbbell, Calendar, FileQuestion   } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Button';
 const Sidebar = () => {
   const { logout, token } = useAuth();
   const [activeMenu, setActiveMenu] = useState('Dashboards');
   const navigate = useNavigate();
-
   useEffect(() => {
   if (token === null) {
     navigate('/login');
@@ -16,18 +15,28 @@ const Sidebar = () => {
   const menuItems = [
     {
       title: 'Dashboards',
-      icon: '🏠',
+      icon: <Store className="w-7 h-7" />,
       count: 5,
       submenu: [],
     },
     {
-      title: 'Layouts',
-      icon: '📐',
+      title: 'Tests',
+      icon: <FileQuestion className="w-7 h-7" />,
+      submenu: [],
+    },
+    {
+      title: 'Users',
+      icon: <User className="w-7 h-7" />,
+      submenu: [],
+    },
+    {
+      title: 'Frameworks',
+      icon: <Calendar className="w-7 h-7" />,
       submenu: [],
     },
     {
       title: 'Front Pages',
-      icon: '🏠',
+      icon: <GraduationCap className="w-7 h-7" />,
       pro: true,
       submenu: [],
     },
@@ -44,8 +53,10 @@ const Sidebar = () => {
         {menuItems.map((item) => (
           <div key={item.title}>
             <button
-              onClick={() => setActiveMenu(item.title)}
-              className={`w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded-lg ${
+              onClick={() => navigate('/admin/'+item.title)
+                || setActiveMenu(item.title)
+              }
+              className={`w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded-lg mt-2 cursor-pointer ${
                 activeMenu === item.title ? 'bg-gray-200' : ''
               }`}
             >

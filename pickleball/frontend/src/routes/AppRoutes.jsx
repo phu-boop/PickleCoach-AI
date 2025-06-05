@@ -10,7 +10,7 @@ import Dashboard from '../modules/admin/Dashboard';
 import Users from '../modules/admin/User/Users';
 import UserEdit from '../modules/admin/User/UserEdit';
 import ProtectedRoute from '../components/ProtectedRoute';
-
+import Tests from '../modules/admin/Tests/Tests';
 function AppRoutesUser() {
   return (
     <Routes>
@@ -39,6 +39,7 @@ function AppRoutesUser() {
         <Route path="dashboards" element={<Dashboard />} />
         <Route path="users" element={<Users />} />
         <Route path="users/edit/:userId" element={<UserEdit />} />
+        <Route path="tests" element={<Tests />} />
       </Route>
     </Routes>
   );
