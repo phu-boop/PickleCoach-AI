@@ -1,6 +1,7 @@
 package com.pickle.backend.controller;
 
 import com.pickle.backend.dto.AnswerDTO;
+import com.pickle.backend.dto.OptionDTO;
 import com.pickle.backend.dto.QuestionDTO;
 import com.pickle.backend.entity.test.Option;
 import com.pickle.backend.entity.test.Question;
@@ -10,11 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -29,14 +33,52 @@ public class QuestionController {
     @Autowired
     private OptionRepository optionRepo;
 
-    // READ - Lấy toàn bộ câu hỏi
     @GetMapping
-    public List<Question> getAllQuestions() {
-        logger.info("Received GET request to fetch all questions");
-        List<Question> questions = questionRepo.findAll();
-        logger.info("Found {} questions", questions.size());
-        return questions;
+    public List<QuestionDTO> getAllQuestions() {
+        logger.info("Received GET request to fetch all questions at {}", java.time.LocalDateTime.now());
+
+        // Ghi log trước khi gọi repository
+        logger.debug("Fetching all questions from repository");
+        List<Question> questions;
+        try {
+            questions = questionRepo.findAll();
+            logger.debug("Successfully fetched {} questions from repository", questions.size());
+        } catch (Exception e) {
+            logger.error("Failed to fetch questions from repository: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to fetch questions: " + e.getMessage());
+        }
+
+        // Ghi log quá trình ánh xạ (mapping) sang DTO
+        logger.debug("Mapping {} questions to DTOs", questions.size());
+        List<QuestionDTO> questionDTOs = questions.stream().map(question -> {
+            QuestionDTO dto = new QuestionDTO();
+            try {
+                dto.setId(question.getId());
+                dto.setContent(question.getContent());
+                logger.trace("Mapping question ID: {}, content: {}", question.getId(), question.getContent());
+
+                // Ghi log chi tiết cho options
+                List<OptionDTO> optionDTOs = question.getOptions().stream().map(option -> {
+                    OptionDTO optionDTO = new OptionDTO();
+                    optionDTO.setText(option.getText());
+                    optionDTO.setCorrect(option.isCorrect());
+                    logger.trace("Mapped option: text={}, correct={}", option.getText(), option.isCorrect());
+                    return optionDTO;
+                }).collect(Collectors.toList());
+                dto.setOptions(optionDTOs);
+                logger.trace("Mapped {} options for question ID: {}", optionDTOs.size(), question.getId());
+            } catch (Exception e) {
+                logger.error("Error mapping question ID {} to DTO: {}", question.getId(), e.getMessage(), e);
+                throw new RuntimeException("Error mapping question to DTO: " + e.getMessage());
+            }
+            return dto;
+        }).collect(Collectors.toList());
+
+        // Ghi log kết quả cuối cùng
+        logger.info("Successfully returned {} question DTOs", questionDTOs.size());
+        return questionDTOs;
     }
+
 
     // CREATE - Tạo câu hỏi mới
     @PostMapping
@@ -115,6 +157,15 @@ public class QuestionController {
             logger.error("Error while deleting question ID {}: {}", id, e.getMessage(), e);
             throw new RuntimeException("Failed to delete question: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{id}")
+    public Question getQuestion(@PathVariable Long id) {
+        logger.info("Received GET request to get question by ID: {}", id);
+        Question question = questionRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
+        logger.info("Question retrieved successfully with ID: {}", id);
+        return question;
     }
 
     @GetMapping("/quiz")
