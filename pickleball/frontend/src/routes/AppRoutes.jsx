@@ -12,6 +12,7 @@ import UserEdit from '../modules/admin/User/UserEdit';
 import ProtectedRoute from '../components/ProtectedRoute';
 import Tests from '../modules/admin/Tests/Tests';
 import EditQuestion from '../modules/admin/Tests/EditQuestion';
+import InputAssessment from '../modules/pages/InputAssessment';
 function AppRoutesUser() {
   return (
     <Routes>
@@ -20,12 +21,14 @@ function AppRoutesUser() {
         <Route index element={<Home />} />
         <Route path="contact" element={<h1>Contact</h1>} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
+        <Route path="input-assessment" element={<InputAssessment />} />
       </Route>
 
       {/* Auth routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+
 
       {/* Admin routes - Yêu cầu ROLE_ADMIN */}
       <Route

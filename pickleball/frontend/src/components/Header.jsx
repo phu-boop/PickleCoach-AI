@@ -66,7 +66,7 @@ function Header() {
         } 
         <Button 
         children={"Learn for free"}
-        onClick={()=>{Navigate('/register');}}
+        onClick={()=>{Navigate('/input-assessment');}}
         >
         </Button>
       </div>
