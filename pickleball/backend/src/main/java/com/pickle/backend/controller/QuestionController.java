@@ -60,9 +60,10 @@ public class QuestionController {
                 // Ghi log chi tiết cho options
                 List<OptionDTO> optionDTOs = question.getOptions().stream().map(option -> {
                     OptionDTO optionDTO = new OptionDTO();
+                    optionDTO.setOptionId(option.getId());
                     optionDTO.setText(option.getText());
                     optionDTO.setCorrect(option.isCorrect());
-                    logger.trace("Mapped option: text={}, correct={}", option.getText(), option.isCorrect());
+                    logger.trace("Mapped option: text={}, correct={}",option.getId(), option.getText(), option.isCorrect());
                     return optionDTO;
                 }).collect(Collectors.toList());
                 dto.setOptions(optionDTOs);
