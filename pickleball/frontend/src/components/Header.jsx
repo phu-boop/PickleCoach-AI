@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import Button from './Button';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 function Header() {
   const Navigate = useNavigate();
@@ -15,9 +15,11 @@ function Header() {
       {/* Logo và Menu trong cùng một div */}
       <div className="flex items-center space-x-6">
         {/* Logo */}
+        <Link to="/" className="flex items-center">
         <div className="flex items-center">
           <img src="https://www.pickleheads.com/assets/logo-lockup.svg" alt="Pickleheads Logo" className="w-50" />
         </div>
+        </Link>
         <p className="border-l-2 border-gray-300 h-10"></p>
         {/* Menu */}
         <nav className="flex space-x-5 font-bold text-lg">
@@ -66,7 +68,7 @@ function Header() {
         } 
         <Button 
         children={"Learn for free"}
-        onClick={()=>{Navigate('/register');}}
+        onClick={()=>{Navigate('/input-assessment');}}
         >
         </Button>
       </div>
