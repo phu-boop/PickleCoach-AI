@@ -21,7 +21,6 @@ public class LearnerController {
     public List<Learner> getAllLearners() {
         return learnerService.getAllLearners();
     }
-
     @GetMapping("/{learnerId}")
     @PreAuthorize("hasRole('admin') or principal.userId == #learnerId")
     public ResponseEntity<Learner> getLearnerById(@PathVariable String learnerId) {
@@ -60,4 +59,5 @@ public class LearnerController {
     public List<Learner> getLearnersByGoal(@PathVariable String goal) {
         return learnerService.getLearnersByGoal(goal);
     }
+
 }
