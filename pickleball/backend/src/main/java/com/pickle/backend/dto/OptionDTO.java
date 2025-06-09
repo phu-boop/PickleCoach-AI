@@ -7,8 +7,6 @@ public class OptionDTO {
 
     public OptionDTO() {}
 
-
-
     public void setOptionId(Long optionId) {
         this.optionId = optionId;
     }

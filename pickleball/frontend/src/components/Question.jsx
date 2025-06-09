@@ -8,7 +8,7 @@ export default function Question({ question, index, onOptionChange, selectedOpti
 
   return (
     <div className="mb-6 p-4 border rounded-md bg-gray-50 shadow-sm">
-      <h2 className="text-lg font-semibold text-gray-800 mb-3">
+      <h2 className="text-lg font-grandstander text-gray-800 mb-3">
         {index + 1}. {question.content}
       </h2>
       <div className="space-y-3">
