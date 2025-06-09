@@ -44,6 +44,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<User> updateUser(@PathVariable String id, @Valid @RequestBody User userDetails) {
         User updatedUser = userService.updateUser(id, userDetails);
         return ResponseEntity.ok(updatedUser);
@@ -84,7 +85,6 @@ public class UserController {
             String token = jwtService.generateToken(request.getEmail(), List.of(role));
             return ResponseEntity.ok(new LoginResponse(token,"login successful", role));
         }else {
-            // Trả về một đối tượng LoginResponse với token là null và message lỗi
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null));
         }
     }

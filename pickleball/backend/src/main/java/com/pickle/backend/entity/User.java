@@ -17,32 +17,32 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class User {
     @Id
-    @Column(name = "userId", nullable = false)
+    @Column(name = "userId", nullable = false, length = 36)
     private String userId;
 
     @NotBlank(message = "Name is mandatory")
-    @Column(name = "name")
+    @Column(name = "name", length = 255)
     private String name;
 
     @NotBlank(message = "Email is mandatory")
     @Email(message = "Email should be valid")
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, length = 255)
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
-    @Column(name = "password")
+    @Column(name = "password", length = 255) // Bỏ @NotBlank, cho phép null hoặc rỗng
     private String password;
 
     @NotNull(message = "Role is mandatory")
-    @Column(name = "role")
+    @Column(name = "role", length = 255)
     private String role;
 
-    @Column(name = "skill_level")
+    @Column(name = "skill_level", length = 255)
     private String skillLevel;
 
-    @Column(name = "preferences")
+    @Column(name = "preferences", length = 255)
     private String preferences;
 
+    // Getter tùy chỉnh cho role (nếu cần)
     public String getRole() {
         return role;
     }
