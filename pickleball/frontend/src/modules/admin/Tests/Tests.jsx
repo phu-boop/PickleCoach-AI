@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchQuestion, createQuestion, deleteQuestion } from "../../../api/admin/test"; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil, faTrash, faSearch, faFileCirclePlus } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faTrash, faSearch, faFileCirclePlus, faRectangleList } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 export default function Tests() {
   const navigate = useNavigate();
@@ -127,10 +127,10 @@ export default function Tests() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">📝 Test Questions</h1>
+        <h1 className="text-2xl font-bold text-gray-700"><FontAwesomeIcon className="text-[#9797ca]" icon={faRectangleList} /> Test Questions</h1>
         <button
           onClick={handleCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-[#e8fadf] text-[#82e14f] rounded-lg cursor-pointer transition"
         >
           <FontAwesomeIcon icon={faFileCirclePlus} className="w-4 h-4" />
           Add Question
@@ -193,7 +193,7 @@ export default function Tests() {
         </div>
       )}
 
-      <div className="flex items-center gap-3 mb-4 relative">
+      <div className="flex items-center gap-3 mb-4">
         <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 text-gray-400" />
         <input
           type="text"
@@ -225,25 +225,25 @@ export default function Tests() {
                 .filter(q => q?.question?.toLowerCase().includes(search.toLowerCase()))
                 .map((q, idx) => (
                   <tr key={q.id} className="border-t">
-                    <td className="p-3">{idx + 1}</td>
-                    <td className="p-3">{q.question || "N/A"}</td>
+                    <td className="p-3 text-amber-700">{idx + 1}</td>
+                    <td className="p-3 font-bold text-gray-600">{q.question || "N/A"}</td>
                     <td className="p-3">
                       {q.options?.map((opt, i) => (
                         <div key={i}>{`${String.fromCharCode(65 + i)}. ${opt}`}</div>
                       )) || "N/A"}
                     </td>
-                    <td className="p-3 font-semibold text-green-600">{q.correctAnswer}</td>
-                    <td className="p-3 text-right">
+                    <td className="p-3 font-semibold text-green-700">{q.correctAnswer}</td>
+                    <td className="text-right w-25">
                       <button
                         onClick={() => handleEdit(q.id)}
-                        className="text-blue-600 hover:underline mr-3"
+                        className="text-cyan-50 bg-blue-400 hover:bg-blue-800 py-2 mr-1 px-3 rounded-xl cursor-pointer hover:underline"
                         title="Edit"
                       >
                         <FontAwesomeIcon icon={faPencil} size="sm" />
                       </button>
                       <button
                         onClick={() => handleDelete(q.id)}
-                        className="text-red-600 hover:underline"
+                        className="text-red-50 bg-red-500 cursor-pointer hover:bg-red-800 py-2 px-3 rounded-xl hover:underline"
                         title="Delete"
                       >
                         <FontAwesomeIcon icon={faTrash} size="sm" />

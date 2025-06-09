@@ -21,8 +21,9 @@ public class Learner {
     private String userId;
 
     @NotNull(message = "User is mandatory")
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
+    @MapsId
     private User user;
 
     @Column(name = "skillLevel")

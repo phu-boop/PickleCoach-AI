@@ -15,9 +15,7 @@ export default function QuizApp() {
       try {
         const response = await getQuiz();
         console.log('Dữ liệu thô từ API (getQuiz):', response);
-
         const quizQuestions = Array.isArray(response.data) ? response.data : [];
-
         console.log('Dữ liệu câu hỏi đã sẵn sàng:', quizQuestions);
         setQuestions(quizQuestions);
         setLoading(false);
@@ -27,7 +25,6 @@ export default function QuizApp() {
         setLoading(false);
       }
     };
-
     fetchQuizQuestions();
   }, []);
 
@@ -41,7 +38,6 @@ export default function QuizApp() {
 
   const handleSubmit = async () => {
     console.log('Bắt đầu xử lý nộp bài...');
-
     const answerList = Object.entries(answers).map(([questionId, optionId]) => ({
       questionId: parseInt(questionId, 10),
       optionId: parseInt(optionId, 10),
@@ -66,7 +62,6 @@ export default function QuizApp() {
     }
 
     console.log('Danh sách câu trả lời chuẩn bị gửi đến backend:', answerList);
-
     try {
       const response = await submitQuiz(answerList);
       console.log('Phản hồi từ API sau khi nộp bài:', response);
@@ -84,7 +79,6 @@ export default function QuizApp() {
     setScore(null);
     setLoading(true);
     setError(null);
-
     getQuiz()
       .then(response => {
         const quizQuestions = Array.isArray(response.data) ? response.data : [];
@@ -100,45 +94,57 @@ export default function QuizApp() {
   };
 
   if (loading) {
-    return <div className="text-xl text-gray-700 text-center mt-8">Đang tải câu hỏi...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-xl font-medium text-gray-600 animate-pulse">Đang tải câu hỏi...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center mt-8 p-4 bg-red-100 border border-red-400 rounded">{error}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <div className="bg-red-50 border border-red-300 text-red-600 p-6 rounded-lg shadow-md text-center max-w-lg">
+          <p className="text-lg font-medium">{error}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md my-8">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Ứng dụng Quiz</h1>
-
+    <div>
       {score === null ? (
-        <>
-          {questions.length > 0 ? (
-            questions.map((question, index) => (
-              <Question
-                key={question.id}
-                question={question}
-                index={index}
-                onOptionChange={handleOptionChange}
-                selectedOption={answers[question.id]}
-              />
-            ))
-          ) : (
-            <div className="text-gray-500 text-center mt-8">Không có câu hỏi để hiển thị. Vui lòng kiểm tra dữ liệu API.</div>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            className={`w-full py-3 rounded-md transition mt-6 ${
-              Object.keys(answers).length < questions.length
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
-            disabled={Object.keys(answers).length < questions.length}
-          >
-            Nộp bài
-          </button>
-        </>
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 sm:p-6">
+          <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg p-6 sm:p-8 my-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-gray-800 tracking-tight">Quiz</h1>
+            {questions.length > 0 ? (
+              questions.map((question, index) => (
+                <Question
+                  key={question.id}
+                  question={question}
+                  index={index}
+                  onOptionChange={handleOptionChange}
+                  selectedOption={answers[question.id]}
+                />
+              ))
+            ) : (
+              <div className="text-gray-500 text-center p-6 bg-gray-50 rounded-lg shadow-sm">
+                <p className="text-lg font-medium">Không có câu hỏi để hiển thị. Vui lòng kiểm tra dữ liệu API.</p>
+              </div>
+            )}
+            <button
+              onClick={handleSubmit}
+              className={`w-full py-3 px-4 mt-6 rounded-lg font-semibold text-lg transition-all duration-200 ${
+                Object.keys(answers).length < questions.length
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : 'bg-[#5659d6] text-white hover:bg-[#4649b0] focus:ring-2 focus:ring-[#5659d6] focus:ring-offset-2'
+              }`}
+              disabled={Object.keys(answers).length < questions.length}
+            >
+              Nộp bài
+            </button>
+          </div>
+        </div>
       ) : (
         <Result score={score} total={questions.length} onReset={handleReset} />
       )}

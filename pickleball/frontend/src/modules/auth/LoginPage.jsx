@@ -31,8 +31,8 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await ApiLogin(email, password);
-      const { token, role } = response;
-      login(token, role);
+      const { token, role, id_user } = response;
+      login(token, role, id_user);
       if (response) {
         Swal.fire({
           title: response.message,
