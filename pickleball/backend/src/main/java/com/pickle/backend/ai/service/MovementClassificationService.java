@@ -44,5 +44,4 @@ public class MovementClassificationService {
         classification.setLabel(label);
         return movementClassificationRepository.save(classification);
     }
-    Map<String, Integer> myMap = new HashMap<>();
 }

@@ -19,15 +19,13 @@ labels = ["forehand", "backhand", "serve"]  # Adjust based on your training labe
 
 @app.route('/pose-estimation', methods=['POST'])
 def pose_estimation():
-    data = request.get_json()
+    data = request.get_json()  # Expect JSON with video_path
     video_path = data.get('video_path')
-    print(f"Received video_path: {video_path}")
     if not video_path:
         return jsonify({"error": "No video_path provided"}), 400
 
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        print("Cannot open video")
         return jsonify({"error": "Cannot open video"}), 400
 
     feedback = "Hạ thấp trọng tâm"
@@ -46,7 +44,6 @@ def pose_estimation():
             break
 
     cap.release()
-    print(f"Returning feedback: {feedback}")
     return jsonify({"feedback": feedback})
 
 @app.route('/movement-classification', methods=['POST'])
