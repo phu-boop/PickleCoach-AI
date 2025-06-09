@@ -49,6 +49,10 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email " + email));
         return "ROLE_"+user.getRole();
     }
+    public String getIdbyEmail( String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email " + email));
+        return user.getId();
+    }
     public void deleteUser(String userId) {
         logger.info("Deleting user with id: {}", userId);
         if (!userRepository.existsById(userId)) {
