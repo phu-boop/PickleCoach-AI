@@ -26,20 +26,36 @@ public class JwtService {
     }
 
     public String generateToken(String email, List<String> roles) {
-        return Jwts.builder()
-                .claims(Map.of("roles", roles))
-                .subject(email)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
-                .compact();
+        try {
+            System.out.println("Generating token for email: " + email + ", roles: " + roles);
+            String token = Jwts.builder()
+                    .claims(Map.of("roles", roles))
+                    .subject(email)
+                    .issuedAt(new Date())
+                    .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .signWith(key)
+                    .compact();
+            System.out.println("Token generated: " + token);
+            return token;
+        } catch (Exception e) {
+            System.err.println("Error generating token: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to generate JWT token", e);
+        }
     }
+
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            System.err.println("Error extracting claims from token: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to extract claims from token", e);
+        }
     }
 
     public String extractUsername(String token) {
@@ -51,11 +67,23 @@ public class JwtService {
     }
 
     public boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+        try {
+            return extractAllClaims(token).getExpiration().before(new Date());
+        } catch (Exception e) {
+            System.err.println("Error checking token expiration: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to check token expiration", e);
+        }
     }
 
     public boolean validateToken(String token, String email) {
-        final String extractedEmail = extractUsername(token);
-        return (extractedEmail.equals(email) && !isTokenExpired(token));
+        try {
+            final String extractedEmail = extractUsername(token);
+            return (extractedEmail.equals(email) && !isTokenExpired(token));
+        } catch (Exception e) {
+            System.err.println("Error validating token: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }
