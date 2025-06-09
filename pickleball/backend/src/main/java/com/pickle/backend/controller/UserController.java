@@ -81,11 +81,12 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request){
         if(userService.checkAccount(request.getEmail(), request.getPassword())){
             String role = userService.getRolebyEmail(request.getEmail());
-            String token = jwtService.generateToken(request.getEmail());
-            return ResponseEntity.ok(new LoginResponse(token,"login successful", role));
+            String token = jwtService.generateToken(request.getEmail(), List.of(role));
+            String id_user = userService.getIdbyEmail(request.getEmail());
+            return ResponseEntity.ok(new LoginResponse(token,"login successful", role, id_user));
         }else {
             // Trả về một đối tượng LoginResponse với token là null và message lỗi
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null, null));
         }
     }
 }

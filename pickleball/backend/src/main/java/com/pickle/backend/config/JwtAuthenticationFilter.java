@@ -2,7 +2,8 @@ package com.pickle.backend.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.security.Key;
-import org.springframework.stereotype.Component;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,8 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             String token = header.replace(TOKEN_PREFIX, "");
             try {
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(key) // Sử dụng biến key đã khởi tạo
+                // Sử dụng parser() thay vì parserBuilder() nếu dùng phiên bản cũ của JJWT
+                Claims claims = Jwts.parser() // Hoặc Jwts.parserBuilder() nếu dùng JJWT 0.11.x trở lên
+                        .setSigningKey(key)
                         .build()
                         .parseClaimsJws(token)
                         .getBody();

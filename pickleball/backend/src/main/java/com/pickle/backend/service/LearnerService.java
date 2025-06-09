@@ -1,5 +1,6 @@
 package com.pickle.backend.service;
 
+import com.pickle.backend.dto.LearnerDTO;
 import com.pickle.backend.entity.Learner;
 import com.pickle.backend.entity.User;
 import com.pickle.backend.exception.ResourceNotFoundException;
@@ -32,24 +33,28 @@ public class LearnerService {
         return learnerRepository.findById(learnerId);
     }
 
-    public Learner createLearner(Learner learner) {
-        logger.info("Creating learner for user with email: {}", learner.getUser().getEmail());
-        User userDetails = learner.getUser();
-        Optional<User> existingUser = userService.findByEmail(userDetails.getEmail());
-        User savedUser;
+    public Learner createLearner(LearnerDTO learnerDto) { // Đổi tên biến cho rõ ràng
+        logger.info("Attempting to create learner for user with ID: {}", learnerDto.getId());
+
+        Optional<User> existingUser = userService.getUserById(learnerDto.getId());
 
         if (existingUser.isPresent()) {
-            logger.info("User with email {} already exists", userDetails.getEmail());
-            savedUser = existingUser.get();
-        } else {
-            logger.info("Creating new user for learner with email: {}", userDetails.getEmail());
-            userDetails.setRole("learner");
-            savedUser = userService.createUser(userDetails);
-        }
+            User foundUser = existingUser.get();
+            logger.info("Found existing user with ID: {}. Proceeding to create learner.", learnerDto.getId());
 
-        learner.setUser(savedUser);
-        learner.setUserId(savedUser.getUserId());
-        return learnerRepository.save(learner);
+            Learner newLearner = new Learner();
+            newLearner.setUser(foundUser);
+
+            newLearner.setGoals(learnerDto.getGoals());
+            newLearner.setSkillLevel(learnerDto.getSkillLevel());
+            newLearner.setProgress(learnerDto.getProgress());
+
+            return learnerRepository.save(newLearner);
+        } else {
+            logger.warn("Failed to create learner: User not found with ID: {}", learnerDto.getId());
+            // Ném ngoại lệ để controller có thể xử lý và trả về 404 Not Found
+            throw new ResourceNotFoundException("User not found with ID: " + learnerDto.getId());
+        }
     }
 
     public Learner updateLearner(String learnerId, Learner learnerDetails) {

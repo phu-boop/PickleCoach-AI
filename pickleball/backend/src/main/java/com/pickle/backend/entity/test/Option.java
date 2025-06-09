@@ -32,4 +32,11 @@ public class Option {
     public void setQuestion(Question question){
         this.question = question;
     }
+    public long getId() {
+        return id;
+    }
+
+    public String getText() {
+        return content;
+    }
 }
