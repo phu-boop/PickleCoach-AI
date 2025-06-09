@@ -16,10 +16,11 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const {login } = useAuth();
+  console.log(sessionStorage.getItem('token'));
+   console.log(sessionStorage.getItem('role'));
   const handleCheck = () => {
     setCheck(!check);
   };
-
   const handleSubmit = () => {
     if (check) {
       setSubmitted(true);
@@ -30,8 +31,8 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await ApiLogin(email, password);
-      const { token, role } = response;
-      login(token, role);
+      const { token, role, id_user } = response;
+      login(token, role, id_user);
       if (response) {
         Swal.fire({
           title: response.message,

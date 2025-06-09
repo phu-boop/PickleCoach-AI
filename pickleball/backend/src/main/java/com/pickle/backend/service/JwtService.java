@@ -34,7 +34,6 @@ public class JwtService {
                 .signWith(key)
                 .compact();
     }
-
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(key)
@@ -48,13 +47,7 @@ public class JwtService {
     }
 
     public List<String> extractRoles(String token) {
-        List<?> rawRoles = extractAllClaims(token).get("roles", List.class);
-        if (rawRoles == null) {
-            return List.of();
-        }
-        return rawRoles.stream()
-                .map(Object::toString)
-                .toList();
+        return extractAllClaims(token).get("roles", List.class);
     }
 
     public boolean isTokenExpired(String token) {

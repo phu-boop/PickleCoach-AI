@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             return userRepository.save(newUser);
         });
 
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail(), List.of(user.getRole()));
 
         // ⚠️ Redirect đến đúng route frontend
         response.sendRedirect("http://localhost:5173/oauth2/redirect?token=" + token + "&role=" + user.getRole());
