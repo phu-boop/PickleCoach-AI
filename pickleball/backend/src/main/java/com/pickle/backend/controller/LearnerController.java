@@ -1,5 +1,6 @@
 package com.pickle.backend.controller;
 
+import com.pickle.backend.dto.LearnerDTO;
 import com.pickle.backend.entity.Learner;
 import com.pickle.backend.service.LearnerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class LearnerController {
 
     @PostMapping
     @PreAuthorize("hasRole('admin')")
-    public Learner createLearner(@RequestBody Learner learner) {
-        return learnerService.createLearner(learner);
+    public Learner createLearner(@RequestBody LearnerDTO Learner) {
+        return learnerService.createLearner(Learner);
     }
 
     @PutMapping("/{learnerId}")
