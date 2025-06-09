@@ -21,7 +21,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-public class    SecurityConfig {
+public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2SuccessHandler oAuth2SuccessHandler;
@@ -39,19 +39,24 @@ public class    SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**").permitAll() // Cho phép công khai
-                        .requestMatchers("/api/users/profile").hasRole("USER") // Endpoint cho USER
-                        .requestMatchers("/api/users/**").hasRole("admin") // Endpoint cho ADMIN
-                        .anyRequest().authenticated() // Các request khác cần xác thực
+                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**", "/login/oauth2/code/google").permitAll()
+                        .requestMatchers("/api/users/profile").hasRole("USER")
+                        .requestMatchers("/api/users/**").hasRole("admin")
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//                .oauth2Login(oauth2 -> oauth2
-//                        .successHandler(oAuth2SuccessHandler)
-//                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginProcessingUrl("/login/oauth2/code/google")
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureUrl("/login?error=true") // Xử lý lỗi OAuth2
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/access-denied") // Trang lỗi tùy chỉnh
                 );
 
         return http.build();
