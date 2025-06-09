@@ -39,8 +39,13 @@ public class AIController {
         return ResponseEntity.ok(movementClassificationService.classifyMovement(userId, video));
     }
 
-    @GetMapping("/recommendations")
-    public ResponseEntity<List<Content>> getRecommendations(@RequestParam String userId) {
-        return ResponseEntity.ok(recommendationService.getRecommendations(userId));
+//    @GetMapping("/recommendations")
+//    public ResponseEntity<List<Content>> getRecommendations(@RequestParam String userId) {
+//        return ResponseEntity.ok(recommendationService.getRecommendations(userId));
+//    }
+
+    @PostMapping("/recommendations")
+    public ResponseEntity<List<Content>> getRecommendations(@RequestParam String userId, @RequestParam("video") MultipartFile video) {
+        return ResponseEntity.ok(recommendationService.getRecommendations(userId, video));
     }
 }
