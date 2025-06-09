@@ -7,7 +7,8 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(sessionStorage.getItem('role') || null);
   const [token, setToken] = useState(sessionStorage.getItem('token') || null);
 
-  const login = (newToken, newRole) => {
+  const login = (newToken, newRole, newId) => {
+    sessionStorage.setItem('id_user',newId)
     sessionStorage.setItem('token', newToken);
     sessionStorage.setItem('role', newRole);
     setToken(newToken);
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    sessionStorage.removeItem('id_user');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('role');
     setToken(null);
