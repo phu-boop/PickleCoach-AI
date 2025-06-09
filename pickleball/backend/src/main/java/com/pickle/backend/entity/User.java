@@ -46,4 +46,7 @@ public class User {
     public String getRole() {
         return role;
     }
+    public String getId(){
+        return userId;
+    }
 }

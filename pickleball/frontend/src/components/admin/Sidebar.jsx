@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Store, User, GraduationCap, Dumbbell, Calendar, FileQuestion   } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import Button from '../Button';
 const Sidebar = () => {
   const { logout, token } = useAuth();
@@ -45,9 +46,11 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-white shadow-lg p-4 ">
       <div className="flex items-center mb-6">
+        <Link to="/admin">
         <span className="text-2xl font-bold text-purple-600">
           <img className="max-w-[80%] mt-8 mb-3 mx-auto" src="https://www.pickleheads.com/assets/logo-lockup.svg" alt="Sneat Logo" />
         </span>
+        </Link>
       </div>
       <nav className="mt-8">
         {menuItems.map((item) => (

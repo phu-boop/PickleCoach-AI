@@ -83,9 +83,13 @@ public class UserController {
         if(userService.checkAccount(request.getEmail(), request.getPassword())){
             String role = userService.getRolebyEmail(request.getEmail());
             String token = jwtService.generateToken(request.getEmail(), List.of(role));
-            return ResponseEntity.ok(new LoginResponse(token,"login successful", role));
+            String id_user = userService.getIdbyEmail(request.getEmail());
+            return ResponseEntity.ok(new LoginResponse(token,"login successful", role, id_user));
         }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null));
+
+            // Trả về một đối tượng LoginResponse với token là null và message lỗi
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null, null));
+
         }
     }
 }
