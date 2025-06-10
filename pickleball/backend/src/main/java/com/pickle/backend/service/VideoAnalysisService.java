@@ -44,10 +44,6 @@ public class VideoAnalysisService {
 
     public VideoAnalysis createVideoAnalysis(VideoAnalysis videoAnalysis) {
         logger.info("Creating video analysis for learner: {}", videoAnalysis.getLearner().getUserId());
-        if (!learnerService.getLearnerById(videoAnalysis.getLearner().getUserId()).isPresent()) {
-            logger.warn("Learner with id {} not found", videoAnalysis.getLearner().getUserId());
-            throw new ResourceNotFoundException("Learner not found with id " + videoAnalysis.getLearner().getUserId());
-        }
         validateJson(videoAnalysis.getPoseData());
         videoAnalysis.setVideoId(UUID.randomUUID().toString());
         return videoAnalysisRepository.save(videoAnalysis);

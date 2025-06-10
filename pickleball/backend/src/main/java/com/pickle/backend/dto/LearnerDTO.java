@@ -5,8 +5,16 @@ import java.util.List;
 public class LearnerDTO {
     private String id;
     private String skillLevel;
-    private List<String> goals;
+    private String goals;
     private String progress;
+    private String userName;
+
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public void setProgress(String progress) {
         this.progress = progress;
@@ -16,7 +24,7 @@ public class LearnerDTO {
         this.id = id;
     }
 
-    public void setGoals(List<String> goals) {
+    public void setGoals(String goals) {
         this.goals = goals;
     }
 
@@ -27,7 +35,7 @@ public class LearnerDTO {
         return progress;
     }
 
-    public List<String> getGoals() {
+    public String getGoals() {
         return goals;
     }
 
@@ -38,5 +46,6 @@ public class LearnerDTO {
     public String getId() {
         return id;
     }
+
 
 }

@@ -14,6 +14,7 @@ import Tests from '../modules/admin/Tests/Tests';
 import EditQuestion from '../modules/admin/Tests/EditQuestion';
 import InputAssessment from '../modules/pages/InputAssessment';
 import QuizPage from '../modules/pages/QuizApp';
+import Learner from '../modules/admin/Learner/Learner'
 function AppRoutesUser() {
   return (
     <Routes>
@@ -55,6 +56,7 @@ function AppRoutesUser() {
         <Route path="users/edit/:userId" element={<UserEdit />} />
         <Route path="tests" element={<Tests />} />
         <Route path="tests/edit/:id" element={<EditQuestion />} />
+        <Route path='learners' element={<Learner />} />
       </Route>
     </Routes>
   );
