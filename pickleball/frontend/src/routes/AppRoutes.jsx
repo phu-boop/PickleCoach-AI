@@ -14,7 +14,7 @@ import Tests from '../modules/admin/Tests/Tests';
 import EditQuestion from '../modules/admin/Tests/EditQuestion';
 import InputAssessment from '../modules/pages/InputAssessment';
 import QuizPage from '../modules/pages/QuizApp';
-
+import Learner from '../modules/admin/Learner/Learner'
 function AppRoutesUser() {
     return (
         <Routes>
@@ -24,41 +24,41 @@ function AppRoutesUser() {
                 <Route path="contact" element={<h1>Contact</h1>} />
                 <Route path="*" element={<h1>404 Not Found</h1>} />
             </Route>
-
-            {/* Auth routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-            {/* Protected routes - Yêu cầu người dùng đã đăng nhập */}
-            <Route
-                path="/"
-                element={
-                    <ProtectedRoute requiredRole="USER"> {/* Sử dụng "USER" thay vì "ROLE_USER" */}
-                        <LayoutMain />
-                    </ProtectedRoute>
-                }
-            >
-                <Route path="input-assessment" element={<InputAssessment />} />
-                <Route path="quiz" element={<QuizPage />} />
-            </Route>
-            {/* Admin routes - Yêu cầu ROLE_ADMIN */}
-            <Route
-                path="/admin"
-                element={
-                    <ProtectedRoute requiredRole="admin"> {/* Sử dụng "admin" thay vì "ROLE_admin" */}
-                        <AdminLayout />
-                    </ProtectedRoute>
-                }
-            >
-                <Route index element={<Dashboard />} />
-                <Route path="dashboards" element={<Dashboard />} />
-                <Route path="users" element={<Users />} />
-                <Route path="users/edit/:userId" element={<UserEdit />} />
-                <Route path="tests" element={<Tests />} />
-                <Route path="tests/edit/:id" element={<EditQuestion />} />
-            </Route>
-        </Routes>
-    );
+      {/* Auth routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+      {/* Protected routes - Yêu cầu người dùng đã đăng nhập */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute requiredRole="ROLE_USER">
+            <LayoutMain />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="input-assessment" element={<InputAssessment />} />
+        <Route path="quiz" element={<QuizPage />} />
+      </Route>
+      {/* Admin routes - Yêu cầu ROLE_ADMIN */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRole="ROLE_admin">
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="dashboards" element={<Dashboard />} />
+        <Route path="users" element={<Users />} />
+        <Route path="users/edit/:userId" element={<UserEdit />} />
+        <Route path="tests" element={<Tests />} />
+        <Route path="tests/edit/:id" element={<EditQuestion />} />
+        <Route path='learners' element={<Learner />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default AppRoutesUser;

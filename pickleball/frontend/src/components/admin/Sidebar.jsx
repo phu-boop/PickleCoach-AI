@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, User, GraduationCap, Dumbbell, Calendar, FileQuestion   } from 'lucide-react';
+import { Store, User, GraduationCap, Calendar, FileQuestion   } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import Button from '../Button';
@@ -28,6 +28,11 @@ const Sidebar = () => {
     {
       title: 'Users',
       icon: <User className="w-7 h-7" />,
+      submenu: [],
+    },
+    {
+      title: 'Learners',
+      icon: <GraduationCap className="w-7 h-7" />,
       submenu: [],
     },
     {
