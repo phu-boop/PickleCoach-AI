@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Table(name = "learners")
 @Getter
@@ -29,10 +27,8 @@ public class Learner {
     @Column(name = "skillLevel")
     private String skillLevel;
 
-    @ElementCollection
-    @CollectionTable(name = "learner_goals", joinColumns = @JoinColumn(name = "userId"))
-    @Column(name = "goal")
-    private List<String> goals;
+    @Column(name = "goals")
+    private String goals;
 
     @Column(name = "progress")
     private String progress;
