@@ -16,15 +16,14 @@ import InputAssessment from '../modules/pages/InputAssessment';
 import QuizPage from '../modules/pages/QuizApp';
 import Learner from '../modules/admin/Learner/Learner'
 function AppRoutesUser() {
-  return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<LayoutMain />}>
-        <Route index element={<Home />} />
-        <Route path="contact" element={<h1>Contact</h1>} />
-        <Route path="*" element={<h1>404 Not Found</h1>} />
-      </Route>
-
+    return (
+        <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LayoutMain />}>
+                <Route index element={<Home />} />
+                <Route path="contact" element={<h1>Contact</h1>} />
+                <Route path="*" element={<h1>404 Not Found</h1>} />
+            </Route>
       {/* Auth routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUp />} />
