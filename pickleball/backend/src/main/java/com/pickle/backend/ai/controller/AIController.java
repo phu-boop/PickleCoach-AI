@@ -1,51 +1,53 @@
 package com.pickle.backend.ai.controller;
+import com.pickle.backend.entity.VideoAnalysis;
+import com.pickle.backend.service.FullAnalysisService;
 
-import com.pickle.backend.ai.service.PoseEstimationService;
-import com.pickle.backend.ai.service.RecommendationService;
-import com.pickle.backend.ai.service.MovementClassificationService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.pickle.backend.ai.model.*;
-import java.util.List;
+import java.io.IOException;
 
 // Import PoseAnalysis if it exists in your project 
-
 
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
 public class AIController {
-    private final PoseEstimationService poseEstimationService;
-    private final RecommendationService recommendationService;
-    private final MovementClassificationService movementClassificationService;
 
-    @PostMapping("/pose-estimation")
-    public ResponseEntity<com.pickle.backend.ai.model.PoseAnalysis> analyzePose(@RequestParam String userId, @RequestParam("video") MultipartFile video) {
-        return ResponseEntity.ok(poseEstimationService.analyzePose(userId, video));
+    @Autowired
+    private FullAnalysisService fullAnalysisService;
+
+    @PostMapping("/full-analysis")
+    public ResponseEntity<?> fullAnalysis(
+            @RequestParam String learnerId,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "selfAssessedLevel", required = false) String selfAssessedLevel) throws IOException {
+        if (video == null && selfAssessedLevel == null) {
+            return ResponseEntity.badRequest().body(new VideoAnalysisResponse("Error: Provide video or self-assessed level"));
+        }
+        try {
+            VideoAnalysis result = fullAnalysisService.analyze(learnerId, video, selfAssessedLevel);
+            return ResponseEntity.ok(new VideoAnalysisResponse(result));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new VideoAnalysisResponse("Error processing analysis: " + e.getMessage()));
+        }
     }
 
-    // Tạm thời vô hiệu hóa vì endpoint /movement-classification chưa có
-    /*
-    @PostMapping("/movement-classification")
-    public ResponseEntity<MovementClassification> classifyMovement(@RequestParam String userId, @RequestParam String videoUrl) {
-        return ResponseEntity.ok(movementClassificationService.classifyMovement(userId, videoUrl));
-    }
-    */
+    @Data
+    public static class VideoAnalysisResponse {
+        private String message; // Thông báo lỗi hoặc thành công
+        private VideoAnalysis data; // Dữ liệu phân tích (nếu thành công)
 
-    @PostMapping("/movement-classification")
-    public ResponseEntity<MovementClassification> classifyMovement(@RequestParam String userId, @RequestParam("video") MultipartFile video) {
-        return ResponseEntity.ok(movementClassificationService.classifyMovement(userId, video));
-    }
+        public VideoAnalysisResponse(String message) {
+            this.message = message;
+        }
 
-//    @GetMapping("/recommendations")
-//    public ResponseEntity<List<Content>> getRecommendations(@RequestParam String userId) {
-//        return ResponseEntity.ok(recommendationService.getRecommendations(userId));
-//    }
-
-    @PostMapping("/recommendations")
-    public ResponseEntity<List<Content>> getRecommendations(@RequestParam String userId, @RequestParam("video") MultipartFile video) {
-        return ResponseEntity.ok(recommendationService.getRecommendations(userId, video));
+        public VideoAnalysisResponse(VideoAnalysis data) {
+            this.data = data;
+        }
     }
 }

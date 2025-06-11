@@ -12,8 +12,6 @@ import java.util.*;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String SECRET_KEY;
     private static final long EXPIRATION_TIME = 86400000; // 1 ngày (ms)
     private final Key key;
 
@@ -22,32 +20,34 @@ public class JwtService {
             throw new IllegalArgumentException("JWT secret cannot be null or empty");
         }
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.SECRET_KEY = secret;
     }
 
     public String generateToken(String email, List<String> roles) {
         return Jwts.builder()
-                .claims(Map.of("roles", roles))
-                .subject(email)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
+                .setSubject(email)
+                .setClaims(Map.of("roles", roles))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key) // <-- chỉ cần truyền key, không cần SignatureAlgorithm nữa
                 .compact();
     }
+
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+        return claims;
     }
 
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> extractRoles(String token) {
-        return extractAllClaims(token).get("roles", List.class);
+        return (List<String>) extractAllClaims(token).get("roles", List.class);
     }
 
     public boolean isTokenExpired(String token) {
