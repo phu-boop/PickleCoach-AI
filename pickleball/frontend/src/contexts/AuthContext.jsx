@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -24,6 +24,17 @@ export function AuthProvider({ children }) {
     setRole(null);
     setIdUser(null);
   };
+
+  useEffect(() => {
+    const storedToken = sessionStorage.getItem('token');
+    const storedRole = sessionStorage.getItem('role');
+    if (storedToken) setToken(storedToken);
+    if (storedRole) {
+      // Chuẩn hóa role khi lấy từ sessionStorage
+      const normalizedRole = storedRole.startsWith('ROLE_') ? storedRole : `ROLE_${storedRole}`;
+      setRole(normalizedRole);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ role, token, id_user, login, logout }}>

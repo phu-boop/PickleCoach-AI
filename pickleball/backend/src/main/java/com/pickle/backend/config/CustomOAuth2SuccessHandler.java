@@ -30,25 +30,40 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
+        try {
+            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            String email = oAuth2User.getAttribute("email");
+            String name = oAuth2User.getAttribute("name");
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
+            System.out.println("OAuth2 Success - Received email: " + email + ", name: " + name);
 
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        User user = optionalUser.orElseGet(() -> {
-            User newUser = new User();
-            newUser.setUserId(UUID.randomUUID().toString());
-            newUser.setEmail(email);
-            newUser.setName(name);
-            newUser.setPassword(""); // Không cần mật khẩu cho Google login
-            newUser.setRole("USER");
-            return userRepository.save(newUser);
-        });
+            if (email == null || name == null) {
+                throw new IllegalArgumentException("Email or name not found in OAuth2 response");
+            }
 
-        String token = jwtService.generateToken(user.getEmail(), List.of(user.getRole()));
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            User user = optionalUser.orElseGet(() -> {
+                User newUser = new User();
+                newUser.setUserId(UUID.randomUUID().toString());
+                newUser.setEmail(email);
+                newUser.setName(name);
+                newUser.setPassword(null); // Đặt null thay vì rỗng để tránh vấn đề
+                newUser.setRole("USER");
+                newUser.setPreferences("");
+                newUser.setSkillLevel("");
+                System.out.println("Saving new user: " + newUser);
+                return userRepository.save(newUser);
+            });
 
-        // ⚠️ Redirect đến đúng route frontend
-        response.sendRedirect("http://localhost:5173/oauth2/redirect?token=" + token + "&role=" + user.getRole());
+            String token = jwtService.generateToken(user.getEmail(), List.of(user.getRole()));
+            System.out.println("Generated token for user: " + user.getEmail() + ", token: " + token);
+            String successMessage = optionalUser.isPresent() ? "Login successful" : "User registered successfully with ID: " + user.getUserId();
+
+            response.sendRedirect("http://localhost:5173/oauth2/redirect?token=" + token + "&role=" + user.getRole() + "&message=" + java.net.URLEncoder.encode(successMessage, "UTF-8"));
+        } catch (Exception e) {
+            System.err.println("Error in OAuth2 handler: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("Internal server error: " + e.getMessage(), "UTF-8"));
+        }
     }
 }
