@@ -34,7 +34,6 @@ function AppRoutesUser() {
         <Route path="contact" element={<h1>Contact</h1>} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
       </Route>
-
       {/* Auth routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUp />} />
