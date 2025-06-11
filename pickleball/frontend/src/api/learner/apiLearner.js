@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiAdmin = axios.create({
+const apiLearner = axios.create({
   baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
@@ -8,7 +8,7 @@ const apiAdmin = axios.create({
 });
 
 // Thêm interceptor để tự động đính kèm token vào mỗi request
-apiAdmin.interceptors.request.use(
+apiLearner.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token');
     if (token) {
@@ -18,4 +18,4 @@ apiAdmin.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-export default apiAdmin;
+export default apiLearner;
