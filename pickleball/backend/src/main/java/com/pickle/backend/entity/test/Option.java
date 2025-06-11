@@ -1,10 +1,8 @@
 package com.pickle.backend.entity.test;
 
-import com.pickle.backend.dto.OptionDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 
-import java.util.List;
 
 @Entity
 @Table(name = "question_options")

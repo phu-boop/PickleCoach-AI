@@ -1,7 +1,7 @@
 package com.pickle.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+// import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,20 +15,29 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class VideoAnalysis {
     @Id
-    @Column(name = "videoId", nullable = false)
+    @Column(columnDefinition = "uuid")
     private String videoId;
 
-    @NotNull(message = "Learner is mandatory")
-    @ManyToOne
-    @JoinColumn(name = "learnerId")
-    private Learner learner;
+    @Column(nullable = false)
+    private String learnerId;
 
-    @Column(name = "poseData")
+    @Column(columnDefinition = "text")
     private String poseData;
 
-    @Column(name = "classifiedMovements")
+    @Column(columnDefinition = "text")
     private String classifiedMovements;
 
-    @Column(name = "analysisResult")
+    @Column(columnDefinition = "text")
     private String analysisResult;
+
+    @Column(columnDefinition = "text")
+    private String recommendations;
+
+    @Column(updatable = false)
+    private java.sql.Timestamp createdAt;
+
+    // Nếu cần mối quan hệ với Learner
+    @ManyToOne
+    @JoinColumn(name = "learnerId", insertable = false, updatable = false)
+    private Learner learner;
 }
