@@ -36,16 +36,22 @@ const Sidebar = () => {
       submenu: [],
     },
     {
-      title: 'Frameworks',
+      title: 'courses',
       icon: <Calendar className="w-7 h-7" />,
       submenu: [],
     },
     {
-      title: 'Front Pages',
+      title: 'lessons',
       icon: <GraduationCap className="w-7 h-7" />,
       pro: true,
       submenu: [],
     },
+    {
+      title: 'learner-progress',
+      icon: <GraduationCap className="w-7 h-7" />,
+      pro: true,
+      submenu: [],
+    }
   ];
 
   return (
