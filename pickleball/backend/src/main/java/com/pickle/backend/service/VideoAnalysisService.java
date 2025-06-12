@@ -4,14 +4,18 @@ import com.pickle.backend.entity.VideoAnalysis;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.pickle.backend.repository.VideoAnalysisRepository;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import java.sql.Timestamp;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Getter
 @Setter
@@ -19,8 +23,13 @@ import lombok.Setter;
 @Transactional
 public class VideoAnalysisService {
 
+    private static final Logger logger = LoggerFactory.getLogger(VideoAnalysisService.class);
+
     private final RestTemplate restTemplate;
     private final EntityManager entityManager;
+
+    @Autowired
+    private VideoAnalysisRepository videoAnalysisRepository;
 
     public VideoAnalysisService(RestTemplate restTemplate, EntityManager entityManager) {
         this.restTemplate = restTemplate;
@@ -37,13 +46,11 @@ public class VideoAnalysisService {
         return entityManager.find(VideoAnalysis.class, id);
     }
 
-    // Tạo phân tích mới
-    public VideoAnalysis createVideoAnalysis(VideoAnalysis analysis) {
-        if (analysis.getCreatedAt() == null) {
-            analysis.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        }
-        entityManager.persist(analysis);
-        return analysis;
+    public VideoAnalysis createVideoAnalysis(VideoAnalysis videoAnalysis) {
+        logger.info("Creating video analysis for learner: {}", videoAnalysis.getLearner().getUserId());
+        validateJson(videoAnalysis.getPoseData());
+        videoAnalysis.setVideoId(UUID.randomUUID().toString());
+        return videoAnalysisRepository.save(videoAnalysis);
     }
 
     // Cập nhật phân tích
@@ -80,5 +87,13 @@ public class VideoAnalysisService {
         return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.classifiedMovements LIKE :movement", VideoAnalysis.class)
                 .setParameter("movement", "%" + movement + "%")
                 .getResultList();
+    }
+
+    private void validateJson(String json) {
+        try {
+            new ObjectMapper().readTree(json);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid JSON data", e);
+        }
     }
 }

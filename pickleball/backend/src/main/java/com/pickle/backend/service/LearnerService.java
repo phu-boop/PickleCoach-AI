@@ -1,5 +1,6 @@
 package com.pickle.backend.service;
 
+import com.pickle.backend.dto.LearnerDTO;
 import com.pickle.backend.entity.Learner;
 import com.pickle.backend.entity.User;
 import com.pickle.backend.exception.ResourceNotFoundException;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LearnerService {
@@ -22,44 +25,93 @@ public class LearnerService {
     @Autowired
     private UserService userService;
 
-    public List<Learner> getAllLearners() {
+    public List<LearnerDTO> getAllLearners() {
         logger.info("Fetching all learners");
-        return learnerRepository.findAll();
+        List<Learner> learners = learnerRepository.findAll();
+
+        return learners.stream().map(learner -> {
+            LearnerDTO dto = new LearnerDTO();
+            dto.setId(learner.getUserId());
+            dto.setSkillLevel(learner.getSkillLevel());
+            dto.setGoals(learner.getGoals());
+            dto.setProgress(learner.getProgress());
+            dto.setUserName(learner.getUser().getName());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
-    public Optional<Learner> getLearnerById(String learnerId) {
+    public LearnerDTO getLearnerById(String learnerId) {
         logger.info("Fetching learner with id: {}", learnerId);
-        return learnerRepository.findById(learnerId);
+        Optional<Learner> learnerOptional = learnerRepository.findById(learnerId);
+        if (learnerOptional.isEmpty()) {
+            logger.warn("Learner with id: {} not found", learnerId);
+            throw new NoSuchElementException("Learner with ID " + learnerId + " not found");
+        }
+        Learner learner = learnerOptional.get();
+        LearnerDTO dto = new LearnerDTO();
+        dto.setId(learner.getUserId());
+        dto.setSkillLevel(learner.getSkillLevel());
+        dto.setGoals(learner.getGoals());
+        dto.setProgress(learner.getProgress());
+        dto.setUserName(learner.getUser().getName());
+        return dto;
     }
 
-    public Learner createLearner(Learner learner) {
-        logger.info("Creating learner for user with email: {}", learner.getUser().getEmail());
-        User userDetails = learner.getUser();
-        Optional<User> existingUser = userService.findByEmail(userDetails.getEmail());
-        User savedUser;
+    public Learner createLearner(LearnerDTO learnerDto) { // Đổi tên biến cho rõ ràng
+        logger.info("Attempting to create learner for user with ID: {}", learnerDto.getId());
+
+        Optional<User> existingUser = userService.getUserById(learnerDto.getId());
 
         if (existingUser.isPresent()) {
-            logger.info("User with email {} already exists", userDetails.getEmail());
-            savedUser = existingUser.get();
+            User foundUser = existingUser.get();
+            logger.info("Found existing user with ID: {}. Proceeding to create learner.", learnerDto.getId());
+            Learner newLearner = new Learner();
+            newLearner.setUser(foundUser);
+            newLearner.setGoals(learnerDto.getGoals());
+            newLearner.setSkillLevel(learnerDto.getSkillLevel());
+            newLearner.setProgress(learnerDto.getProgress());
+            foundUser.setRole("learner");
+            return learnerRepository.save(newLearner);
         } else {
-            logger.info("Creating new user for learner with email: {}", userDetails.getEmail());
-            userDetails.setRole("learner");
-            savedUser = userService.createUser(userDetails);
+            logger.warn("Failed to create learner: User not found with ID: {}", learnerDto.getId());
+            // Ném ngoại lệ để controller có thể xử lý và trả về 404 Not Found
+            throw new ResourceNotFoundException("User not found with ID: " + learnerDto.getId());
         }
-
-        learner.setUser(savedUser);
-        learner.setUserId(savedUser.getUserId());
-        return learnerRepository.save(learner);
     }
 
-    public Learner updateLearner(String learnerId, Learner learnerDetails) {
-        logger.info("Updating learner with id: {}", learnerId);
-        return learnerRepository.findById(learnerId).map(learner -> {
+    public LearnerDTO updateLearner(String learnerId, LearnerDTO learnerDetails) {
+        logger.info("Bắt đầu cập nhật người học với ID: {}", learnerId);
+        if (learnerDetails == null) {
+            logger.error("Dữ liệu người học gửi lên là null cho ID: {}", learnerId);
+            throw new IllegalArgumentException("Dữ liệu người học không được null");
+        }
+        Learner learner = learnerRepository.findById(learnerId)
+                .orElseThrow(() -> {
+                    logger.warn("Không tìm thấy người học với ID: {}", learnerId);
+                    return new ResourceNotFoundException("Không tìm thấy người học với ID " + learnerId);
+                });
+        if (learnerDetails.getSkillLevel() != null) {
             learner.setSkillLevel(learnerDetails.getSkillLevel());
+        }
+        if (learnerDetails.getGoals() != null) {
             learner.setGoals(learnerDetails.getGoals());
+        }
+        if (learnerDetails.getProgress() != null) {
             learner.setProgress(learnerDetails.getProgress());
-            return learnerRepository.save(learner);
-        }).orElseThrow(() -> new ResourceNotFoundException("Learner not found with id " + learnerId));
+        }
+        if (learnerDetails.getUserName() != null) {
+            learner.getUser().setName(learnerDetails.getUserName());
+        }
+        Learner updatedLearner = learnerRepository.save(learner);
+        logger.info("Đã cập nhật thành công người học với ID: {}", learnerId);
+        LearnerDTO result = new LearnerDTO();
+        result.setUserName(learner.getUser().getName());
+        result.setId(updatedLearner.getUserId());
+        result.setSkillLevel(updatedLearner.getSkillLevel());
+        result.setGoals(updatedLearner.getGoals());
+        result.setProgress(updatedLearner.getProgress());
+        result.setUserName(updatedLearner.getUser().getName());
+        return result;
     }
 
     public void deleteLearner(String learnerId) {

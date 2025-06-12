@@ -23,22 +23,36 @@ public class JwtService {
     }
 
     public String generateToken(String email, List<String> roles) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setClaims(Map.of("roles", roles))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key) // <-- chỉ cần truyền key, không cần SignatureAlgorithm nữa
-                .compact();
+        try {
+            System.out.println("Generating token for email: " + email + ", roles: " + roles);
+            String token = Jwts.builder()
+                    .setClaims(Map.of("roles", roles))
+                    .setSubject(email)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .signWith(key)
+                    .compact();
+            System.out.println("Token generated: " + token);
+            return token;
+        } catch (Exception e) {
+            System.err.println("Error generating token: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to generate JWT token", e);
+        }
     }
 
     public Claims extractAllClaims(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims;
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            System.err.println("Error extracting claims from token: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to extract claims from token", e);
+        }
     }
 
     public String extractUsername(String token) {
@@ -51,11 +65,23 @@ public class JwtService {
     }
 
     public boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+        try {
+            return extractAllClaims(token).getExpiration().before(new Date());
+        } catch (Exception e) {
+            System.err.println("Error checking token expiration: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to check token expiration", e);
+        }
     }
 
     public boolean validateToken(String token, String email) {
-        final String extractedEmail = extractUsername(token);
-        return (extractedEmail.equals(email) && !isTokenExpired(token));
+        try {
+            final String extractedEmail = extractUsername(token);
+            return (extractedEmail.equals(email) && !isTokenExpired(token));
+        } catch (Exception e) {
+            System.err.println("Error validating token: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }
