@@ -1,11 +1,12 @@
 package com.pickle.backend.entity;
 
 import jakarta.persistence.*;
-// import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
+
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "video_analyses")
@@ -14,30 +15,33 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VideoAnalysis {
+
     @Id
-    @Column(columnDefinition = "uuid")
+    @Column(name = "video_id", nullable = false)
     private String videoId;
 
-    @Column(nullable = false)
+    @Column(name = "learner_id", nullable = false)
     private String learnerId;
 
-    @Column(columnDefinition = "text")
+    @Column(name = "pose_data", columnDefinition = "LONGTEXT")
     private String poseData;
 
-    @Column(columnDefinition = "text")
+    @Column(name = "classified_movements", columnDefinition = "LONGTEXT")
     private String classifiedMovements;
 
-    @Column(columnDefinition = "text")
+    @Column(name = "analysis_result", columnDefinition = "LONGTEXT")
     private String analysisResult;
 
-    @Column(columnDefinition = "text")
+    @Column(name = "recommendations", columnDefinition = "LONGTEXT")
     private String recommendations;
 
-    @Column(updatable = false)
-    private java.sql.Timestamp createdAt;
+    @Column(name = "video_path")
+    private String videoPath;
 
-    // Nếu cần mối quan hệ với Learner
-    // @ManyToOne
-    // @JoinColumn(name = "learnerId", insertable = false, updatable = false)
-    // private Learner learner;
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "learner_id", referencedColumnName = "userId", insertable = false, updatable = false)
+    private Learner learner;
 }
