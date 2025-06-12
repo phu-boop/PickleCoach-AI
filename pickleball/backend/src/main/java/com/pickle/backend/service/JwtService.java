@@ -12,8 +12,6 @@ import java.util.*;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String SECRET_KEY;
     private static final long EXPIRATION_TIME = 86400000; // 1 ngày (ms)
     private final Key key;
 
@@ -22,17 +20,16 @@ public class JwtService {
             throw new IllegalArgumentException("JWT secret cannot be null or empty");
         }
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.SECRET_KEY = secret;
     }
 
     public String generateToken(String email, List<String> roles) {
         try {
             System.out.println("Generating token for email: " + email + ", roles: " + roles);
             String token = Jwts.builder()
-                    .claims(Map.of("roles", roles))
-                    .subject(email)
-                    .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .setClaims(Map.of("roles", roles))
+                    .setSubject(email)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                     .signWith(key)
                     .compact();
             System.out.println("Token generated: " + token);
@@ -46,7 +43,7 @@ public class JwtService {
 
     public Claims extractAllClaims(String token) {
         try {
-            return Jwts.parser()
+            return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
@@ -62,8 +59,9 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> extractRoles(String token) {
-        return extractAllClaims(token).get("roles", List.class);
+        return (List<String>) extractAllClaims(token).get("roles", List.class);
     }
 
     public boolean isTokenExpired(String token) {
