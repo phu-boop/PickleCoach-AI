@@ -1,7 +1,6 @@
 package com.pickle.backend.controller;
 
 import com.pickle.backend.entity.VideoAnalysis;
-import com.pickle.backend.entity.Learner;
 import com.pickle.backend.service.FullAnalysisService;
 import com.pickle.backend.service.VideoAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import lombok.Data;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -23,7 +23,6 @@ public class VideoAnalysisController {
     @Autowired
     private FullAnalysisService fullAnalysisService;
 
-
     @PostMapping("/full-analysis")
     public ResponseEntity<?> fullAnalysis(
             @RequestParam String learnerId,
@@ -33,7 +32,7 @@ public class VideoAnalysisController {
             return ResponseEntity.badRequest().body(new VideoAnalysisResponse("Error: Provide video or self-assessed level"));
         }
         try {
-            VideoAnalysis result = fullAnalysisService.analyze(learnerId, video, selfAssessedLevel);
+            Map<String, Object> result = fullAnalysisService.analyze(learnerId, video, selfAssessedLevel);
             return ResponseEntity.ok(new VideoAnalysisResponse("Phân tích video thành công", result));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new VideoAnalysisResponse("Phân tích video không thành công " + e.getMessage()));
@@ -81,36 +80,23 @@ public class VideoAnalysisController {
     @Data
     public static class VideoAnalysisResponse {
         private String message;
-        private VideoAnalysis result;
-        private Learner learner; // Thêm trường này
+        private Object result; // Đổi thành Object để nhận Map hoặc VideoAnalysis
 
         public VideoAnalysisResponse() {}
 
         public VideoAnalysisResponse(String message) {
             this.message = message;
             this.result = null;
-            this.learner = null;
         }
 
-        public VideoAnalysisResponse(String message, VideoAnalysis result) {
+        public VideoAnalysisResponse(String message, Object result) {
             this.message = message;
             this.result = result;
-            this.learner = null;
-        }
-
-        public VideoAnalysisResponse(String message, VideoAnalysis result, Learner learner) {
-            this.message = message;
-            this.result = result;
-            this.learner = learner;
         }
 
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }
-        public VideoAnalysis getResult() { return result; }
-        public void setResult(VideoAnalysis result) { this.result = result; }
-        public Learner getLearner() { return learner; }
-        public void setLearner(Learner learner) { this.learner = learner; }
+        public Object getResult() { return result; }
+        public void setResult(Object result) { this.result = result; }
     }
-
-    
 }

@@ -91,15 +91,5 @@ CREATE TABLE movement_classification (
 );
 
 -- Tạo bảng content
-CREATE TABLE content (
-    id BIGINT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    tags TEXT NOT NULL,
-    url TEXT NOT NULL
-);
 
-INSERT INTO users (userId, name, email, password, role, skill_level, preferences)
-VALUES ('abc123', 'Test User', 'test@example.com', 'password', 'user', 'beginner', 'forehand,serve');
 
-INSERT INTO content (id, title, tags, url)
-VALUES (1, 'Hướng dẫn forehand', 'forehand,beginner', 'https://example.com/video1');

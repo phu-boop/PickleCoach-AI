@@ -4,21 +4,19 @@ import json
 import numpy as np
 import mediapipe as mp
 from flask import Flask, request, jsonify
+import uuid
 
 app = Flask(__name__)
 
-# Khởi tạo MediaPipe Pose
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-# Hàm phân loại chuyển động từ video
 def classify_movement(video_path):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         return None
     
     labels = []
-    timestamps = []
     frame_count = 0
     fps = cap.get(cv2.CAP_PROP_FPS)
 
@@ -28,9 +26,7 @@ def classify_movement(video_path):
             break
         frame_count += 1
         timestamp_ms = int((frame_count / fps) * 1000)
-        timestamps.append(timestamp_ms)
 
-        # Phát hiện tư thế
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = pose.process(rgb_frame)
 
@@ -43,55 +39,36 @@ def classify_movement(video_path):
                 labels.append({"label": "volley", "timestamp": timestamp_ms})
             elif right_wrist.x > 0.7:
                 labels.append({"label": "forehand", "timestamp": timestamp_ms})
-            elif left_wrist.x < 0.3 and frame_count % 5 == 0:
+            elif left_wrist.x < 0.3:
                 labels.append({"label": "backhand", "timestamp": timestamp_ms})
-            elif abs(right_wrist.y - right_shoulder.y) > 0.3 and frame_count % 7 == 0:
+            elif abs(right_wrist.y - right_shoulder.y) > 0.3:
                 labels.append({"label": "lob", "timestamp": timestamp_ms})
-            elif right_wrist.y > 0.7 and frame_count % 6 == 0:
+            elif right_wrist.y > 0.7:
                 labels.append({"label": "drop shot", "timestamp": timestamp_ms})
-            elif frame_count % 8 == 0:
-                labels.append({"label": "serve", "timestamp": timestamp_ms})
-            elif frame_count % 9 == 0:
-                labels.append({"label": "dink", "timestamp": timestamp_ms})
-        else:
-            labels.append({"label": "Không xác định", "timestamp": timestamp_ms})
+            # Loại bỏ label cố định dựa trên frame_count
 
     cap.release()
-    os.remove(video_path)
+    try:
+        os.remove(video_path)
+    except Exception:
+        pass  # Bỏ qua lỗi xóa file
 
-    # Đánh giá cấp độ kỹ năng
-    if not labels or len(labels) < 2:
-        skill_levels = ["rất yếu", "yếu"]
-        movement_skill_levels = ["yếu"]
-    else:
-        idx = min(len(labels) // 3, 2)
-        skill_levels = ["yếu", "khá", "tốt"]
-        movement_skill_levels = [skill_levels[idx]]
-
-    # Đề xuất lộ trình mở rộng
+    skill_level = "yếu" if len(labels) < 2 else "khá" if len(labels) < 4 else "tốt"
     recommendations = [
-        {"title": "I. Người mới bắt đầu (Beginner - Trình độ 1.0–2.5)", "description": "Khóa học cơ bản cho người mới", "url": "https://example.com/beginner_course"},
-        {"title": "II. Trình độ trung cấp (Intermediate – 3.0–3.5)", "description": "Nâng cao kỹ thuật", "url": "https://example.com/intermediate_course"},
-        {"title": "III. Trình độ nâng cao (Advanced – 4.0 trở lên)", "description": "Chuẩn bị thi đấu chuyên nghiệp", "url": "https://example.com/advanced_course"},
-        {"title": "Khóa học volley cơ bản", "level": "Beginner", "url": "https://example.com/volley_basic"},
-        {"title": "Nâng cao forehand", "level": "Intermediate", "url": "https://example.com/forehand_advanced"},
-        {"title": "Kỹ thuật backhand", "level": "Intermediate", "url": "https://example.com/backhand_course"},
-        {"title": "Bài tập dink", "level": "Beginner", "url": "https://example.com/dink_exercise"},
-        {"title": "Kỹ thuật lob nâng cao", "level": "Advanced", "url": "https://example.com/lob_advanced"},
-        {"title": "Hoàn thiện drop shot", "level": "Intermediate", "url": "https://example.com/drop_shot_course"},
-        {"title": "Bài tập serve", "level": "Beginner", "url": "https://example.com/serve_exercise"}
+        {"title": f"Khóa học {skill_level}", "description": f"Nâng cao kỹ thuật {skill_level}", "url": f"https://example.com/{skill_level}_course"}
+    ] if labels else [
+        {"title": "Khóa học cơ bản", "description": "Dành cho người mới", "url": "https://example.com/beginner_course"}
     ]
 
     movement_data = {
-        "labels": labels[:4],  # Giới hạn 4 label
-        "skillLevels": movement_skill_levels
+        "labels": labels[:4],
+        "skillLevels": [skill_level]
     }
     return {
         "classifiedMovements": json.dumps(movement_data),
         "recommendations": json.dumps(recommendations)
     }
 
-# Endpoint xử lý phân loại chuyển động
 @app.route('/movement-classification', methods=['POST'])
 def classify_movement_endpoint():
     try:
