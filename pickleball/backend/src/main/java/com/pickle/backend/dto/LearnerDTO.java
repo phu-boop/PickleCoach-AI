@@ -1,6 +1,5 @@
 package com.pickle.backend.dto;
 
-import java.util.List;
 
 public class LearnerDTO {
     private String id;
