@@ -1,12 +1,17 @@
 package com.pickle.backend.controller;
 
 import com.pickle.backend.entity.VideoAnalysis;
+import com.pickle.backend.entity.Learner;
+import com.pickle.backend.service.FullAnalysisService;
 import com.pickle.backend.service.VideoAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Data;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -15,22 +20,25 @@ public class VideoAnalysisController {
 
     @Autowired
     private VideoAnalysisService videoAnalysisService;
+    @Autowired
+    private FullAnalysisService fullAnalysisService;
 
-    // @PostMapping("/full-analysis")
-    // public ResponseEntity<?> fullAnalysis(
-    //         @RequestParam String learnerId,
-    //         @RequestParam(value = "video", required = false) MultipartFile video,
-    //         @RequestParam(value = "selfAssessedLevel", required = false) String selfAssessedLevel) throws IOException {
-    //     if (video == null && selfAssessedLevel == null) {
-    //         return ResponseEntity.badRequest().body(new VideoAnalysisResponse("Error: Provide video or self-assessed level"));
-    //     }
-    //     try {
-    //         VideoAnalysis result = videoAnalysisService.analyze(learnerId, video, selfAssessedLevel);
-    //         return ResponseEntity.ok(new VideoAnalysisResponse(result));
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(500).body(new VideoAnalysisResponse("Error processing analysis: " + e.getMessage()));
-    //     }
-    // }
+
+    @PostMapping("/full-analysis")
+    public ResponseEntity<?> fullAnalysis(
+            @RequestParam String learnerId,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "selfAssessedLevel", required = false) String selfAssessedLevel) throws IOException {
+        if (video == null && selfAssessedLevel == null) {
+            return ResponseEntity.badRequest().body(new VideoAnalysisResponse("Error: Provide video or self-assessed level"));
+        }
+        try {
+            VideoAnalysis result = fullAnalysisService.analyze(learnerId, video, selfAssessedLevel);
+            return ResponseEntity.ok(new VideoAnalysisResponse("Phân tích video thành công", result));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new VideoAnalysisResponse("Phân tích video không thành công " + e.getMessage()));
+        }
+    }
 
     @GetMapping("/analyses")
     public ResponseEntity<List<VideoAnalysis>> getAllVideoAnalyses() {
@@ -73,14 +81,36 @@ public class VideoAnalysisController {
     @Data
     public static class VideoAnalysisResponse {
         private String message;
-        private VideoAnalysis data;
+        private VideoAnalysis result;
+        private Learner learner; // Thêm trường này
+
+        public VideoAnalysisResponse() {}
 
         public VideoAnalysisResponse(String message) {
             this.message = message;
+            this.result = null;
+            this.learner = null;
         }
 
-        public VideoAnalysisResponse(VideoAnalysis data) {
-            this.data = data;
+        public VideoAnalysisResponse(String message, VideoAnalysis result) {
+            this.message = message;
+            this.result = result;
+            this.learner = null;
         }
+
+        public VideoAnalysisResponse(String message, VideoAnalysis result, Learner learner) {
+            this.message = message;
+            this.result = result;
+            this.learner = learner;
+        }
+
+        public String getMessage() { return message; }
+        public void setMessage(String message) { this.message = message; }
+        public VideoAnalysis getResult() { return result; }
+        public void setResult(VideoAnalysis result) { this.result = result; }
+        public Learner getLearner() { return learner; }
+        public void setLearner(Learner learner) { this.learner = learner; }
     }
+
+    
 }

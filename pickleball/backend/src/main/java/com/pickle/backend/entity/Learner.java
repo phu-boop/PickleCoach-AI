@@ -35,4 +35,10 @@ public class Learner {
 
     @Column(name = "progress")
     private String progress;
+
+    public Learner(String userId, User user, String skillLevel) {
+        this.userId = userId;
+        this.user = user;
+        this.skillLevel = skillLevel;
+    }
 }

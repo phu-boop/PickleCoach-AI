@@ -9,9 +9,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 
-
+@Getter
+@Setter
 @Service
 @Transactional
 public class VideoAnalysisService {
