@@ -17,13 +17,21 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    // private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    // private final CustomOAuth2SuccessHandler oAuth2SuccessHandler;
+
+    // public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+    // CustomOAuth2SuccessHandler oAuth2SuccessHandler) {
+    // this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    // this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+    // }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(@Value("${jwt.secret}") String secret) {
@@ -34,33 +42,40 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
 
     @Profile("!test")
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
+            throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/ai/full-analysis").permitAll()
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả OPTIONS
+                        .requestMatchers("/api/ai/full-analysis").permitAll()
+                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**",
+                                "/login/oauth2/code/google", "/api/questions/**")
+                        .permitAll()
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/api/users/**").hasRole("admin")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth2 -> oauth2.disable());
+                .oauth2Login(oauth2 -> oauth2.disable())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll());
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "*")); // Thêm "*" cho test
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -73,50 +88,46 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-    // @Bean
-    // public JwtAuthenticationFilter jwtAuthenticationFilter(String secret) {
-    //     return new JwtAuthenticationFilter(secret);
-    // }
-
-    // @Bean
-    // public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
-    //     http
-    //             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-    //             .csrf(csrf -> csrf.disable())
-    //             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-    //             .authorizeHttpRequests(auth -> auth
-    //                     .requestMatchers(HttpMethod.POST, "/api/ai/full-analysis").permitAll()
-    //                     .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**").permitAll()
-    //                     .requestMatchers("/api/users/profile").hasRole("USER")
-    //                     .requestMatchers("/api/users/**").hasRole("admin")
-    //                     .anyRequest().authenticated()
-    //             )
-    //             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-    //             .oauth2Login(oauth2 -> oauth2.disable())
-    //             .logout(logout -> logout
-    //                     .logoutUrl("/logout")
-    //                     .logoutSuccessUrl("/")
-    //                     .permitAll()
-    //             );
-    //     return http.build();
-    // }
-
-    // @Bean
-    // public CorsConfigurationSource corsConfigurationSource() {
-    //     CorsConfiguration config = new CorsConfiguration();
-    //     config.setAllowedOrigins(List.of("http://localhost:5173"));
-    //     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    //     config.setAllowedHeaders(List.of("*"));
-    //     config.setAllowCredentials(true);
-    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    //     source.registerCorsConfiguration("/**", config);
-    //     return source;
-    // }
-
-    // @Bean
-    // public PasswordEncoder passwordEncoder() {
-    //     return new BCryptPasswordEncoder();
-    // }
 }
+
+// @Bean
+// public SecurityFilterChain securityFilterChain(HttpSecurity http,
+// JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+// http
+// .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+// .csrf(csrf -> csrf.disable())
+// .sessionManagement(session ->
+// session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+// .authorizeHttpRequests(auth -> auth
+// .requestMatchers("/api/ai/full-analysis").permitAll()
+// .requestMatchers("/api/users/register", "/api/users/login",
+// "/api/questions/**", "/login/oauth2/code/google").permitAll()
+// .requestMatchers("/api/users/profile").hasRole("USER")
+// .requestMatchers("/api/users/**").hasRole("admin")
+// .anyRequest().authenticated()
+// // .requestMatchers(HttpMethod.POST, "/api/ai/full-analysis").permitAll()
+// // .requestMatchers("/api/users/register", "/api/users/login",
+// "/api/questions/**").permitAll()
+// // .requestMatchers("/api/users/profile").hasRole("USER")
+// // .requestMatchers("/api/users/**").hasRole("admin")
+// // .anyRequest().authenticated()
+// )
+// .addFilterBefore(jwtAuthenticationFilter,
+// UsernamePasswordAuthenticationFilter.class)
+// // .oauth2Login(oauth2 -> oauth2
+// // .loginProcessingUrl("/login/oauth2/code/google")
+// // .successHandler(oAuth2SuccessHandler)
+// // .failureUrl("/login?error=true") // Xử lý lỗi OAuth2
+// // )
+// .oauth2Login(oauth2 -> oauth2.disable())
+// .logout(logout -> logout
+// .logoutUrl("/logout")
+// .logoutSuccessUrl("/")
+// .permitAll()
+// );
+// // .exceptionHandling(exception -> exception
+// // .accessDeniedPage("/access-denied") // Trang lỗi tùy chỉnh
+// // );
+
+// return http.build();
+// }

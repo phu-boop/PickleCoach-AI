@@ -32,13 +32,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String path = request.getRequestURI();
-        String contextPath = request.getContextPath();
-        System.out.println("Processing request: URI=" + path + ", ContextPath=" + contextPath);
+        String method = request.getMethod();
+        System.out.println(
+                "Processing request: URI=" + path + ", Method=" + method + ", ContextPath=" + request.getContextPath());
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            System.out.println("Skipping authentication for OPTIONS request: " + path);
+            chain.doFilter(request, response);
+            return;
+        }
         if (path.equals("/api/ai/full-analysis") ||
                 path.startsWith("/api/users/register") ||
                 path.startsWith("/api/users/login") ||
                 path.startsWith("/api/questions/")) {
-            System.out.println("Skipping authentication for: " + path);
+            System.out.println("Skipping authentication for: " + path + " (Method: " + method + ")");
             chain.doFilter(request, response);
             return;
         }
@@ -53,7 +59,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .build()
                         .parseClaimsJws(token)
                         .getBody();
-
                 String username = claims.getSubject();
                 if (username != null) {
                     List<String> roles = ((List<?>) claims.get("roles")).stream()
@@ -72,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         } else {
-            System.out.println("No valid token found, denying access");
+            System.out.println("No valid token found, denying access for secured path: " + path);
         }
         chain.doFilter(request, response);
     }

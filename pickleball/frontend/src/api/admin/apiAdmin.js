@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiClient = axios.create({
+const apiAdmin = axios.create({
   baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
@@ -8,7 +8,7 @@ const apiClient = axios.create({
 });
 
 // Thêm interceptor để tự động đính kèm token vào mỗi request
-apiClient.interceptors.request.use(
+apiAdmin.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token');
     if (token) {
@@ -18,4 +18,4 @@ apiClient.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-export default apiClient;
+export default apiAdmin;
