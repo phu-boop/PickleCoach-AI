@@ -37,7 +37,7 @@ public class VideoAnalysis {
     private java.sql.Timestamp createdAt;
 
     // Nếu cần mối quan hệ với Learner
-    @ManyToOne
-    @JoinColumn(name = "learnerId", insertable = false, updatable = false)
-    private Learner learner;
+    // @ManyToOne
+    // @JoinColumn(name = "learnerId", insertable = false, updatable = false)
+    // private Learner learner;
 }
