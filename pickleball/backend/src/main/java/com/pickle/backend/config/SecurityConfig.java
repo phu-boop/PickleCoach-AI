@@ -2,6 +2,7 @@ package com.pickle.backend.config;
 
 import com.pickle.backend.config.JwtAuthenticationFilter;
 import com.pickle.backend.config.CustomOAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -56,7 +57,13 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/access-denied") // Trang lỗi tùy chỉnh
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // Trả về lỗi 401 Unauthorized thay vì redirect Google
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+                        })
                 );
 
         return http.build();

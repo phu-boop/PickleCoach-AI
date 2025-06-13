@@ -9,8 +9,8 @@ import java.util.List;
 
 @Repository
 public interface LearnerProgressRepository extends JpaRepository<LearnerProgress, Long> {
-    List<LearnerProgress> findByLearnerId(Long learnerId);
+    List<LearnerProgress> findByLearnerId(String learnerId);
 
     @Query("SELECT lp FROM LearnerProgress lp WHERE lp.learnerId = :learnerId AND lp.isCompleted = false")
-    List<LearnerProgress> findIncompleteByLearnerId(Long learnerId);
+    List<LearnerProgress> findIncompleteByLearnerId(String learnerId);
 }
