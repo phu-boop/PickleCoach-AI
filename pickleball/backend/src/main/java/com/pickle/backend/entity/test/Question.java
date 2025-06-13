@@ -1,5 +1,4 @@
 package com.pickle.backend.entity.test;
-import com.pickle.backend.dto.OptionDTO;
 import jakarta.persistence.*;
 import java.util.List;
 @Entity
@@ -31,5 +30,13 @@ public class Question {
 
     public Long getId() {
         return id;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 }

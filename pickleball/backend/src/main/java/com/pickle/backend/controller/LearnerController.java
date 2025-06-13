@@ -9,7 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/learners")
@@ -19,26 +18,27 @@ public class LearnerController {
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public List<Learner> getAllLearners() {
+    public List<LearnerDTO> getAllLearners() {
         return learnerService.getAllLearners();
     }
     @GetMapping("/{learnerId}")
-    @PreAuthorize("hasRole('admin') or principal.userId == #learnerId")
-    public ResponseEntity<Learner> getLearnerById(@PathVariable String learnerId) {
-        Optional<Learner> learner = learnerService.getLearnerById(learnerId);
-        return learner.map(ResponseEntity::ok)
-                      .orElseGet(() -> ResponseEntity.notFound().build());
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<LearnerDTO> getLearnerById(@PathVariable String learnerId) {
+        LearnerDTO learner = learnerService.getLearnerById(learnerId);
+        if (learner == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(learner);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
     public Learner createLearner(@RequestBody LearnerDTO Learner) {
         return learnerService.createLearner(Learner);
     }
 
     @PutMapping("/{learnerId}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Learner> updateLearner(@PathVariable String learnerId, @RequestBody Learner learnerDetails) {
+    public ResponseEntity<LearnerDTO> updateLearner(@PathVariable String learnerId, @RequestBody LearnerDTO learnerDetails) {
         return ResponseEntity.ok(learnerService.updateLearner(learnerId, learnerDetails));
     }
 

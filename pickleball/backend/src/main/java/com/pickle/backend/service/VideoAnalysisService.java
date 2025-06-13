@@ -1,95 +1,99 @@
 package com.pickle.backend.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.pickle.backend.entity.VideoAnalysis;
 
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import com.pickle.backend.repository.VideoAnalysisRepository;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickle.backend.entity.VideoAnalysis;
-import com.pickle.backend.exception.ResourceNotFoundException;
-import com.pickle.backend.repository.VideoAnalysisRepository;
-
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Setter
 @Getter
-@Service 
+@Setter
+@Service
+@Transactional
 public class VideoAnalysisService {
+
     private static final Logger logger = LoggerFactory.getLogger(VideoAnalysisService.class);
+
+    private final RestTemplate restTemplate;
+    private final EntityManager entityManager;
 
     @Autowired
     private VideoAnalysisRepository videoAnalysisRepository;
 
-    @Autowired
-    private LearnerService learnerService;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public List<VideoAnalysis> getAllVideoAnalyses() {
-        logger.info("Fetching all video analyses");
-        return videoAnalysisRepository.findAll();
+    public VideoAnalysisService(RestTemplate restTemplate, EntityManager entityManager) {
+        this.restTemplate = restTemplate;
+        this.entityManager = entityManager;
     }
 
-    public Optional<VideoAnalysis> getVideoAnalysisById(String videoId) {
-        logger.info("Fetching video analysis with id: {}", videoId);
-        return videoAnalysisRepository.findById(videoId);
+    // Lấy tất cả phân tích
+    public List<VideoAnalysis> getAllVideoAnalyses() {
+        return entityManager.createQuery("SELECT v FROM VideoAnalysis v", VideoAnalysis.class).getResultList();
+    }
+
+    // Lấy phân tích theo ID
+    public VideoAnalysis getVideoAnalysisById(String id) {
+        return entityManager.find(VideoAnalysis.class, id);
     }
 
     public VideoAnalysis createVideoAnalysis(VideoAnalysis videoAnalysis) {
         logger.info("Creating video analysis for learner: {}", videoAnalysis.getLearner().getUserId());
-        if (!learnerService.getLearnerById(videoAnalysis.getLearner().getUserId()).isPresent()) {
-            logger.warn("Learner with id {} not found", videoAnalysis.getLearner().getUserId());
-            throw new ResourceNotFoundException("Learner not found with id " + videoAnalysis.getLearner().getUserId());
-        }
         validateJson(videoAnalysis.getPoseData());
         videoAnalysis.setVideoId(UUID.randomUUID().toString());
         return videoAnalysisRepository.save(videoAnalysis);
     }
 
-    public VideoAnalysis updateVideoAnalysis(String videoId, VideoAnalysis details) {
-        logger.info("Updating video analysis with id: {}", videoId);
-        validateJson(details.getPoseData());
-        return videoAnalysisRepository.findById(videoId).map(va -> {
-            va.setLearner(details.getLearner());
-            va.setPoseData(details.getPoseData());
-            va.setClassifiedMovements(details.getClassifiedMovements());
-            va.setAnalysisResult(details.getAnalysisResult());
-            return videoAnalysisRepository.save(va);
-        }).orElseThrow(() -> new ResourceNotFoundException("VideoAnalysis not found with id " + videoId));
-    }
-
-    public void deleteVideoAnalysis(String videoId) {
-        logger.info("Deleting video analysis with id: {}", videoId);
-        if (!videoAnalysisRepository.existsById(videoId)) {
-            logger.warn("VideoAnalysis with id {} not found", videoId);
-            throw new ResourceNotFoundException("VideoAnalysis not found with id " + videoId);
+    // Cập nhật phân tích
+    public VideoAnalysis updateVideoAnalysis(String id, VideoAnalysis analysis) {
+        VideoAnalysis existing = entityManager.find(VideoAnalysis.class, id);
+        if (existing != null) {
+            existing.setLearnerId(analysis.getLearnerId());
+            existing.setPoseData(analysis.getPoseData());
+            existing.setClassifiedMovements(analysis.getClassifiedMovements());
+            existing.setAnalysisResult(analysis.getAnalysisResult());
+            existing.setRecommendations(analysis.getRecommendations());
+            return existing;
         }
-        videoAnalysisRepository.deleteById(videoId);
+        return null;
     }
 
+    // Xóa phân tích
+    public void deleteVideoAnalysis(String id) {
+        VideoAnalysis analysis = entityManager.find(VideoAnalysis.class, id);
+        if (analysis != null) {
+            entityManager.remove(analysis);
+        }
+    }
+
+    // Tìm theo learnerId
     public List<VideoAnalysis> findByLearnerId(String learnerId) {
-        logger.info("Fetching video analyses for learner with id: {}", learnerId);
-        return videoAnalysisRepository.findByLearnerUserId(learnerId);
+        return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.learnerId = :learnerId", VideoAnalysis.class)
+                .setParameter("learnerId", learnerId)
+                .getResultList();
     }
 
+    // Tìm theo movement (dựa trên classifiedMovements)
     public List<VideoAnalysis> findByMovement(String movement) {
-        logger.info("Fetching video analyses with movement: {}", movement);
-        return videoAnalysisRepository.findByClassifiedMovementsContaining(movement);
+        return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.classifiedMovements LIKE :movement", VideoAnalysis.class)
+                .setParameter("movement", "%" + movement + "%")
+                .getResultList();
     }
 
     private void validateJson(String json) {
         try {
-            objectMapper.readTree(json);
-        } catch (JsonProcessingException e) {
-            logger.warn("Invalid JSON format for poseData: {}", json);
-            throw new IllegalArgumentException("Invalid JSON format for poseData");
+            new ObjectMapper().readTree(json);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid JSON data", e);
         }
     }
 }

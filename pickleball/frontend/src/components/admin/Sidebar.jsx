@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, User, GraduationCap, Dumbbell, Calendar, FileQuestion   } from 'lucide-react';
+import { Store, User, GraduationCap, Calendar, FileQuestion   } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import Button from '../Button';
@@ -31,16 +31,27 @@ const Sidebar = () => {
       submenu: [],
     },
     {
-      title: 'Frameworks',
+      title: 'Learners',
+      icon: <GraduationCap className="w-7 h-7" />,
+      submenu: [],
+    },
+    {
+      title: 'courses',
       icon: <Calendar className="w-7 h-7" />,
       submenu: [],
     },
     {
-      title: 'Front Pages',
+      title: 'lessons',
       icon: <GraduationCap className="w-7 h-7" />,
       pro: true,
       submenu: [],
     },
+    {
+      title: 'learner-progress',
+      icon: <GraduationCap className="w-7 h-7" />,
+      pro: true,
+      submenu: [],
+    }
   ];
 
   return (

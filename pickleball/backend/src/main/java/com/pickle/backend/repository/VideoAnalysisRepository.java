@@ -1,16 +1,15 @@
 package com.pickle.backend.repository;
 
-import com.pickle.backend.entity.VideoAnalysis;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import org.springframework.data.jpa.repository.Query;
 import java.util.List;
+import com.pickle.backend.entity.VideoAnalysis;
 
-@Repository
 public interface VideoAnalysisRepository extends JpaRepository<VideoAnalysis, String> {
-    // Find all video analyses by learner
-    List<VideoAnalysis> findByLearnerUserId(String learnerId);
+    // Tìm theo learnerId (UUID)
+    List<VideoAnalysis> findByLearnerId(String learnerId);
 
-    // Find video analyses by movement
-    List<VideoAnalysis> findByClassifiedMovementsContaining(String movement);
+    // Tìm theo classifiedMovements chứa chuỗi
+    @Query("SELECT v FROM VideoAnalysis v WHERE v.classifiedMovements LIKE %?1%")
+    List<VideoAnalysis> findByClassifiedMovementsContaining(String keyword);
 }
