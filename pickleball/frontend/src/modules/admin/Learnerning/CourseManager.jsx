@@ -12,9 +12,23 @@ const CourseManager = () => {
     const fetchCourses = async () => {
       try {
         const data = await getAllCoursesAdmin();
-        setCourses(data);
+        // --- LOG Gỡ lỗi 1 ---
+        console.log('Dữ liệu nhận được từ API getAllCoursesAdmin:', data);
+
+        // Đảm bảo rằng 'data' là một mảng trước khi cập nhật state
+        if (Array.isArray(data)) {
+          setCourses(data);
+        } else {
+          // --- LOG Gỡ lỗi 2 ---
+          console.error('Lỗi: Dữ liệu nhận được từ API không phải là mảng:', data);
+          // Đặt 'courses' về mảng rỗng để tránh lỗi .map
+          setCourses([]);
+        }
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        // --- LOG Gỡ lỗi 3 ---
+        console.error('Lỗi khi tải khóa học:', error);
+        // Trong trường hợp lỗi, vẫn đảm bảo loading = false và courses là mảng rỗng
+        setCourses([]);
       } finally {
         setLoading(false);
       }
@@ -29,7 +43,7 @@ const CourseManager = () => {
       setCourses([...courses, createdCourse]);
       setNewCourse({ title: '', description: '', levelRequired: 'BEGINNER', thumbnailUrl: '' });
     } catch (error) {
-      console.error('Error creating course:', error);
+      console.error('Lỗi khi tạo khóa học:', error);
     }
   };
 
@@ -38,7 +52,7 @@ const CourseManager = () => {
       await deleteCourse(id);
       setCourses(courses.filter((course) => course.id !== id));
     } catch (error) {
-      console.error('Error deleting course:', error);
+      console.error('Lỗi khi xóa khóa học:', error);
     }
   };
 
@@ -92,6 +106,8 @@ const CourseManager = () => {
         <div className="text-center text-gray-500">Đang tải...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* --- LOG Gỡ lỗi 4 --- */}
+          {console.log('Giá trị của courses ngay trước khi map:', courses)}
           {courses.map((course) => (
             <div key={course.id} className="bg-white rounded-lg shadow-md p-4 flex justify-between items-center">
               <div>

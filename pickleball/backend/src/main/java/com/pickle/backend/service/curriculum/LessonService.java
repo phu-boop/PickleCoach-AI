@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LessonService {
@@ -18,7 +19,7 @@ public class LessonService {
         return lessonRepository.findAll();
     }
 
-    public Optional<Lesson> getLessonById(Long id) {
+    public Optional<Lesson> getLessonById(UUID id) {
         return lessonRepository.findById(id);
     }
 
@@ -26,7 +27,7 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
-    public void deleteLesson(Long id) {
+    public void deleteLesson(UUID id) {
         lessonRepository.deleteById(id);
     }
 }
