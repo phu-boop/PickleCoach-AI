@@ -12,7 +12,7 @@ public class LearnerProgress {
     private Long id;
 
     @Column(name = "learner_id", nullable = false)
-    private Long learnerId;
+    private String learnerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
@@ -43,4 +43,5 @@ public class LearnerProgress {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
 }
