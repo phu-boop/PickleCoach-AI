@@ -36,17 +36,27 @@ public class User {
     @Column(name = "role", length = 255)
     private String role;
 
-    @Column(name = "skill_level", length = 255)
-    private String skillLevel;
+    // @Column(name = "skill_level", length = 255)
+    // private String skillLevel;
 
-    @Column(name = "preferences", length = 255)
-    private String preferences;
+    // @Column(name = "preferences", length = 255)
+    // private String preferences;
 
     // Getter tùy chỉnh cho role (nếu cần)
-    public String getRole() {
-        return role;
-    }
+    // public String getRole() {
+    //     return role;
+    // }
     public String getId(){
         return userId;
+    }
+
+    public void setPreferences(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPreferences'");
+    }
+
+    public void setSkillLevel(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSkillLevel'");
     }
 }

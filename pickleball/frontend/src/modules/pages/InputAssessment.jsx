@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "../../components/Button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { createUpdate } from "../../api/user/update";
 export default function InputAssessment() {
   const navigate = useNavigate();
   const handleQuiz = () => {
@@ -9,7 +10,7 @@ export default function InputAssessment() {
   }
   return (
     <div className="max-w-4xl mx-auto p-6 font-sans">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 font-grandstander">
         Input Skill Assessment
       </h1>
       <div className="flex gap-4 mb-6">
@@ -35,20 +36,43 @@ export default function InputAssessment() {
   );
 }
 
-function QuizForm({ onSubmit }) {
+function QuizForm() {
+  const navigate = useNavigate();
   const [experience, setExperience] = useState("");
   const [backhand, setBackhand] = useState(5);
   const [goal, setGoal] = useState("");
   const [error, setError] = useState("");
-
-  const handleSubmit = () => {
+  
+  const data = {
+      "id": sessionStorage.getItem('id_user'),
+      "skillLevel": convertSkillLevel(backhand),
+      "goals": goal,
+      "progress": 'Just started'
+  }
+  const handleSubmit = async() => {
     if (!experience || !goal) {
       setError("Please complete all fields before submitting.");
       return;
     }
-    setError("");
-    onSubmit({ experience, backhand, goal });
+    try {
+      const respond = await createUpdate(data);
+      if(respond)
+      {
+        navigate('/');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+  function convertSkillLevel(backhand) {
+    if(backhand < 4){
+      return 'Beginner';
+    }else if(backhand > 7){
+      return 'Advanced ';
+    }else{
+      return 'Intermediate'
+    }
+  } 
 
   return (
     <Card className="mb-6 bg-white shadow-lg rounded-xl">
