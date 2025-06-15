@@ -1,5 +1,8 @@
 package com.pickle.backend.config;
 
+import com.pickle.backend.config.JwtAuthenticationFilter;
+import com.pickle.backend.config.CustomOAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,9 +71,17 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
-                        .permitAll());
-        return http.build();
-    }
+                        .permitAll()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // Trả về lỗi 401 Unauthorized thay vì redirect Google
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+                        })
+                );
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
