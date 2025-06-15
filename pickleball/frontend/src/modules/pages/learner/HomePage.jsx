@@ -3,12 +3,15 @@ import { FaBook, FaVideo } from 'react-icons/fa';
 import { getAllCourses, getRecommendedLessons } from '../../../api/learner/learningService';
 import CourseCard from './CourseCard';
 import LessonCard from './LessonCard';
+import {useAuth} from '../../../contexts/AuthContext'
 
 const HomePage = ({ userId }) => {
+  const {token} = useAuth();
+  console.log(token);
   const [courses, setCourses] = useState([]);
   const [recommendedLessons, setRecommendedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
