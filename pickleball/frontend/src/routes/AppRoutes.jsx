@@ -20,6 +20,8 @@ import LessonDetailPage from '../modules/pages/learner/LessonDetailPage';
 import CourseManager from '../modules/admin/Learnerning/CourseManager';
 import LessonManager from '../modules/admin/Learnerning/LessonManager';
 import LearnerProgress from '../modules/admin/Learnerning/LearnerProgress';
+import CourseCard from'../modules/pages/learner/CourseCard';
+import LessonByCourse from'../modules/pages/learner/LessonByCourse'
 //import Profile from '../modules/pages/learner/Profile'; 
 
 function AppRoutesUser() {
@@ -63,6 +65,7 @@ function AppRoutesUser() {
       >
         <Route path="learner" element={<HomePage userId={userId} />} />
         <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
+        <Route path="course/:id" element={<LessonByCourse/>}/>
       </Route>
 
       {/* Admin routes - Yêu cầu ROLE_ADMIN */}
