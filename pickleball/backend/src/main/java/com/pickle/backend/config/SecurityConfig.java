@@ -40,7 +40,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**", "/login/oauth2/code/google").permitAll()
+                        .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**", "/login/oauth2/code/google","/api/admin/**").permitAll()
+                        .requestMatchers("/api/learners/{userId}/recommended-lessons").hasRole("learner")
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/api/users/**").hasRole("admin")
                         .anyRequest().authenticated()
