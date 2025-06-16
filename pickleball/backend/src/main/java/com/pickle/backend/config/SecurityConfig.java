@@ -27,15 +27,6 @@ import java.util.List;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    // private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    // private final CustomOAuth2SuccessHandler oAuth2SuccessHandler;
-
-    // public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-    // CustomOAuth2SuccessHandler oAuth2SuccessHandler) {
-    // this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    // this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-    // }
-
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(@Value("${jwt.secret}") String secret) {
         return new JwtAuthenticationFilter(secret);
@@ -51,7 +42,7 @@ public class SecurityConfig {
 
     @Profile("!test")
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler)
             throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -61,13 +52,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả OPTIONS
                         .requestMatchers("/api/ai/full-analysis").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**",
-                                "/login/oauth2/code/google", "/api/questions/**")
+                                "/login/oauth2/code/google", "/oauth2/authorization/google") // Thêm endpoint này
                         .permitAll()
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/api/users/**").hasRole("admin")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth2 -> oauth2.disable())
+                .oauth2Login(oauth2 -> oauth2
+                        .loginProcessingUrl("/login/oauth2/code/google") // URL xử lý callback từ Google
+                        .successHandler(customOAuth2SuccessHandler) // Sử dụng custom handler
+                        .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
@@ -86,7 +80,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "*")); // Thêm "*" cho test
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // Chỉ giữ nguồn cụ thể
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -100,45 +94,46 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+/*
+ @Bean
+ public SecurityFilterChain securityFilterChain(HttpSecurity http,
+ JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+ http
+ .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+ .csrf(csrf -> csrf.disable())
+ .sessionManagement(session ->
+ session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+ .authorizeHttpRequests(auth -> auth
+ .requestMatchers("/api/ai/full-analysis").permitAll()
+ .requestMatchers("/api/users/register", "/api/users/login",
+ "/api/questions/**", "/login/oauth2/code/google").permitAll()
+ .requestMatchers("/api/users/profile").hasRole("USER")
+ .requestMatchers("/api/users/**").hasRole("admin")
+ .anyRequest().authenticated()
+ // .requestMatchers(HttpMethod.POST, "/api/ai/full-analysis").permitAll()
+ // .requestMatchers("/api/users/register", "/api/users/login",
+ "/api/questions/**").permitAll()
+ // .requestMatchers("/api/users/profile").hasRole("USER")
+ // .requestMatchers("/api/users/**").hasRole("admin")
+ // .anyRequest().authenticated()
+ )
+ .addFilterBefore(jwtAuthenticationFilter,
+ UsernamePasswordAuthenticationFilter.class)
+ // .oauth2Login(oauth2 -> oauth2
+ // .loginProcessingUrl("/login/oauth2/code/google")
+ // .successHandler(oAuth2SuccessHandler)
+ // .failureUrl("/login?error=true") // Xử lý lỗi OAuth2
+ // )
+ .oauth2Login(oauth2 -> oauth2.disable())
+ .logout(logout -> logout
+ .logoutUrl("/logout")
+ .logoutSuccessUrl("/")
+ .permitAll()
+ );
+ // .exceptionHandling(exception -> exception
+ // .accessDeniedPage("/access-denied") // Trang lỗi tùy chỉnh
+ // );
 
-// @Bean
-// public SecurityFilterChain securityFilterChain(HttpSecurity http,
-// JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
-// http
-// .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-// .csrf(csrf -> csrf.disable())
-// .sessionManagement(session ->
-// session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-// .authorizeHttpRequests(auth -> auth
-// .requestMatchers("/api/ai/full-analysis").permitAll()
-// .requestMatchers("/api/users/register", "/api/users/login",
-// "/api/questions/**", "/login/oauth2/code/google").permitAll()
-// .requestMatchers("/api/users/profile").hasRole("USER")
-// .requestMatchers("/api/users/**").hasRole("admin")
-// .anyRequest().authenticated()
-// // .requestMatchers(HttpMethod.POST, "/api/ai/full-analysis").permitAll()
-// // .requestMatchers("/api/users/register", "/api/users/login",
-// "/api/questions/**").permitAll()
-// // .requestMatchers("/api/users/profile").hasRole("USER")
-// // .requestMatchers("/api/users/**").hasRole("admin")
-// // .anyRequest().authenticated()
-// )
-// .addFilterBefore(jwtAuthenticationFilter,
-// UsernamePasswordAuthenticationFilter.class)
-// // .oauth2Login(oauth2 -> oauth2
-// // .loginProcessingUrl("/login/oauth2/code/google")
-// // .successHandler(oAuth2SuccessHandler)
-// // .failureUrl("/login?error=true") // Xử lý lỗi OAuth2
-// // )
-// .oauth2Login(oauth2 -> oauth2.disable())
-// .logout(logout -> logout
-// .logoutUrl("/logout")
-// .logoutSuccessUrl("/")
-// .permitAll()
-// );
-// // .exceptionHandling(exception -> exception
-// // .accessDeniedPage("/access-denied") // Trang lỗi tùy chỉnh
-// // );
-
-// return http.build();
-// }
+ return http.build();
+ }
+*/
