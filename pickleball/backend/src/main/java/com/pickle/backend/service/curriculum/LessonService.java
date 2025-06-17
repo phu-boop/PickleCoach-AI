@@ -30,4 +30,6 @@ public class LessonService {
     public void deleteLesson(UUID id) {
         lessonRepository.deleteById(id);
     }
+
+    public List<Lesson> getLessonByIdCourse(long courseId){ return lessonRepository.findByCourseId(courseId);}
 }
