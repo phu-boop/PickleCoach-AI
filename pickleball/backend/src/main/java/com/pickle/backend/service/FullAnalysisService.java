@@ -223,10 +223,10 @@ public class FullAnalysisService {
 
     private String getLearningPathTitle(String level) {
         return switch (level) {
-            case "Beginner" -> "I. Người mới bắt đầu (Beginner - Trình độ 1.0- 2.5)";
-            case "Intermediate" -> "II. Trình độ trung cấp (Intermediate 3.0 - 3.5)";
-            case "Advanced" -> "III. Trình độ nâng cao (Advanced 4.0 trở lên)";
-            default -> "II. Trình độ trung cấp (Intermediate 3.0 - 3.5)";
+            case "Beginner" -> "I. Người mới bắt đầu (Beginner - Trình độ 1.0–2.5)";
+            case "Intermediate" -> "II. Trình độ trung cấp (Intermediate – 3.0–3.5)";
+            case "Advanced" -> "III. Trình độ nâng cao (Advanced – 4.0 trở lên)";
+            default -> "II. Trình độ trung cấp (Intermediate – 3.0–3.5)";
         };
     }
 }
