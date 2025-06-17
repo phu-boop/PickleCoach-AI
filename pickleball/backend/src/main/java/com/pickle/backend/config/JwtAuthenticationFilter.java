@@ -33,13 +33,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
-        System.out.println(
-                "Processing request: URI=" + path + ", Method=" + method + ", ContextPath=" + request.getContextPath());
-        if ("OPTIONS".equalsIgnoreCase(method)) {
-            System.out.println("Skipping authentication for OPTIONS request: " + path);
-            chain.doFilter(request, response);
-            return;
-        }
+        // System.out.println(
+        //         "Processing request: URI=" + path + ", Method=" + method + ", ContextPath=" + request.getContextPath());
+        // if ("OPTIONS".equalsIgnoreCase(method)) {
+        //     System.out.println("Skipping authentication for OPTIONS request: " + path);
+        //     chain.doFilter(request, response);
+        //     return;
+        // }
         if (path.equals("/api/ai/full-analysis") ||
                 path.startsWith("/api/users/register") ||
                 path.startsWith("/api/users/login") ||

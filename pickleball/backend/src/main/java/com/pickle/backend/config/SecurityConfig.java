@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả OPTIONS
+                        // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả OPTIONS
                         .requestMatchers("/api/ai/full-analysis").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login", "/api/questions/**",
                                 "/login/oauth2/code/google", "/api/questions/**")
@@ -75,7 +75,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "*")); // Thêm "*" cho test
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // Thêm "*" cho test
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
