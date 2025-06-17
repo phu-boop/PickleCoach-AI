@@ -25,3 +25,7 @@ export const updateLearnerProgress = async (progressData) => {
   return response.data;
 };
 
+export const getLessonByCourse = async (idCourse) => {
+  const response = await apiLearner.get(`/courses/${idCourse}/lessons`);
+  return response;
+}
