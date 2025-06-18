@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CurriculumService {
@@ -67,5 +68,16 @@ public class CurriculumService {
 
         logger.info("Ket thuc lay bai hoc de xuat cho learnerId: {}. Tong so bai hoc de xuat: {}", learnerId, recommendedLessons.size());
         return recommendedLessons;
+    }
+
+    public String updateLessonComplete(Long id){
+        learnerProgressRepository.updateIsCompletedById(id);
+        return "OK";
+    }
+    public boolean checkProgress(UUID lessonId, String learnerId) {
+        return learnerProgressRepository.existsByLearnerIdAndLessonId(learnerId, lessonId);
+    }
+    public long getIdProgressByLessonId(UUID lessonId) {
+        return  learnerProgressRepository.findByIdlesson(lessonId);
     }
 }
