@@ -14,9 +14,10 @@ public class CheckProgressResponseDTO {
     }
 
     // Constructor
-    public CheckProgressResponseDTO(boolean isExist, String message) {
+    public CheckProgressResponseDTO(boolean isExist, String message,long IdProgress) {
         this.isExist = isExist;
         this.message = message;
+        this.IdProgress = IdProgress;
     }
 
     // Getters và Setters

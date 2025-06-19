@@ -182,18 +182,19 @@ public class CourseController {
     @PostMapping("/checkLearnerProgress")
     public ResponseEntity<CheckProgressResponseDTO> checkProgress(@RequestBody CheckProgressRequestDTO request) {
         try {
-            long IdProgress = curriculumService.getIdProgressByLessonId(request.getLessonId());
+            long IdProgress = curriculumService.getIdProgressByLessonId(request.getLessonId(), request.getLearnerId());
             boolean isExist = curriculumService.checkProgress(request.getLessonId(), request.getLearnerId());
             String message = isExist
                     ? "Progress isExist"
                     : "Progress not isExist";
-            return ResponseEntity.ok(new CheckProgressResponseDTO(isExist, message));
+            return ResponseEntity.ok(new CheckProgressResponseDTO(isExist, message,IdProgress));
         } catch (Exception e) {
             CheckProgressResponseDTO response = new CheckProgressResponseDTO(
                     false,
-                    "Failed to check progress: " + e.getMessage()
+                    "Failed to check progress: " + e.getMessage(),
+                    -1
             );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.ok(response);
         }
     }
 

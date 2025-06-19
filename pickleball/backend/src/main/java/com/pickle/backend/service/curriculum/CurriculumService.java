@@ -77,7 +77,7 @@ public class CurriculumService {
     public boolean checkProgress(UUID lessonId, String learnerId) {
         return learnerProgressRepository.existsByLearnerIdAndLessonId(learnerId, lessonId);
     }
-    public long getIdProgressByLessonId(UUID lessonId) {
-        return  learnerProgressRepository.findByIdlesson(lessonId);
+    public long getIdProgressByLessonId(UUID lessonId, String learnerId ) {
+        return  learnerProgressRepository.findIdByLessonIdAndLearnerId(lessonId,learnerId);
     }
 }
