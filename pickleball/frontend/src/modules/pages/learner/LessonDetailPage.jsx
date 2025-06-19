@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaVideo, FaFileAlt, FaCheckCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
-import { getLessonById, createLearnerProgress, checkLearnerProgress, updateLessonComplete } from '../../../api/learner/learningService';
+import { getLessonById, createLearnerProgress, checkLearnerProgress, updateLessonComplete, checkCompleted } from '../../../api/learner/learningService';
 
 const LessonDetailPage = ({ userId }) => {
   const { id } = useParams();
@@ -10,20 +10,35 @@ const LessonDetailPage = ({ userId }) => {
   const [watchedDuration, setWatchedDuration] = useState(0);
   const [player, setPlayer] = useState(null);
   const [idProgress, setIdProgress] = useState(null);
+  const [completeProgress, setCompleteProgress] = useState(true);
   const [learnerProgress, setLearnerProgress] = useState({
     learnerId: userId,
     lessonId: id,
     isCompleted: false,
     watchedDurationSeconds: 0,
   });
-  const conplete = async () => {
-    try{
+  const complete = async () => {
+    console.log(idProgress);
+    try {
       const response = await updateLessonComplete(idProgress);
-      console.log(response);
+      console.log('Update complete response:', response);
+      setCompleteProgress(true);
+    } catch (error) {
+      console.error('Error updating completion:', error);
+    }
+  };
+  const checkComplete = async (idProgress) =>{
+    try{
+      const input={
+        id: idProgress
+      };
+      console.log("đây",idProgress);
+      const response = await checkCompleted(input);
+      setCompleteProgress(response.data.isExist);
     }catch(e){
       console.log(e);
     }
-  }
+    }
   const fetchCreateProgress = async () => {
     console.log('Creating LearnerProgress:', learnerProgress);
     try {
@@ -44,26 +59,23 @@ const LessonDetailPage = ({ userId }) => {
 
     const fetchLessonAndProgress = async () => {
       try {
-        // Kiểm tra tiến độ
+        
         const progressInput = {
           lessonId: id,
           learnerId: userId,
         };
         const progressData = await checkLearnerProgress(progressInput);
-        setIdProgress(progressData.idProgress);
+        setIdProgress(progressData.idProgress || null);
+        await checkComplete(progressData.idProgress);
         if (!progressData.isExist) {
-          // Cập nhật learnerProgress trước khi tạo
-          setLearnerProgress((prev) => ({
-            ...prev,
+          setLearnerProgress({
             learnerId: userId,
             lessonId: id,
             isCompleted: false,
             watchedDurationSeconds: 0,
-          }));
-          await fetchCreateProgress();
+          });
+          await fetchCreateProgress(); 
         }
-
-        // Lấy thông tin bài học
         const lessonData = await getLessonById(id);
         setLesson(lessonData);
       } catch (error) {
@@ -72,7 +84,6 @@ const LessonDetailPage = ({ userId }) => {
         setLoading(false);
       }
     };
-
     fetchLessonAndProgress();
   }, [id, userId]);
 
@@ -95,7 +106,10 @@ const LessonDetailPage = ({ userId }) => {
               watchedDurationSeconds: currentTime,
             };
             setLearnerProgress(progress);
-            await createLearnerProgress(progress);
+            // Chỉ cập nhật nếu idProgress tồn tại
+            if (idProgress) {
+              await createLearnerProgress(progress); // Giả sử đây là API cập nhật
+            }
           } catch (error) {
             console.error('Error updating progress:', error);
           }
@@ -126,7 +140,6 @@ const LessonDetailPage = ({ userId }) => {
     return <div className="text-center text-red-500">Không tìm thấy bài học.</div>;
   }
 
-  console.log('Lesson ID:', lesson.id); // In ra "8a3b3a4a-2446-47f9-8a8f-26e49f1e6caf"
 
   return (
     <div className="container mx-auto p-6">
@@ -173,13 +186,18 @@ const LessonDetailPage = ({ userId }) => {
               <p className="text-gray-600 mt-2">{lesson.contentText}</p>
             </div>
           )}
-          {idProgress && (
-            <div>
-                <button onClick={conplete}>
-                  đánh dấu hoàng thành
-                </button>
-              </div>
-          )}
+          <div className="mt-4">
+            {!completeProgress ? (
+              <button
+                onClick={complete}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
+                Đánh dấu đã hoàn thành
+              </button>
+            ) : (
+              <span className="text-green-600 font-semibold">Đã Hoàn thành</span>
+            )}
+          </div>
         </div>
       </div>
     </div>
