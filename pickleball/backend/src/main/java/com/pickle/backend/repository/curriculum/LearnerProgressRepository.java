@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -28,4 +29,16 @@ public interface LearnerProgressRepository extends JpaRepository<LearnerProgress
 
     @Query("SELECT lp.id FROM LearnerProgress lp WHERE lp.lesson.id = :lessonId AND lp.learnerId = :learnerId")
     Long findIdByLessonIdAndLearnerId(@Param("lessonId") UUID lessonId, @Param("learnerId") String learnerId);
+
+    @Query("SELECT lp.id FROM LearnerProgress lp WHERE lp.lesson.id = :lessonId AND lp.learnerId = :learnerId")
+    List<Long> findIdsByLessonIdAndLearnerId(@Param("lessonId") UUID lessonId, @Param("learnerId") String learnerId);
+
+    @Modifying
+    @Query("DELETE FROM LearnerProgress lp WHERE lp.id IN :ids")
+    void deleteByIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT lp.isCompleted FROM LearnerProgress lp WHERE lp.id = :idProgress")
+    Boolean checkCompleted(@Param("idProgress") Long idProgress);
+
+
 }

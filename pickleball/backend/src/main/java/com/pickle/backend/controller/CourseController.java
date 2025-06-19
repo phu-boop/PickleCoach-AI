@@ -1,10 +1,7 @@
 package com.pickle.backend.controller;
-import com.pickle.backend.dto.CheckProgressRequestDTO;
-import com.pickle.backend.dto.CheckProgressResponseDTO;
+import com.pickle.backend.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.pickle.backend.dto.LearnerProgressDTO;
-import com.pickle.backend.dto.LessonDTO;
 import com.pickle.backend.entity.curriculum.Course;
 import com.pickle.backend.entity.curriculum.LearnerProgress;
 import com.pickle.backend.entity.curriculum.Lesson;
@@ -197,7 +194,23 @@ public class CourseController {
             return ResponseEntity.ok(response);
         }
     }
-
+    @PostMapping("/checkCompleted")
+    public ResponseEntity<CheckProgressResponseDTO> checkCompleted(@RequestBody CheckCompleteProgressDTO request) {
+        try {
+            boolean isComplete = curriculumService.checkCompleted(request.getId());
+            String message = isComplete
+                    ? "Progress is complete"
+                    : "Progress is not complete";
+            return ResponseEntity.ok(new CheckProgressResponseDTO(isComplete, message,request.getId()));
+        } catch (Exception e) {
+            CheckProgressResponseDTO response = new CheckProgressResponseDTO(
+                    false,
+                    "Failed to check complete: " + e.getMessage(),
+                    -1
+            );
+            return ResponseEntity.ok(response);
+        }
+    }
     
     // Helper methods for DTO conversion
     private Lesson convertToLessonEntity(LessonDTO dto) {
