@@ -49,8 +49,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 newUser.setName(name);
                 newUser.setPassword(null); // Đặt null thay vì rỗng để tránh vấn đề
                 newUser.setRole("USER");
-                newUser.setPreferences("");
-                newUser.setSkillLevel("");
+                newUser.setPreferences(""); // Giữ lại vì giờ đã có trường
+                newUser.setSkillLevel("");  // Giữ lại vì giờ đã có trường
                 System.out.println("Saving new user: " + newUser);
                 return userRepository.save(newUser);
             });
@@ -59,7 +59,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             System.out.println("Generated token for user: " + user.getEmail() + ", token: " + token);
             String successMessage = optionalUser.isPresent() ? "Login successful" : "User registered successfully with ID: " + user.getUserId();
 
-            response.sendRedirect("http://localhost:5173/oauth2/redirect?token=" + token + "&role=" + user.getRole() + "&message=" + java.net.URLEncoder.encode(successMessage, "UTF-8"));
+            response.sendRedirect("http://localhost:5173/home?token=" + token + "&role=" + user.getRole() + "&message=" + java.net.URLEncoder.encode(successMessage, "UTF-8"));
         } catch (Exception e) {
             System.err.println("Error in OAuth2 handler: " + e.getMessage());
             e.printStackTrace();
