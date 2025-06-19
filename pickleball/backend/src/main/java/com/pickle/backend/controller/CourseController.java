@@ -1,4 +1,6 @@
 package com.pickle.backend.controller;
+import com.pickle.backend.dto.CheckProgressRequestDTO;
+import com.pickle.backend.dto.CheckProgressResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.pickle.backend.dto.LearnerProgressDTO;
@@ -167,7 +169,36 @@ public class CourseController {
         List<Lesson> lessons=lessonService.getLessonByIdCourse(courseId);
         return ResponseEntity.ok(lessons);
     }
+    @GetMapping("/updateLessonComplete/{progressId}")
+    public ResponseEntity<String> updateLessonComplete(@PathVariable Long progressId) {
+        try {
+            String mes = curriculumService.updateLessonComplete(progressId);
+            return ResponseEntity.ok(mes); // Trả về thông báo cập nhật thành công
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating lesson completion: " + e.getMessage());
+        }
+    }
+    @PostMapping("/checkLearnerProgress")
+    public ResponseEntity<CheckProgressResponseDTO> checkProgress(@RequestBody CheckProgressRequestDTO request) {
+        try {
+            long IdProgress = curriculumService.getIdProgressByLessonId(request.getLessonId(), request.getLearnerId());
+            boolean isExist = curriculumService.checkProgress(request.getLessonId(), request.getLearnerId());
+            String message = isExist
+                    ? "Progress isExist"
+                    : "Progress not isExist";
+            return ResponseEntity.ok(new CheckProgressResponseDTO(isExist, message,IdProgress));
+        } catch (Exception e) {
+            CheckProgressResponseDTO response = new CheckProgressResponseDTO(
+                    false,
+                    "Failed to check progress: " + e.getMessage(),
+                    -1
+            );
+            return ResponseEntity.ok(response);
+        }
+    }
 
+    
     // Helper methods for DTO conversion
     private Lesson convertToLessonEntity(LessonDTO dto) {
         log.info("➡️  Bắt đầu convert LessonDTO: {}", dto);
