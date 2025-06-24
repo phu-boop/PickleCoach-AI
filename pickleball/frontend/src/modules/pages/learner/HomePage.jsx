@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { FaBook, FaVideo } from 'react-icons/fa';
+import { MdOutlineLocalLibrary, MdOutlineFeaturedPlayList } from 'react-icons/md'; // For courses and recommended lessons
 import { getAllCourses, getRecommendedLessons } from '../../../api/learner/learningService';
 import CourseCard from './CourseCard';
 import LessonCard from './LessonCard';
-import {useAuth} from '../../../contexts/AuthContext'
+import { useAuth } from '../../../contexts/AuthContext';
 
 const HomePage = ({ userId }) => {
-  const {token} = useAuth();
+  const { token } = useAuth();
   console.log(token);
   const [courses, setCourses] = useState([]);
   const [recommendedLessons, setRecommendedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,40 +31,51 @@ const HomePage = ({ userId }) => {
   }, [userId]);
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-        <FaBook className="mr-2" /> Chương trình của tôi
+    <div className="w-[90%] mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 flex items-center justify-center sm:justify-start font-grandstander mt-5">
+        <MdOutlineLocalLibrary className="mr-3 text-indigo-400" /> Chương trình của tôi
       </h1>
-      
+
       {loading ? (
-        <div className="text-center text-gray-500">Đang tải...</div>
+        <div className="text-center py-10">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500 mx-auto mb-4"></div>
+          <p className="text-xl text-gray-600">Đang tải dữ liệu...</p>
+        </div>
       ) : (
         <>
           {/* Recommended Lessons Section */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4 flex items-center">
-              <FaVideo className="mr-2" /> Bài học đề xuất
+          <section className="mb-12 p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center border-b pb-3 border-gray-200">
+              <MdOutlineFeaturedPlayList className="mr-3 text-teal-500" /> Bài học đề xuất
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {recommendedLessons.length > 0 ? (
                 recommendedLessons.map((lesson) => (
                   <LessonCard key={lesson.id} lesson={lesson} />
                 ))
               ) : (
-                <p className="text-gray-500">Chưa có bài học đề xuất.</p>
+                <p className="text-gray-500 text-lg col-span-full text-center py-8">
+                  Chưa có bài học đề xuất nào vào lúc này.
+                </p>
               )}
             </div>
           </section>
 
           {/* All Courses Section */}
-          <section>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4 flex items-center">
-              <FaBook className="mr-2" /> Tất cả khóa học
+          <section className="p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center border-b pb-3 border-gray-200">
+              <MdOutlineLocalLibrary className="mr-3 text-blue-600" /> Tất cả khóa học
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {courses.length > 0 ? (
+                courses.map((course) => (
+                  <CourseCard key={course.id} course={course} />
+                ))
+              ) : (
+                <p className="text-gray-500 text-lg col-span-full text-center py-8">
+                  Chưa có khóa học nào để hiển thị.
+                </p>
+              )}
             </div>
           </section>
         </>

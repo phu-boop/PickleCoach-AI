@@ -43,6 +43,9 @@ public class User {
     @Column(name = "preferences", length = 255)
     private String preferences;
 
+    @Column(name = "login_type", length = 255)
+    private String loginType;
+
     // Getter tùy chỉnh cho role (nếu cần)
     // public String getRole() {
     //     return role;
