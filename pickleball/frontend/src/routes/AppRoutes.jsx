@@ -20,6 +20,9 @@ import LessonDetailPage from '../modules/pages/learner/LessonDetailPage';
 import CourseManager from '../modules/admin/Learnerning/CourseManager';
 import LessonManager from '../modules/admin/Learnerning/LessonManager';
 import LearnerProgress from '../modules/admin/Learnerning/LearnerProgress';
+import ForgotPasswordEmail from '../modules/auth/ForgotPasswordEmail'; // (note: thêm mới)
+import EnterOTP from '../modules/auth/EnterOTP'; // (note: thêm mới)
+import ResetPassword from '../modules/auth/ResetPassword'; // (note: thêm mới)
 import CourseCard from'../modules/pages/learner/CourseCard';
 import LessonByCourse from'../modules/pages/learner/LessonByCourse'
 //import Profile from '../modules/pages/learner/Profile'; 
@@ -40,7 +43,10 @@ function AppRoutesUser() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-            <Route path="/home" element={<OAuth2RedirectHandler />} /> {/* Thêm route /home để xử lý redirect từ backend */}
+            <Route path="/home" element={<OAuth2RedirectHandler />} />
+            <Route path="/auth/forgot-password-email" element={<ForgotPasswordEmail />} /> {/* (note: thêm mới) */}
+            <Route path="/auth/enter-otp" element={<EnterOTP />} /> {/* (note: thêm mới) */}
+            <Route path="/auth/reset-password" element={<ResetPassword />} /> {/* (note: thêm mới) */}
 
             {/* Protected routes - Yêu cầu người dùng đã đăng nhập (ROLE_USER) */}
             <Route

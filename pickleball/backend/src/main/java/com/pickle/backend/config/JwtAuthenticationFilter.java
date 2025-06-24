@@ -32,11 +32,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String path = request.getRequestURI();
+        // Bỏ qua xác thực cho endpoint forgot-password nếu không có token
+        if (path.equals("/api/users/forgot-password") && request.getHeader(HEADER_STRING) == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader(HEADER_STRING);
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             String token = header.replace(TOKEN_PREFIX, "");
             try {
-                // Sử dụng parser() thay vì parserBuilder() nếu dùng phiên bản cũ của JJWT
+
                 Claims claims = Jwts.parser()
                         .setSigningKey(key)
                         .parseClaimsJws(token)
