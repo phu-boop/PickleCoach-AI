@@ -6,10 +6,8 @@ import java.util.List;
 import com.pickle.backend.entity.VideoAnalysis;
 
 public interface VideoAnalysisRepository extends JpaRepository<VideoAnalysis, String> {
-    // Tìm theo learnerId (UUID)
-    List<VideoAnalysis> findByLearnerId(String learnerId);
+    List<VideoAnalysis> findByUserId(String userId);
 
-    // Tìm theo classifiedMovements chứa chuỗi
-    @Query("SELECT v FROM VideoAnalysis v WHERE v.classifiedMovements LIKE %?1%")
-    List<VideoAnalysis> findByClassifiedMovementsContaining(String keyword);
+    @Query("SELECT v FROM VideoAnalysis v WHERE v.shotAnalysis LIKE %?1%")
+    List<VideoAnalysis> findByShotAnalysisContaining(String shotType);
 }

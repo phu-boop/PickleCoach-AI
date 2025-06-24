@@ -83,6 +83,6 @@ public class Lesson {
     }
 
     public enum SkillType {
-        FOREHAND, BACKHAND, SERVE, DINK
+        FOREHAND, BACKHAND, SERVE, DINK, GRIP, BALANCE
     }
 }
