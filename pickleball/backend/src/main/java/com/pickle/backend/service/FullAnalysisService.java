@@ -3,6 +3,7 @@ package com.pickle.backend.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickle.backend.entity.Learner;
+import com.pickle.backend.entity.User;
 import com.pickle.backend.entity.VideoAnalysis;
 import com.pickle.backend.entity.curriculum.Course;
 import com.pickle.backend.entity.curriculum.Lesson;
@@ -54,6 +55,9 @@ public class FullAnalysisService {
     @Autowired
     private LessonRepository lessonRepository;
 
+    @Autowired
+    private UserService userService; // Thêm UserService
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -62,10 +66,10 @@ public class FullAnalysisService {
         VideoAnalysis analysis = new VideoAnalysis();
         UUID videoId = UUID.randomUUID();
         analysis.setVideoId(videoId.toString());
-        analysis.setUserId(userId); // Thay learnerId thành userId
+        analysis.setUserId(userId);
         analysis.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-        Learner learner = findOrCreateLearner(userId); // Thay learnerId thành userId
+        Learner learner = findOrCreateLearner(userId);
 
         try {
             if (video != null) {
@@ -73,7 +77,7 @@ public class FullAnalysisService {
                 String videoPath = saveVideoFile(video);
                 analysis.setVideoPath(videoPath);
 
-                Map<String, Object> analysisResponse = callEnhancedAnalysisAPI(videoPath, userId); // Thay learnerId thành userId
+                Map<String, Object> analysisResponse = callEnhancedAnalysisAPI(videoPath, userId);
                 processEnhancedAnalysisResponse(analysis, analysisResponse, learner);
             }
 
@@ -83,7 +87,6 @@ public class FullAnalysisService {
             response.put("message", "Phân tích thành công");
             response.put("result", result);
             return response;
-
         } catch (Exception e) {
             logger.error("Error in analyze method: {}", e.getMessage(), e);
             response.put("message", "Phân tích video không thành công: " + e.getMessage());
@@ -92,12 +95,18 @@ public class FullAnalysisService {
         }
     }
 
-    private Learner findOrCreateLearner(String userId) throws IOException { // Thay learnerId thành userId
-        Learner learner = entityManager.find(Learner.class, userId); // Thay learnerId thành userId
+    private Learner findOrCreateLearner(String userId) throws IOException {
+        Learner learner = entityManager.find(Learner.class, userId);
         if (learner == null) {
-            logger.debug("Creating new Learner with userId: {}", userId); // Thay learnerId thành userId
+            logger.debug("Creating new Learner with userId: {}", userId);
             learner = new Learner();
-            learner.setUserId(userId); // Đã đúng
+            learner.setUserId(userId);
+
+            // Tải User từ userId
+            User user = userService.getUserById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+            learner.setUser(user); // Gán User
+
             learner.setSkillLevel("Beginner");
             learner.setGoals(objectMapper.writeValueAsString(List.of("Improve technique")));
             learner.setProgress("0%");
@@ -139,7 +148,8 @@ public class FullAnalysisService {
         return videoPath;
     }
 
-    private Map<String, Object> callEnhancedAnalysisAPI(String videoPath, String userId) { // Thay learnerId thành userId
+    private Map<String, Object> callEnhancedAnalysisAPI(String videoPath, String userId) { // Thay learnerId thành
+                                                                                           // userId
         MultiValueMap<String, Object> request = new LinkedMultiValueMap<>();
         request.add("video",
                 new FileSystemResource(new File("D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + videoPath)));
