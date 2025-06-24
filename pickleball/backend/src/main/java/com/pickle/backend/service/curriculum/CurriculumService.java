@@ -4,13 +4,16 @@ import com.pickle.backend.entity.curriculum.LearnerProgress;
 import com.pickle.backend.entity.curriculum.Lesson;
 import com.pickle.backend.repository.curriculum.LearnerProgressRepository;
 import com.pickle.backend.repository.curriculum.LessonRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CurriculumService {
@@ -67,5 +70,45 @@ public class CurriculumService {
 
         logger.info("Ket thuc lay bai hoc de xuat cho learnerId: {}. Tong so bai hoc de xuat: {}", learnerId, recommendedLessons.size());
         return recommendedLessons;
+    }
+
+    public String updateLessonComplete(Long id){
+        learnerProgressRepository.updateIsCompletedById(id);
+        return "OK";
+    }
+    public boolean checkProgress(UUID lessonId, String learnerId) {
+        return learnerProgressRepository.existsByLearnerIdAndLessonId(learnerId, lessonId);
+    }
+    @Transactional
+    public long getIdProgressByLessonId(UUID lessonId, String learnerId) {
+        // Lấy tất cả các id khớp với lessonId và learnerId
+        List<Long> ids = learnerProgressRepository.findIdsByLessonIdAndLearnerId(lessonId, learnerId);
+
+        if (ids.isEmpty()) {
+            return -1L;
+        }
+
+        if (ids.size() == 1) {
+            return ids.get(0);
+        }
+
+        Long idToKeep = ids.stream()
+                .max(Long::compare)
+                .orElseThrow(() -> new RuntimeException("No valid id found"));
+
+
+        List<Long> idsToDelete = ids.stream()
+                .filter(id -> !id.equals(idToKeep))
+                .toList();
+
+
+        if (!idsToDelete.isEmpty()) {
+            learnerProgressRepository.deleteByIds(idsToDelete);
+        }
+
+        return idToKeep; // Trả về id của hàng được giữ lại
+    }
+    public boolean checkCompleted(Long id){
+        return learnerProgressRepository.checkCompleted(id);
     }
 }

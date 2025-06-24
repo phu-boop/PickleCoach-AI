@@ -7,10 +7,11 @@ import { ApiLogin } from '../../api/auth';
 import Swal from 'sweetalert2';
 import Alert from '../../components/Alert';
 import { useAuth } from '../../contexts/AuthContext';
+
 const LoginPage = () => {
   const [check, setCheck] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -40,9 +41,9 @@ const LoginPage = () => {
           timer: 1500,
         });
         if (role === 'ROLE_admin') {
-          Navigate('/admin');
+          navigate('/admin');
         } else {
-          Navigate('/');
+          navigate('/');
         }
       }
     } catch (error) {
@@ -54,11 +55,16 @@ const LoginPage = () => {
   const handleCancel = () => {
     setSubmitted(false);
     setCheck(false);
-    Navigate('/');
+    navigate('/');
   };
   const handleRegister = () => {
-    Navigate('/signup');
-  }
+    navigate('/signup');
+  };
+
+  const handleForgotPassword = () => {
+    navigate('/auth/forgot-password-email');
+  };
+
   return (
       <>
         {submitted && check ? (
@@ -91,8 +97,8 @@ const LoginPage = () => {
                 <div className="relative mb-4">
                   <hr className="border-gray-300" />
                   <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-gray-500">
-              or
-            </span>
+                or
+              </span>
                 </div>
 
                 <input
@@ -115,7 +121,7 @@ const LoginPage = () => {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </div>
                 </div>
-                { message && (
+                {message && (
                     <div className="mb-4">
                       <Alert
                           message={message}
@@ -139,6 +145,11 @@ const LoginPage = () => {
                   New here?{' '}
                   <button onClick={handleRegister} className="text-[#2c8fa8] font-semibold hover:underline cursor-pointer">
                     Sign up!
+                  </button>
+                </p>
+                <p className="text-lg font-bold text-center mt-2">
+                  <button onClick={handleForgotPassword} className="text-[#2c8fa8] font-semibold hover:underline cursor-pointer">
+                    Forgot Password?
                   </button>
                 </p>
               </div>
