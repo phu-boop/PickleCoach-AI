@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             String token = header.replace(TOKEN_PREFIX, "");
             try {
+
                 Claims claims = Jwts.parser()
                         .setSigningKey(key)
                         .parseClaimsJws(token)
