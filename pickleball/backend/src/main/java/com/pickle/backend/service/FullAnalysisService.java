@@ -1,10 +1,17 @@
 package com.pickle.backend.service;
 
-import com.pickle.backend.entity.Learner;
-import com.pickle.backend.entity.VideoAnalysis;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pickle.backend.entity.Learner;
+import com.pickle.backend.entity.VideoAnalysis;
+import com.pickle.backend.entity.curriculum.Course;
+import com.pickle.backend.entity.curriculum.Lesson;
+import com.pickle.backend.repository.curriculum.CourseRepository;
+import com.pickle.backend.repository.curriculum.LessonRepository;
+import com.pickle.backend.repository.VideoAnalysisRepository;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
@@ -12,221 +19,410 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.MultiValueMap;
-import org.springframework.core.ParameterizedTypeReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FullAnalysisService {
+
+    private static final Logger logger = LoggerFactory.getLogger(FullAnalysisService.class);
+    private static final long MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private VideoAnalysisRepository videoAnalysisRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private LessonRepository lessonRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public Map<String, Object> analyze(String learnerId, MultipartFile video, String selfAssessedLevel)
-            throws IOException {
+    public Map<String, Object> analyze(String userId, MultipartFile video) throws IOException {
         Map<String, Object> response = new HashMap<>();
-        String message = "Phân tích video thành công";
         VideoAnalysis analysis = new VideoAnalysis();
         UUID videoId = UUID.randomUUID();
         analysis.setVideoId(videoId.toString());
-        analysis.setLearnerId(learnerId);
+        analysis.setUserId(userId); // Thay learnerId thành userId
         analysis.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-        // Tìm hoặc tạo Learner
-        Learner learner = entityManager.find(Learner.class, learnerId);
-        if (learner == null) {
-            learner = new Learner();
-            learner.setUserId(learnerId);
-            learner.setSkillLevel("Beginner");
-            learner.setGoals(objectMapper.writeValueAsString(List.of("Improve forehand")));
-            learner.setProgress("0%");
-            entityManager.persist(learner);
-        }
+        Learner learner = findOrCreateLearner(userId); // Thay learnerId thành userId
 
         try {
             if (video != null) {
-                if (video.getSize() > 50 * 1024 * 1024) {
-                    throw new IOException("Video size exceeds 50MB limit");
-                }
-                String timestamp = String.valueOf(System.currentTimeMillis());
-                String videoPath = "uploads/" + timestamp + "_" + video.getOriginalFilename();
-                String fullVideoPath = "D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + videoPath;
-                File videoFile = new File(fullVideoPath);
-                video.transferTo(videoFile);
-                if (!videoFile.exists() || !videoFile.canRead()) {
-                    throw new IOException("Video file not accessible: " + fullVideoPath);
-                }
+                validateVideo(video);
+                String videoPath = saveVideoFile(video);
                 analysis.setVideoPath(videoPath);
 
-                MultiValueMap<String, Object> request = new LinkedMultiValueMap<>();
-                request.add("video", new FileSystemResource(videoFile));
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-                HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(request, headers);
-
-                // Gọi pose-estimation
-                ResponseEntity<Map<String, Object>> poseResponse = restTemplate.exchange(
-                        "http://localhost:5000/pose-estimation",
-                        HttpMethod.POST,
-                        entity,
-                        new ParameterizedTypeReference<Map<String, Object>>() {
-                        });
-                System.out.println("Pose response status: " + poseResponse.getStatusCode());
-                System.out.println("Pose response body: " + poseResponse.getBody());
-                Map<String, Object> poseBody = poseResponse.getBody();
-                if (poseBody == null || !poseBody.containsKey("poseData") || !poseBody.containsKey("analysisResult")) {
-                    throw new RuntimeException("Invalid response from pose-estimation: " + poseBody);
-                }
-                Map<String, Object> poseData = objectMapper.readValue((String) poseBody.get("poseData"),
-                        new TypeReference<Map<String, Object>>() {
-                        });
-                Map<String, Object> analysisResult = objectMapper.readValue((String) poseBody.get("analysisResult"),
-                        new TypeReference<Map<String, Object>>() {
-                        });
-                List<Map<String, Object>> feedbacks = (List<Map<String, Object>>) poseData.getOrDefault("feedbacks",
-                        new ArrayList<>());
-                List<String> poseSkillLevels = (List<String>) poseData.getOrDefault("skillLevels", new ArrayList<>());
-                String userLevel = (String) poseData.getOrDefault("userLevel", "Intermediate");
-
-                // Gọi movement-classification
-                ResponseEntity<Map<String, Object>> classificationResponse = restTemplate.exchange(
-                        "http://localhost:5001/movement-classification",
-                        HttpMethod.POST,
-                        entity,
-                        new ParameterizedTypeReference<Map<String, Object>>() {
-                        });
-                System.out.println("Classification response status: " + classificationResponse.getStatusCode());
-                System.out.println("Classification response body: " + classificationResponse.getBody());
-                Map<String, Object> classBody = classificationResponse.getBody();
-                if (classBody == null || !classBody.containsKey("classifiedMovements")) {
-                    throw new RuntimeException("Invalid response from movement-classification: " + classBody);
-                }
-                Map<String, Object> classifiedMovements = objectMapper.readValue(
-                        (String) classBody.get("classifiedMovements"), new TypeReference<Map<String, Object>>() {
-                        });
-                List<Map<String, Object>> labels = (List<Map<String, Object>>) classifiedMovements
-                        .getOrDefault("labels", new ArrayList<>());
-                List<String> movementSkillLevels = (List<String>) classifiedMovements.getOrDefault("skillLevels",
-                        new ArrayList<>());
-
-                analysis.setPoseData(objectMapper.writeValueAsString(poseData));
-                analysis.setClassifiedMovements(objectMapper.writeValueAsString(classifiedMovements));
-                analysis.setAnalysisResult(objectMapper.writeValueAsString(analysisResult));
-
-                Map<String, String> analysisSummary = new HashMap<>();
-                analysisSummary.put("summary", "Phân tích dựa trên " + labels.size() + " cú đánh");
-                analysis.setAnalysisResult(objectMapper.writeValueAsString(analysisSummary));
-
-                List<Map<String, String>> recommendations = new ArrayList<>();
-                String recommendedLevel = userLevel.isEmpty() ? "Intermediate" : userLevel;
-                if ("Beginner".equals(recommendedLevel)) {
-                    recommendations
-                            .add(Map.of("title", "I. Người mới bắt đầu (Beginner - Trình độ 1.0–2.5)", "description",
-                                    "Khóa học cơ bản cho người mới", "url", "https://example.com/beginner_course"));
-                    recommendations.add(Map.of("title", "Khóa học volley cơ bản", "level", "Beginner", "url",
-                            "https://example.com/volley_basic"));
-                } else if ("Intermediate".equals(recommendedLevel)) {
-                    recommendations.add(Map.of("title", "II. Trình độ trung cấp (Intermediate – 3.0–3.5)",
-                            "description", "Nâng cao kỹ thuật", "url", "https://example.com/intermediate_course"));
-                    recommendations.add(Map.of("title", "Nâng cao forehand", "level", "Intermediate", "url",
-                            "https://example.com/forehand_advanced"));
-                } else if ("Advanced".equals(recommendedLevel)) {
-                    recommendations
-                            .add(Map.of("title", "III. Trình độ nâng cao (Advanced – 4.0 trở lên)", "description",
-                                    "Chuẩn bị thi đấu chuyên nghiệp", "url", "https://example.com/advanced_course"));
-                    recommendations.add(Map.of("title", "Kỹ thuật lob nâng cao", "level", "Advanced", "url",
-                            "https://example.com/lob_advanced"));
-                }
-                analysis.setRecommendations(objectMapper.writeValueAsString(recommendations));
-            } else if (selfAssessedLevel != null) {
-                String recommendedLevel = mapSelfAssessedLevel(selfAssessedLevel);
-                List<Map<String, String>> recommendations = new ArrayList<>();
-                recommendations.add(Map.of("title", getLearningPathTitle(recommendedLevel), "description",
-                        "Khóa học dựa trên tự đánh giá", "url",
-                        "https://example.com/" + recommendedLevel.toLowerCase()));
-                recommendations.add(Map.of("title", "Khóa học " + recommendedLevel, "level", recommendedLevel, "url",
-                        "https://example.com/" + recommendedLevel.toLowerCase() + "_course"));
-                analysis.setRecommendations(objectMapper.writeValueAsString(recommendations));
-                Map<String, String> analysisSummary = new HashMap<>();
-                analysisSummary.put("summary", "Đánh giá dựa trên tự đánh giá: " + selfAssessedLevel);
-                analysis.setAnalysisResult(objectMapper.writeValueAsString(analysisSummary));
+                Map<String, Object> analysisResponse = callEnhancedAnalysisAPI(videoPath, userId); // Thay learnerId thành userId
+                processEnhancedAnalysisResponse(analysis, analysisResponse, learner);
             }
 
             entityManager.persist(analysis);
-            Map<String, Object> result = new HashMap<>();
-            result.put("videoId", analysis.getVideoId());
-            result.put("learnerId", analysis.getLearnerId());
-            result.put("poseData",
-                    objectMapper.readValue(analysis.getPoseData(), new TypeReference<Map<String, Object>>() {
-                    }));
-            result.put("classifiedMovements",
-                    objectMapper.readValue(analysis.getClassifiedMovements(), new TypeReference<Map<String, Object>>() {
-                    }));
-            result.put("analysisResult",
-                    objectMapper.readValue(analysis.getAnalysisResult(), new TypeReference<Map<String, Object>>() {
-                    }));
-            result.put("recommendations", objectMapper.readValue(analysis.getRecommendations(),
-                    new TypeReference<List<Map<String, String>>>() {
-                    }));
-            result.put("videoPath", analysis.getVideoPath());
-            result.put("createdAt", analysis.getCreatedAt());
-            result.put("learner", learner);
+            Map<String, Object> result = buildAnalysisResult(analysis, learner);
 
-            response.put("message", message);
+            response.put("message", "Phân tích thành công");
             response.put("result", result);
             return response;
+
         } catch (Exception e) {
-            message = "Phân tích video không thành công: " + e.getMessage();
-            response.put("message", message);
+            logger.error("Error in analyze method: {}", e.getMessage(), e);
+            response.put("message", "Phân tích video không thành công: " + e.getMessage());
             response.put("result", null);
             return response;
         }
     }
 
-    private String determineUserLevel(List<String> poseSkillLevels) {
-        String dominantLevel = poseSkillLevels.stream().filter(l -> !l.equals("unknown")).findFirst()
-                .orElse("trung bình");
-        return switch (dominantLevel) {
-            case "rất yếu", "yếu" -> "Beginner";
-            case "trung bình" -> "Intermediate";
-            case "khá", "tốt" -> "Advanced";
-            default -> "Intermediate";
+    private Learner findOrCreateLearner(String userId) throws IOException { // Thay learnerId thành userId
+        Learner learner = entityManager.find(Learner.class, userId); // Thay learnerId thành userId
+        if (learner == null) {
+            logger.debug("Creating new Learner with userId: {}", userId); // Thay learnerId thành userId
+            learner = new Learner();
+            learner.setUserId(userId); // Đã đúng
+            learner.setSkillLevel("Beginner");
+            learner.setGoals(objectMapper.writeValueAsString(List.of("Improve technique")));
+            learner.setProgress("0%");
+            entityManager.persist(learner);
+        }
+        return learner;
+    }
+
+    private void validateVideo(MultipartFile video) throws IOException {
+        if (video.getSize() > MAX_FILE_SIZE) {
+            throw new IOException("Video size exceeds " + (MAX_FILE_SIZE / 1024 / 1024) + "MB limit");
+        }
+
+        String contentType = video.getContentType();
+        if (contentType == null || !contentType.startsWith("video/")) {
+            throw new IOException("Invalid file type. Only video files are allowed.");
+        }
+    }
+
+    private String saveVideoFile(MultipartFile video) throws IOException {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String filename = timestamp + "_" + video.getOriginalFilename();
+        String videoPath = "Uploads/" + filename;
+        String fullVideoPath = "D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + videoPath;
+
+        File videoFile = new File(fullVideoPath);
+        File directory = videoFile.getParentFile();
+
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IOException("Failed to create directory: " + directory.getAbsolutePath());
+        }
+
+        video.transferTo(videoFile);
+
+        if (!videoFile.exists() || !videoFile.canRead()) {
+            throw new IOException("Video file not accessible: " + fullVideoPath);
+        }
+
+        return videoPath;
+    }
+
+    private Map<String, Object> callEnhancedAnalysisAPI(String videoPath, String userId) { // Thay learnerId thành userId
+        MultiValueMap<String, Object> request = new LinkedMultiValueMap<>();
+        request.add("video",
+                new FileSystemResource(new File("D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + videoPath)));
+        request.add("userId", userId); // Thay learnerId thành userId
+        request.add("analysisType", "enhanced");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(request, headers);
+
+        logger.debug("Sending enhanced analysis request to Python API");
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "http://localhost:5000/video-analysis-enhanced",
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                });
+
+        return response.getBody();
+    }
+
+    private void processEnhancedAnalysisResponse(VideoAnalysis analysis, Map<String, Object> responseBody,
+            Learner learner)
+            throws IOException {
+
+        if (responseBody == null) {
+            throw new RuntimeException("Empty response from enhanced analysis API");
+        }
+
+        // Xử lý detailed feedbacks
+        List<Map<String, Object>> detailedFeedbacks = (List<Map<String, Object>>) responseBody
+                .get("detailed_feedbacks");
+        if (detailedFeedbacks == null) {
+            throw new RuntimeException("Missing detailed_feedbacks in response");
+        }
+
+        // Xử lý technique analysis
+        Map<String, Object> techniqueAnalysis = (Map<String, Object>) responseBody.get("techniqueAnalysis");
+        if (techniqueAnalysis == null) {
+            throw new RuntimeException("Missing techniqueAnalysis in response");
+        }
+
+        // Xử lý shot analysis
+        Map<String, Object> shotAnalysis = (Map<String, Object>) responseBody.get("shotAnalysis");
+        if (shotAnalysis == null) {
+            throw new RuntimeException("Missing shotAnalysis in response");
+        }
+
+        // Xử lý performance metrics
+        Map<String, Object> performanceMetrics = (Map<String, Object>) responseBody.get("performanceMetrics");
+        if (performanceMetrics == null) {
+            throw new RuntimeException("Missing performanceMetrics in response");
+        }
+
+        // Xác định skill level từ average score
+        Double averageScore = (Double) performanceMetrics.get("averageScore");
+        String skillLevel = mapScoreToSkillLevel(averageScore);
+
+        // Tạo recommendations từ bảng courses
+        List<Map<String, String>> recommendations = generateEnhancedRecommendations(
+                detailedFeedbacks, shotAnalysis, skillLevel);
+
+        // Cập nhật learner skill level
+        learner.setSkillLevel(skillLevel);
+        entityManager.merge(learner);
+
+        // Lưu vào database
+        analysis.setDetailedFeedbacks(objectMapper.writeValueAsString(detailedFeedbacks));
+        analysis.setShotAnalysis(objectMapper.writeValueAsString(shotAnalysis));
+        analysis.setAnalysisResult(objectMapper.writeValueAsString(Map.of(
+                "techniqueAnalysis", techniqueAnalysis,
+                "performanceMetrics", performanceMetrics,
+                "summary", generateAnalysisSummary(averageScore, detailedFeedbacks.size()))));
+        analysis.setRecommendations(objectMapper.writeValueAsString(recommendations));
+    }
+
+    private String mapScoreToSkillLevel(Double averageScore) {
+        if (averageScore == null)
+            return "Intermediate";
+        if (averageScore >= 80)
+            return "Advanced";
+        else if (averageScore >= 50)
+            return "Intermediate";
+        else
+            return "Beginner";
+    }
+
+    private List<Map<String, String>> generateEnhancedRecommendations(
+            List<Map<String, Object>> detailedFeedbacks,
+            Map<String, Object> shotAnalysis,
+            String userLevel) {
+
+        List<Map<String, String>> recommendations = new ArrayList<>();
+        Course.LevelRequired levelRequired = mapSkillLevelToLevelRequired(userLevel);
+
+        // Phân tích lỗi phổ biến từ detailed feedbacks
+        Map<String, Long> commonIssues = analyzeCommonIssues(detailedFeedbacks);
+
+        // Truy vấn tất cả khóa học phù hợp với level
+        List<Course> courses = courseRepository.findByLevelRequired(levelRequired);
+        logger.debug("Found {} courses for level {}, issues: {}", courses.size(), levelRequired, commonIssues.keySet());
+
+        // Sắp xếp các vấn đề theo tần suất để ưu tiên recommendations
+        List<Map.Entry<String, Long>> sortedIssues = commonIssues.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .collect(Collectors.toList());
+
+        // Lọc khóa học dựa trên vấn đề kỹ thuật (nếu có lessons liên kết)
+        for (Map.Entry<String, Long> issue : sortedIssues) {
+            if (issue.getValue() >= 1) { // Xem xét mọi vấn đề, kể cả xuất hiện 1 lần
+                Lesson.SkillType skillType = mapIssueToSkillType(issue.getKey());
+                if (skillType != null) {
+                    List<Course> matchingCourses = courses.stream()
+                            .filter(course -> course.getLessons().stream()
+                                    .anyMatch(lesson -> lesson.getSkillType() == skillType))
+                            .collect(Collectors.toList());
+                    recommendations.addAll(matchingCourses.stream()
+                            .map(course -> Map.of(
+                                    "title", course.getTitle(),
+                                    "description",
+                                    course.getDescription() != null ? course.getDescription()
+                                            : "Khóa học cải thiện kỹ năng " + userLevel.toLowerCase(),
+                                    "url",
+                                    course.getCourseUrl() != null ? course.getCourseUrl()
+                                            : (course.getThumbnailUrl() != null ? course.getThumbnailUrl() : "")))
+                            .collect(Collectors.toList()));
+                }
+            }
+        }
+
+        // Đề xuất từ shot analysis
+        if (shotAnalysis.containsKey("weakestShots")) {
+            List<String> weakestShots = (List<String>) shotAnalysis.get("weakestShots");
+            for (String shot : weakestShots) {
+                Lesson.SkillType skillType = mapShotToSkillType(shot);
+                if (skillType != null) {
+                    List<Course> matchingCourses = courses.stream()
+                            .filter(course -> course.getLessons().stream()
+                                    .anyMatch(lesson -> lesson.getSkillType() == skillType))
+                            .collect(Collectors.toList());
+                    recommendations.addAll(matchingCourses.stream()
+                            .map(course -> Map.of(
+                                    "title", course.getTitle(),
+                                    "description",
+                                    course.getDescription() != null ? course.getDescription()
+                                            : "Khóa học cải thiện cú " + shot,
+                                    "url",
+                                    course.getCourseUrl() != null ? course.getCourseUrl()
+                                            : (course.getThumbnailUrl() != null ? course.getThumbnailUrl() : "")))
+                            .collect(Collectors.toList()));
+                }
+            }
+        }
+
+        // Thêm tất cả khóa học phù hợp với levelRequired
+        recommendations.addAll(courses.stream()
+                .filter(course -> !recommendations.stream()
+                        .anyMatch(rec -> rec.get("title").equals(course.getTitle())))
+                .map(course -> Map.of(
+                        "title", course.getTitle(),
+                        "description",
+                        course.getDescription() != null ? course.getDescription()
+                                : "Khóa học nâng cao kỹ năng " + userLevel.toLowerCase(),
+                        "url",
+                        course.getCourseUrl() != null ? course.getCourseUrl()
+                                : (course.getThumbnailUrl() != null ? course.getThumbnailUrl() : "")))
+                .collect(Collectors.toList()));
+
+        // Loại bỏ trùng lặp, trả về tất cả recommendations
+        return recommendations.stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, Long> analyzeCommonIssues(List<Map<String, Object>> detailedFeedbacks) {
+        Map<String, Long> issueCount = new HashMap<>();
+
+        for (Map<String, Object> feedback : detailedFeedbacks) {
+            Map<String, Object> grip = (Map<String, Object>) feedback.get("grip");
+            if (grip != null && !grip.get("type").equals("eastern_grip")) {
+                issueCount.merge("grip_issue", 1L, Long::sum);
+            }
+
+            Map<String, Object> balance = (Map<String, Object>) feedback.get("balance");
+            if (balance != null && (balance.get("status").equals("unstable")
+                    || balance.get("status").equals("slightly_unstable"))) {
+                issueCount.merge("balance_issue", 1L, Long::sum);
+            }
+
+            Map<String, Object> shot = (Map<String, Object>) feedback.get("shot");
+            if (shot != null) {
+                String shotType = (String) shot.get("type");
+                if (!shotType.equals("unknown")) {
+                    issueCount.merge(shotType + "_issue", 1L, Long::sum);
+                }
+            }
+
+            Object scoreObj = feedback.get("overall_score");
+            if (scoreObj instanceof Number) {
+                int score = ((Number) scoreObj).intValue();
+                if (score < 50) {
+                    issueCount.merge("low_technique_score", 1L, Long::sum);
+                }
+            }
+        }
+
+        return issueCount;
+    }
+
+    private Course.LevelRequired mapSkillLevelToLevelRequired(String skillLevel) {
+        return switch (skillLevel) {
+            case "Advanced" -> Course.LevelRequired.ADVANCED;
+            case "Intermediate" -> Course.LevelRequired.INTERMEDIATE;
+            case "Beginner" -> Course.LevelRequired.BEGINNER;
+            default -> Course.LevelRequired.INTERMEDIATE;
         };
     }
 
-    private String mapSelfAssessedLevel(String level) {
-        return switch (level.toLowerCase()) {
-            case "newbie" -> "Beginner";
-            case "basic" -> "Intermediate";
-            case "advanced" -> "Advanced";
-            default -> "Intermediate";
+    private Lesson.SkillType mapIssueToSkillType(String issueKey) {
+        return switch (issueKey) {
+            case "forehand_issue" -> Lesson.SkillType.FOREHAND;
+            case "backhand_issue" -> Lesson.SkillType.BACKHAND;
+            case "serve_issue" -> Lesson.SkillType.SERVE;
+            case "dink_issue" -> Lesson.SkillType.DINK;
+            case "half_volley_issue" -> Lesson.SkillType.DINK;
+            case "balance_issue" -> Lesson.SkillType.BALANCE;
+            case "grip_issue" -> Lesson.SkillType.GRIP;
+            default -> null;
         };
     }
 
-    private String getLearningPathTitle(String level) {
-        return switch (level) {
-            case "Beginner" -> "I. Người mới bắt đầu (Beginner - Trình độ 1.0–2.5)";
-            case "Intermediate" -> "II. Trình độ trung cấp (Intermediate – 3.0–3.5)";
-            case "Advanced" -> "III. Trình độ nâng cao (Advanced – 4.0 trở lên)";
-            default -> "II. Trình độ trung cấp (Intermediate – 3.0–3.5)";
+    private Lesson.SkillType mapShotToSkillType(String shot) {
+        return switch (shot.toLowerCase()) {
+            case "forehand" -> Lesson.SkillType.FOREHAND;
+            case "backhand" -> Lesson.SkillType.BACKHAND;
+            case "serve" -> Lesson.SkillType.SERVE;
+            case "dink" -> Lesson.SkillType.DINK;
+            case "half_volley" -> Lesson.SkillType.DINK;
+            default -> null;
         };
+    }
+
+    private String generateAnalysisSummary(Double averageScore, int totalFrames) {
+        return String.format("Phân tích %d khung hình với điểm trung bình %.1f/100. %s",
+                totalFrames,
+                averageScore,
+                averageScore >= 70 ? "Kỹ thuật tốt, tiếp tục duy trì!"
+                        : averageScore >= 50 ? "Cần cải thiện một số kỹ thuật."
+                                : "Nên tập trung vào các kỹ năng cơ bản.");
+    }
+
+    private Map<String, Object> buildAnalysisResult(VideoAnalysis analysis, Learner learner) throws IOException {
+        Map<String, Object> learningPath = new HashMap<>();
+
+        // Lấy dữ liệu từ analysis
+        List<Map<String, Object>> detailedFeedbacks = objectMapper.readValue(
+                analysis.getDetailedFeedbacks(), new TypeReference<List<Map<String, Object>>>() {
+                });
+
+        Map<String, Object> shotAnalysis = objectMapper.readValue(
+                analysis.getShotAnalysis(), new TypeReference<Map<String, Object>>() {
+                });
+
+        Map<String, Object> analysisResult = objectMapper.readValue(
+                analysis.getAnalysisResult(), new TypeReference<Map<String, Object>>() {
+                });
+
+        List<Map<String, String>> recommendations = objectMapper.readValue(
+                analysis.getRecommendations(), new TypeReference<List<Map<String, String>>>() {
+                });
+
+        // Lấy averageScore từ performanceMetrics
+        Map<String, Object> performanceMetrics = (Map<String, Object>) analysisResult.get("performanceMetrics");
+        Double averageScore = performanceMetrics != null ? (Double) performanceMetrics.get("averageScore") : null;
+
+        // Xây dựng learningPath
+        learningPath.put("skillLevel", learner.getSkillLevel());
+        learningPath.put("summary", analysisResult.get("summary"));
+        learningPath.put("averageScore", averageScore);
+        learningPath.put("shotAnalysis", shotAnalysis);
+        learningPath.put("detailedFeedbacks", detailedFeedbacks);
+        learningPath.put("recommendations", recommendations);
+
+        return learningPath;
     }
 }
