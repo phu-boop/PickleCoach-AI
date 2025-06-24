@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
         // Bỏ qua xác thực cho endpoint forgot-password nếu không có token
-        if (path.equals("/api/users/forgot-password") && request.getHeader(HEADER_STRING) == null) {
+        //if (path.equals("/api/users/forgot-password") && request.getHeader(HEADER_STRING) == null) {
             String method = request.getMethod();
             // System.out.println(
             // "Processing request: URI=" + path + ", Method=" + method + ", ContextPath=" +
@@ -83,7 +83,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
         }
     }
-}
+//}
 
 // @Override
 // protected void doFilterInternal(HttpServletRequest request,
