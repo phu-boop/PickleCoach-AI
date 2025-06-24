@@ -20,11 +20,12 @@ import LessonDetailPage from '../modules/pages/learner/LessonDetailPage';
 import CourseManager from '../modules/admin/Learnerning/CourseManager';
 import LessonManager from '../modules/admin/Learnerning/LessonManager';
 import LearnerProgress from '../modules/admin/Learnerning/LearnerProgress';
-import CourseCard from '../modules/pages/learner/CourseCard';
-import LessonByCourse from '../modules/pages/learner/LessonByCourse';
 import ForgotPasswordEmail from '../modules/auth/ForgotPasswordEmail'; // (note: thêm mới)
 import EnterOTP from '../modules/auth/EnterOTP'; // (note: thêm mới)
 import ResetPassword from '../modules/auth/ResetPassword'; // (note: thêm mới)
+import CourseCard from'../modules/pages/learner/CourseCard';
+import LessonByCourse from'../modules/pages/learner/LessonByCourse'
+//import Profile from '../modules/pages/learner/Profile'; 
 
 function AppRoutesUser() {
     const { id_user } = useAuth();
@@ -59,19 +60,19 @@ function AppRoutesUser() {
                 <Route path="input-assessment" element={<InputAssessment />} />
                 <Route path="quiz" element={<QuizPage />} />
             </Route>
-            {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
-            <Route
-                path="/"
-                element={
-                    <ProtectedRoute requiredRole="ROLE_learner">
-                        <LayoutMain />
-                    </ProtectedRoute>
-                }
-            >
-                <Route path="learner" element={<HomePage userId={userId} />} />
-                <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
-                <Route path="course/:id" element={<LessonByCourse />} />
-            </Route>
+      {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute requiredRole="ROLE_learner">
+            <LayoutMain />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="learner" element={<HomePage userId={userId} />} />
+        <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
+        <Route path="course/:id" element={<LessonByCourse/>}/>
+      </Route>
 
             {/* Admin routes - Yêu cầu ROLE_ADMIN */}
             <Route
