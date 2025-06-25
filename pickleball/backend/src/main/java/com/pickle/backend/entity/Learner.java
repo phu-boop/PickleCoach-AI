@@ -35,7 +35,10 @@ public class Learner {
     private String progress;
 
     public Learner(String userId, User user, String skillLevel, String goals) {
-        this.userId = userId;
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        this.userId = user.getId(); // Đồng bộ userId từ User
         this.user = user;
         this.skillLevel = skillLevel;
         this.goals = goals;
