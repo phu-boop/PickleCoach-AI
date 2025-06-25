@@ -24,7 +24,8 @@ import ForgotPasswordEmail from '../modules/auth/ForgotPasswordEmail'; // (note:
 import EnterOTP from '../modules/auth/EnterOTP'; // (note: thêm mới)
 import ResetPassword from '../modules/auth/ResetPassword'; // (note: thêm mới)
 import CourseCard from'../modules/pages/learner/CourseCard';
-import LessonByCourse from'../modules/pages/learner/LessonByCourse'
+import LessonByCourse from'../modules/pages/learner/LessonByCourse';
+import UploadVideo from '../modules/pages/UploadVideo'; 
 //import Profile from '../modules/pages/learner/Profile'; 
 
 function AppRoutesUser() {
@@ -58,6 +59,7 @@ function AppRoutesUser() {
                 }
             >
                 <Route path="input-assessment" element={<InputAssessment />} />
+                <Route path="upload-video" element={<UploadVideo />} />
                 <Route path="quiz" element={<QuizPage />} />
             </Route>
       {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
