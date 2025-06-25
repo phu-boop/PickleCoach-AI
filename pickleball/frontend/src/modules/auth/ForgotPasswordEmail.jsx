@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ForgotPasswordEmail = () => {
     const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -13,9 +14,16 @@ const ForgotPasswordEmail = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
-            if (response.ok) navigate('/auth/enter-otp');
+            const data = await response.text();
+            if (response.ok) {
+                localStorage.setItem('resetEmail', email); // Lưu email vào localStorage
+                navigate('/auth/enter-otp');
+            } else {
+                setError(data); // Hiển thị thông báo lỗi từ backend
+            }
         } catch (error) {
             console.error(error);
+            setError('Đã xảy ra lỗi, vui lòng thử lại.');
         }
     };
 
@@ -44,11 +52,15 @@ const ForgotPasswordEmail = () => {
                     <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            setError(''); // Xóa thông báo lỗi khi thay đổi email
+                        }}
                         placeholder="you@example.com"
                         className="w-full border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-[#2c91aa] bg-gray-50"
                         required
                     />
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     <button
                         type="submit"
                         className="w-full bg-[#2c91aa] text-white rounded-full py-4 text-lg font-semibold hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] shadow-md"
