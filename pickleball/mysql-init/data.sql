@@ -73,23 +73,5 @@ ALTER TABLE users (
 );
 
 -- Tạo bảng pose_analysis
-CREATE TABLE pose_analysis (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id VARCHAR(255) NOT NULL,
-    video_url TEXT NOT NULL,
-    feedback TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(userId)
-);
-
--- Tạo bảng movement_classification
-CREATE TABLE movement_classification (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id VARCHAR(255) NOT NULL,
-    video_url TEXT NOT NULL,
-    label VARCHAR(50) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(userId)
-);
-
--- Tạo bảng content
 
 

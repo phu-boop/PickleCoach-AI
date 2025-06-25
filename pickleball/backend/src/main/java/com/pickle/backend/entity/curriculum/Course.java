@@ -23,6 +23,9 @@ public class Course {
     @Column(name = "level_required")
     private LevelRequired levelRequired;
 
+    @Column(name = "course_url")
+    private String courseUrl; // Thêm trường courseUrl
+
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
