@@ -4,6 +4,8 @@ import com.pickle.backend.entity.VideoAnalysis;
 import com.pickle.backend.service.FullAnalysisService;
 import com.pickle.backend.service.VideoAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,23 +22,59 @@ public class VideoAnalysisController {
 
     @Autowired
     private VideoAnalysisService videoAnalysisService;
+
     @Autowired
     private FullAnalysisService fullAnalysisService;
 
-    @PostMapping("/full-analysis")
+    @Value("${video.analysis.api.url:http://localhost:5000/video-analysis-enhanced}")
+    private String videoAnalysisApiUrl;
+
+    @PostMapping(value = "/full-analysis", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> fullAnalysis(
-            @RequestParam String learnerId,
+            @RequestParam String userId,
             @RequestParam(value = "video", required = false) MultipartFile video,
-            @RequestParam(value = "selfAssessedLevel", required = false) String selfAssessedLevel) throws IOException {
+            @RequestParam(value = "selfAssessedLevel", required = false) String selfAssessedLevel) {
+        System.out.println("Received request - video: " + (video != null ? video.getOriginalFilename() : "null")
+                + ", userId: " + userId + ", video size: " + (video != null ? video.getSize() : 0)
+                + ", content type: " + (video != null ? video.getContentType() : "null")
+                + ", selfAssessedLevel: " + selfAssessedLevel);
+
         if (video == null && selfAssessedLevel == null) {
-            return ResponseEntity.badRequest().body(new VideoAnalysisResponse("Error: Provide video or self-assessed level"));
+            return ResponseEntity.badRequest()
+                    .body(new VideoAnalysisResponse("Error: Provide either video or self-assessed level"));
         }
+        if (video != null && video.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new VideoAnalysisResponse("Error: Video file is empty or invalid"));
+        }
+        if (video != null && !isValidVideoFormat(video.getContentType())) {
+            return ResponseEntity.badRequest()
+                    .body(new VideoAnalysisResponse("Error: Invalid video format. Only MP4 is supported"));
+        }
+
         try {
-            Map<String, Object> result = fullAnalysisService.analyze(learnerId, video, selfAssessedLevel);
-            return ResponseEntity.ok(new VideoAnalysisResponse("Phân tích video thành công", result));
+            Map<String, Object> result = fullAnalysisService.analyze(userId, video);
+            System.out.println("Result from service: " + result);
+            if (result == null || (result.containsKey("message")
+                    && result.get("message").toString().contains("không thành công"))) {
+                String errorMessage = (String) result.getOrDefault("message", "Phân tích video không thành công");
+                System.out.println("Error result: " + errorMessage);
+                return ResponseEntity.badRequest().body(new VideoAnalysisResponse(errorMessage));
+            }
+            return ResponseEntity.ok(new VideoAnalysisResponse("Phân tích thành công", result));
+        } catch (IOException e) {
+            System.err.println("IO Error in fullAnalysis: " + e.getMessage());
+            return ResponseEntity.status(400).body(
+                    new VideoAnalysisResponse("Phân tích không thành công: Lỗi xử lý file - " + e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new VideoAnalysisResponse("Phân tích video không thành công " + e.getMessage()));
+            System.err.println("Unexpected error in fullAnalysis: " + e.getMessage());
+            return ResponseEntity.status(500)
+                    .body(new VideoAnalysisResponse("Phân tích không thành công: " + e.getMessage()));
         }
+    }
+
+    private boolean isValidVideoFormat(String contentType) {
+        return contentType != null && contentType.equals("video/mp4");
     }
 
     @GetMapping("/analyses")
@@ -56,7 +94,8 @@ public class VideoAnalysisController {
     }
 
     @PutMapping("/analyses/{id}")
-    public ResponseEntity<VideoAnalysis> updateVideoAnalysis(@PathVariable String id, @RequestBody VideoAnalysis analysis) {
+    public ResponseEntity<VideoAnalysis> updateVideoAnalysis(@PathVariable String id,
+            @RequestBody VideoAnalysis analysis) {
         VideoAnalysis updated = videoAnalysisService.updateVideoAnalysis(id, analysis);
         return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
@@ -67,22 +106,23 @@ public class VideoAnalysisController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/analyses/learner/{learnerId}")
-    public ResponseEntity<List<VideoAnalysis>> findByLearnerId(@PathVariable String learnerId) {
-        return ResponseEntity.ok(videoAnalysisService.findByLearnerId(learnerId));
+    @GetMapping("/analyses/user/{userId}")
+    public ResponseEntity<List<VideoAnalysis>> findByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(videoAnalysisService.findByUserId(userId));
     }
 
-    @GetMapping("/analyses/movement/{movement}")
-    public ResponseEntity<List<VideoAnalysis>> findByMovement(@PathVariable String movement) {
-        return ResponseEntity.ok(videoAnalysisService.findByMovement(movement));
+    @GetMapping("/analyses/shot/{shotType}")
+    public ResponseEntity<List<VideoAnalysis>> findByShotType(@PathVariable String shotType) {
+        return ResponseEntity.ok(videoAnalysisService.findByShotType(shotType));
     }
 
     @Data
     public static class VideoAnalysisResponse {
         private String message;
-        private Object result; // Đổi thành Object để nhận Map hoặc VideoAnalysis
+        private Object result;
 
-        public VideoAnalysisResponse() {}
+        public VideoAnalysisResponse() {
+        }
 
         public VideoAnalysisResponse(String message) {
             this.message = message;
@@ -93,10 +133,5 @@ public class VideoAnalysisController {
             this.message = message;
             this.result = result;
         }
-
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-        public Object getResult() { return result; }
-        public void setResult(Object result) { this.result = result; }
     }
 }

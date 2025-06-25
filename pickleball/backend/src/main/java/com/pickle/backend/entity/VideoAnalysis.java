@@ -20,14 +20,14 @@ public class VideoAnalysis {
     @Column(name = "video_id", nullable = false)
     private String videoId;
 
-    @Column(name = "learner_id", nullable = false)
-    private String learnerId;
+    @Column(name = "user_id", nullable = false)
+    private String userId;
 
-    @Column(name = "pose_data", columnDefinition = "LONGTEXT")
-    private String poseData;
+    @Column(name = "detailed_feedbacks", columnDefinition = "LONGTEXT")
+    private String detailedFeedbacks;
 
-    @Column(name = "classified_movements", columnDefinition = "LONGTEXT")
-    private String classifiedMovements;
+    @Column(name = "shot_analysis", columnDefinition = "LONGTEXT")
+    private String shotAnalysis;
 
     @Column(name = "analysis_result", columnDefinition = "LONGTEXT")
     private String analysisResult;
@@ -42,6 +42,6 @@ public class VideoAnalysis {
     private Timestamp createdAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "learner_id", referencedColumnName = "userId", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", insertable = false, updatable = false)
     private Learner learner;
 }

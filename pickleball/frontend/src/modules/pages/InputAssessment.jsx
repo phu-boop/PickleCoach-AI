@@ -3,11 +3,12 @@ import Button from "../../components/Button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createUpdate } from "../../api/user/update";
+
 export default function InputAssessment() {
   const navigate = useNavigate();
   const handleQuiz = () => {
     navigate("/quiz");
-  }
+  };
   return (
     <div className="max-w-4xl mx-auto p-6 font-sans">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 font-grandstander">
@@ -21,7 +22,7 @@ export default function InputAssessment() {
           Do Quiz
         </Button>
         <Button
-          onClick={() => handleQuiz()}
+          onClick={() => navigate("/upload-video")}
           className="px-6 py-2 rounded-lg transition-colors"
         >
           Upload Video
@@ -29,7 +30,6 @@ export default function InputAssessment() {
       </div>
       <QuizForm onSubmit={(data) => {
         console.log("Quiz Data Submitted:", data);
-        // Handle quiz submission logic here
         navigate("/quiz");
       }} />
     </div>
@@ -42,44 +42,60 @@ function QuizForm() {
   const [backhand, setBackhand] = useState(5);
   const [goal, setGoal] = useState("");
   const [error, setError] = useState("");
-  
+
+  const userId = sessionStorage.getItem("id_user");
+  const token = sessionStorage.getItem("token");
   const data = {
-      "id": sessionStorage.getItem('id_user'),
-      "skillLevel": convertSkillLevel(backhand),
-      "goals": goal,
-      "progress": 'Just started'
-  }
-  const handleSubmit = async() => {
+    "id": userId,
+    "skillLevel": convertSkillLevel(backhand),
+    "goals": goal,
+    "progress": "Just started",
+  };
+  console.log("Data to send:", data, "Token:", token); // Debug token
+
+  const handleSubmit = async () => {
     if (!experience || !goal) {
       setError("Please complete all fields before submitting.");
       return;
     }
+    if (!userId) {
+      setError("User ID is missing. Please log in again.");
+      return;
+    }
+    if (!token) {
+      setError("Authentication token is missing. Please log in again.");
+      return;
+    }
     try {
-      const respond = await createUpdate(data);
-      if(respond)
-      {
-        navigate('/');
+      const respond = await createUpdate(data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (respond) {
+        navigate("/");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Submission error:", error.response ? error.response.data : error.message);
+      setError(`Failed to submit. Error: ${error.response?.data?.message || error.message}`);
     }
   };
+
   function convertSkillLevel(backhand) {
-    if(backhand < 4){
-      return 'Beginner';
-    }else if(backhand > 7){
-      return 'Advanced ';
-    }else{
-      return 'Intermediate'
+    if (backhand < 4) {
+      return "Beginner";
+    } else if (backhand > 7) {
+      return "Advanced";
+    } else {
+      return "Intermediate";
     }
-  } 
+  }
 
   return (
     <Card className="mb-6 bg-white shadow-lg rounded-xl">
       <CardContent className="space-y-6 p-6">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Quick Skill Quiz
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-800">Quick Skill Quiz</h2>
 
         <div>
           <label className="block text-base font-medium text-gray-700 mb-2">
@@ -113,23 +129,17 @@ function QuizForm() {
           />
           <div className="flex justify-between text-sm text-gray-600 mt-2">
             <span
-              className={`px-3 py-1 rounded-md ${
-                backhand <= 3 ? "bg-red-100 text-red-800" : ""
-              }`}
+              className={`px-3 py-1 rounded-md ${backhand <= 3 ? "bg-red-100 text-red-800" : ""}`}
             >
               Newbie (1-3)
             </span>
             <span
-              className={`px-3 py-1 rounded-md ${
-                backhand >= 4 && backhand <= 7 ? "bg-yellow-100 text-yellow-800" : ""
-              }`}
+              className={`px-3 py-1 rounded-md ${backhand >= 4 && backhand <= 7 ? "bg-yellow-100 text-yellow-800" : ""}`}
             >
               Intermediate (4-7)
             </span>
             <span
-              className={`px-3 py-1 rounded-md ${
-                backhand >= 8 ? "bg-green-100 text-green-800" : ""
-              }`}
+              className={`px-3 py-1 rounded-md ${backhand >= 8 ? "bg-green-100 text-green-800" : ""}`}
             >
               Advanced (8-10)
             </span>

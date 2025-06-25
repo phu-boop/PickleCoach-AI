@@ -1,24 +1,18 @@
 package com.pickle.backend.service;
 
 import com.pickle.backend.entity.VideoAnalysis;
-
+import com.pickle.backend.repository.VideoAnalysisRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.pickle.backend.repository.VideoAnalysisRepository;
-import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@Getter
-@Setter
 @Service
 @Transactional
 public class VideoAnalysisService {
@@ -27,6 +21,7 @@ public class VideoAnalysisService {
 
     private final RestTemplate restTemplate;
     private final EntityManager entityManager;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private VideoAnalysisRepository videoAnalysisRepository;
@@ -36,38 +31,39 @@ public class VideoAnalysisService {
         this.entityManager = entityManager;
     }
 
-    // Lấy tất cả phân tích
     public List<VideoAnalysis> getAllVideoAnalyses() {
         return entityManager.createQuery("SELECT v FROM VideoAnalysis v", VideoAnalysis.class).getResultList();
     }
 
-    // Lấy phân tích theo ID
     public VideoAnalysis getVideoAnalysisById(String id) {
         return entityManager.find(VideoAnalysis.class, id);
     }
 
     public VideoAnalysis createVideoAnalysis(VideoAnalysis videoAnalysis) {
-        logger.info("Creating video analysis for learner: {}", videoAnalysis.getLearner().getUserId());
-        validateJson(videoAnalysis.getPoseData());
+        logger.info("Creating video analysis for user: {}", videoAnalysis.getUserId());
+        validateJson(videoAnalysis.getDetailedFeedbacks());
+        validateJson(videoAnalysis.getShotAnalysis());
+        validateJson(videoAnalysis.getAnalysisResult());
+        validateJson(videoAnalysis.getRecommendations());
         videoAnalysis.setVideoId(UUID.randomUUID().toString());
         return videoAnalysisRepository.save(videoAnalysis);
     }
 
-    // Cập nhật phân tích
     public VideoAnalysis updateVideoAnalysis(String id, VideoAnalysis analysis) {
         VideoAnalysis existing = entityManager.find(VideoAnalysis.class, id);
         if (existing != null) {
-            existing.setLearnerId(analysis.getLearnerId());
-            existing.setPoseData(analysis.getPoseData());
-            existing.setClassifiedMovements(analysis.getClassifiedMovements());
+            existing.setUserId(analysis.getUserId());
+            existing.setDetailedFeedbacks(analysis.getDetailedFeedbacks());
+            existing.setShotAnalysis(analysis.getShotAnalysis());
             existing.setAnalysisResult(analysis.getAnalysisResult());
             existing.setRecommendations(analysis.getRecommendations());
-            return existing;
+            existing.setVideoPath(analysis.getVideoPath());
+            existing.setCreatedAt(analysis.getCreatedAt());
+            return videoAnalysisRepository.save(existing);
         }
         return null;
     }
 
-    // Xóa phân tích
     public void deleteVideoAnalysis(String id) {
         VideoAnalysis analysis = entityManager.find(VideoAnalysis.class, id);
         if (analysis != null) {
@@ -75,25 +71,24 @@ public class VideoAnalysisService {
         }
     }
 
-    // Tìm theo learnerId
-    public List<VideoAnalysis> findByLearnerId(String learnerId) {
-        return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.learnerId = :learnerId", VideoAnalysis.class)
-                .setParameter("learnerId", learnerId)
+    public List<VideoAnalysis> findByUserId(String userId) {
+        return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.userId = :userId", VideoAnalysis.class)
+                .setParameter("userId", userId)
                 .getResultList();
     }
 
-    // Tìm theo movement (dựa trên classifiedMovements)
-    public List<VideoAnalysis> findByMovement(String movement) {
-        return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.classifiedMovements LIKE :movement", VideoAnalysis.class)
-                .setParameter("movement", "%" + movement + "%")
+    public List<VideoAnalysis> findByShotType(String shotType) {
+        return entityManager.createQuery("SELECT v FROM VideoAnalysis v WHERE v.shotAnalysis LIKE :shotType", VideoAnalysis.class)
+                .setParameter("shotType", "%" + shotType + "%")
                 .getResultList();
     }
 
     private void validateJson(String json) {
+        if (json == null) return;
         try {
-            new ObjectMapper().readTree(json);
+            objectMapper.readTree(json);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid JSON data", e);
+            throw new IllegalArgumentException("Invalid JSON data: " + e.getMessage(), e);
         }
     }
 }
