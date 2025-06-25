@@ -131,6 +131,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <!--Thêm Thymeleaf-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
         <!-- Gợi ý bổ sung: Actuator cho giám sát (nếu chưa cấu hình đầy đủ) -->
         <dependency>
             <groupId>io.micrometer</groupId>

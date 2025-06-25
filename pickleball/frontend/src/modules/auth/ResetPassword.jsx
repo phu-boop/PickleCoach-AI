@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../../components/Button';
-import Alert from '../../components/Alert';
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [message, setMessage] = useState('');
-    const navigate = useNavigate();
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            setMessage('Mật khẩu không khớp');
+            setError('Passwords do not match');
             return;
         }
         try {
@@ -21,46 +17,59 @@ const ResetPassword = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password }),
             });
-            const data = await response.json();
-            console.log('Response:', response); // Debug
-            console.log('Data:', data); // Debug
-            setMessage(data.message || 'An unexpected error occurred');
-            if (response.ok) {
-                // Chuyển hướng tuyệt đối đến trang login
-                window.location.href = 'http://localhost:5173/login';
-            } else {
-                setMessage(data.message || 'Server returned an error');
-            }
+            if (response.ok) window.location.href = 'http://localhost:5173/login';
         } catch (error) {
-            console.error('Error:', error); // Debug
-            setMessage('Request failed. Please try again.');
+            setError('Failed to reset password.');
         }
     };
 
     return (
-        <div className="flex items-center justify-center h-screen bg-gray-100">
-            <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold text-[#2b8ba3] mb-4">Đặt Lại Mật Khẩu</h1>
-                <form onSubmit={handleSubmit}>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Mật khẩu mới"
-                        className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
-                        required
-                    />
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Xác nhận mật khẩu mới"
-                        className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
-                        required
-                    />
-                    <Button type="submit">Lưu</Button>
+        <div className="relative flex justify-center items-center min-h-screen bg-gradient-to-br from-white to-[#dff5f9] px-4">
+            <button
+                onClick={() => (window.location.href = 'http://localhost:5173/login')}
+                className="absolute top-6 right-6 text-lg text-[#ea6645] border border-[#ea6645] px-5 py-2 rounded-full bg-[#ffe6e6] hover:bg-[#efc8c8] font-semibold shadow-sm"
+            >
+                ✕ Cancel
+            </button>
+            <div className="w-full max-w-lg text-center px-10 py-14 bg-white rounded-3xl shadow-xl border border-gray-100">
+                <div className="flex justify-center mb-6">
+                    <div className="bg-[#d1f0f6] p-5 rounded-full">
+                        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#2c91aa" strokeWidth="1.5">
+                            <rect x="3" y="11" width="18" height="10" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0110 0v4" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 className="text-3xl font-bold text-[#2c91aa] mb-6">Create New Password</h2>
+                <form onSubmit={handleSubmit} className="space-y-6 text-left">
+                    <div>
+                        <label className="block text-base font-medium text-gray-700 mb-1">New Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full border border-gray-200 rounded-xl px-5 py-4 text-base bg-gray-50 focus:ring-2 focus:ring-[#2c91aa]"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-base font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full border border-gray-200 rounded-xl px-5 py-4 text-base bg-gray-50 focus:ring-2 focus:ring-[#2c91aa]"
+                            required
+                        />
+                    </div>
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                    <button
+                        type="submit"
+                        className="w-full bg-[#2c91aa] text-white rounded-full py-4 text-lg font-semibold hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] shadow-md"
+                    >
+                        Confirm
+                    </button>
                 </form>
-                {message && <Alert type="info" message={message} onClose={() => setMessage('')} />}
             </div>
         </div>
     );

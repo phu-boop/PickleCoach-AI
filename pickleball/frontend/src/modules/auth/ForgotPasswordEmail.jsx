@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../../components/Button';
-import Alert from '../../components/Alert';
 
 const ForgotPasswordEmail = () => {
     const [email, setEmail] = useState('');
-    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -16,37 +13,49 @@ const ForgotPasswordEmail = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
-            const data = await response.json(); // Đảm bảo phân tích JSON
-            console.log('Response:', response); // Debug: Log toàn bộ response
-            console.log('Data:', data); // Debug: Log dữ liệu trả về
-            setMessage(data.message || 'An unexpected error occurred');
-            if (response.ok) {
-                navigate('/auth/enter-otp');
-            } else {
-                setMessage(data.message || 'Server returned an error');
-            }
+            if (response.ok) navigate('/auth/enter-otp');
         } catch (error) {
-            console.error('Error:', error); // Debug: Log lỗi chi tiết
-            setMessage('Request failed. Please try again.');
+            console.error(error);
         }
     };
 
     return (
-        <div className="flex items-center justify-center h-screen bg-gray-100">
-            <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold text-[#2b8ba3] mb-4">Quên Mật Khẩu</h1>
-                <form onSubmit={handleSubmit}>
+        <div className="relative flex justify-center items-center min-h-screen bg-gradient-to-br from-white to-[#dff5f9] px-4">
+            <button
+                onClick={() => (window.location.href = 'http://localhost:5173/login')}
+                className="absolute top-6 right-6 text-lg text-[#ea6645] border border-[#ea6645] px-5 py-2 rounded-full bg-[#ffe6e6] hover:bg-[#efc8c8] font-semibold shadow-sm"
+            >
+                ✕ Cancel
+            </button>
+            <div className="w-full max-w-lg text-center px-10 py-14 bg-white rounded-3xl shadow-xl border border-gray-100">
+                <div className="flex justify-center mb-6">
+                    <div className="bg-[#d1f0f6] p-5 rounded-full">
+                        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#2c91aa" strokeWidth="1.5">
+                            <rect x="3" y="4" width="18" height="16" rx="2" ry="2" />
+                            <polyline points="3 6 12 13 21 6" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h2 className="text-3xl font-bold text-[#2c91aa] mb-2">Forgot Password?</h2>
+                <p className="text-base text-gray-600 mb-8">Enter your email and we’ll send you a code.</p>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Nhập email của bạn"
-                        className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+                        placeholder="you@example.com"
+                        className="w-full border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-[#2c91aa] bg-gray-50"
                         required
                     />
-                    <Button type="submit">Gửi Yêu Cầu</Button>
+                    <button
+                        type="submit"
+                        className="w-full bg-[#2c91aa] text-white rounded-full py-4 text-lg font-semibold hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] shadow-md"
+                    >
+                        Send Code
+                    </button>
                 </form>
-                {message && <Alert type="info" message={message} onClose={() => setMessage('')} />}
             </div>
         </div>
     );
