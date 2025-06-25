@@ -68,35 +68,32 @@ const LoginPage = () => {
   return (
       <>
         {submitted && check ? (
-            <div className="flex items-center justify-center h-screen bg-gray-100">
-              <div className="relative w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-                <h2 className="text-2xl font-black text-[#2b8ba3] mb-4">Sign in with</h2>
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white to-[#dff5f9] px-4">
+              <div className="relative w-full max-w-2xl p-10 bg-white rounded-3xl shadow-xl border border-gray-100">
+                <h2 className="text-3xl font-black text-[#2c91aa] mb-6 text-center">Sign in with</h2>
 
-                <div className="flex justify-between mb-4">
+                <div className="flex justify-between mb-6">
                   <button
-                      className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
+                      className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition duration-300"
                   >
-                    <FaFacebookF className="mr-2 text-blue-600" />
-                    Facebook
+                    <FaFacebookF className="mr-2 text-blue-600" /> Facebook
                   </button>
                   <a
                       href="http://localhost:8080/oauth2/authorization/google"
-                      className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
+                      className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition duration-300"
                   >
-                    <FaGoogle className="mr-2 text-red-500" />
-                    Google
+                    <FaGoogle className="mr-2 text-red-500" /> Google
                   </a>
                   <button
-                      className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer transition-colors duration-300"
+                      className="flex items-center justify-center w-1/3 py-5 mx-1 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition duration-300"
                   >
-                    <FaApple className="mr-2 text-black" />
-                    Apple
+                    <FaApple className="mr-2 text-black" /> Apple
                   </button>
                 </div>
 
-                <div className="relative mb-4">
+                <div className="relative mb-6">
                   <hr className="border-gray-300" />
-                  <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-gray-500">
+                  <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-gray-500">
                 or
               </span>
                 </div>
@@ -104,58 +101,56 @@ const LoginPage = () => {
                 <input
                     type="text"
                     placeholder="Email Address or Phone Number"
-                    className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+                    className="w-full p-4 mb-5 border border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-[#2c91aa]"
                     onChange={(e) => setEmail(e.target.value)}
                 />
                 <div className="relative w-full">
                   <input
                       type={showPassword ? "text" : "password"}
-                      placeholder="password"
-                      className="w-full p-3 pr-10 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c8fa8]"
+                      placeholder="Password"
+                      className="w-full p-4 pr-10 mb-5 border border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-[#2c91aa]"
                       onChange={(e) => setPassword(e.target.value)}
                   />
                   <div
-                      className="absolute top-3 right-3 cursor-pointer text-gray-500"
+                      className="absolute top-4 right-4 cursor-pointer text-gray-500"
                       onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </div>
                 </div>
+
                 {message && (
-                    <div className="mb-4">
-                      <Alert
-                          message={message}
-                          type="error"
-                          onClose={() => setMessage('')}
-                      />
+                    <div className="mb-5">
+                      <Alert message={message} type="error" onClose={() => setMessage('')} />
                     </div>
                 )}
 
                 <button
-                    className="w-full py-3 bg-[#2c8fa8] text-white rounded-full hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] cursor-pointer transition-colors duration-300"
+                    className="w-full py-4 bg-[#2c91aa] text-white rounded-full text-xl font-semibold hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] transition duration-300"
                     onClick={(e) => handleSubmitLogin(e)}
                 >
                   Continue
                 </button>
 
-                <p className="text-base text-gray-500 mt-4 text-center">
+                <p className="text-base text-gray-500 mt-5 text-center">
                   We'll ask for your password next.
                 </p>
-                <p className="text-lg font-bold text-center mt-2">
+                <p className="text-lg font-bold text-center mt-3">
                   New here?{' '}
-                  <button onClick={handleRegister} className="text-[#2c8fa8] font-semibold hover:underline cursor-pointer">
+                  <button onClick={handleRegister} className="text-[#2c91aa] font-semibold hover:underline">
                     Sign up!
                   </button>
                 </p>
-                <p className="text-lg font-bold text-center mt-2">
-                  <button onClick={handleForgotPassword} className="text-[#2c8fa8] font-semibold hover:underline cursor-pointer">
+                <p className="text-lg font-bold text-center mt-3">
+                  <button onClick={handleForgotPassword} className="text-[#2c91aa] font-semibold hover:underline">
                     Forgot Password?
                   </button>
                 </p>
               </div>
+
               <div className="absolute top-10 right-8">
                 <button
-                    className="cursor-pointer flex items-center justify-center gap-1 px-[13px] py-[6px] bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border border-[#ea6645] transition-colors duration-300"
+                    className="flex items-center gap-2 px-5 py-2 bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border border-[#ea6645] transition duration-300"
                     onClick={handleCancel}
                 >
                   Cancel
@@ -172,76 +167,70 @@ const LoginPage = () => {
               </div>
             </div>
         ) : (
-            <div className="relative flex items-center justify-center min-h-screen">
-              <div className="flex items-center justify-center max-w-99 bg-white">
-                <div className="text-center">
-                  <div className="mb-6">
-                    <img
-                        src="https://www.pickleheads.com/assets/logo-mark.svg"
-                        alt="PickleHeads Logo"
-                        className="w-40 h-40 mx-auto"
+            <div className="relative flex items-center justify-center min-h-screen bg-white px-4">
+              <div className="w-full max-w-2xl text-center bg-white px-10 py-14 rounded-3xl  ">
+                <div className="mb-6">
+                  <img
+                      src="https://www.pickleheads.com/assets/logo-mark.svg"
+                      alt="PickleHeads Logo"
+                      className="w-40 h-40 mx-auto"
+                  />
+                </div>
+                <h1 className="text-5xl font-bold text-gray-800 mb-4">PickleHeads®</h1>
+                <p className="text-3xl font-black text-[#2a7e93] mb-6">
+                  Join the fastest growing pickleball community
+                </p>
+
+                <div className="mb-6">
+                  <label className="flex items-center justify-center text-sm text-gray-700">
+                    <input
+                        type="checkbox"
+                        onChange={handleCheck}
+                        checked={check}
+                        className="mr-2 w-6 h-6 accent-[#288299]"
                     />
-                  </div>
+                    <div className="text-sm text-gray-600">
+                      I am 16 years of age or older and agree to the{' '}
+                      <a href="#" className="hover:text-[#288299] underline">
+                        Terms of Use and Privacy Policy
+                      </a>.
+                    </div>
+                  </label>
+                </div>
 
-                  <h1 className="text-5xl font-bold font-grandstander text-gray-800 mb-4">PickleHeads®</h1>
+                <button
+                    className={`w-full py-4 rounded-full text-xl font-semibold transition duration-300 ${
+                        check
+                            ? 'bg-[#2c91aa] text-white hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b]'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                    onClick={handleSubmit}
+                    disabled={!check}
+                >
+                  SIGN IN
+                </button>
 
-                  <p className="text-3xl font-black text-[#2a7e93] mb-6">
-                    Join the fastest growing pickleball community
-                  </p>
+                <p className="text-base font-bold text-gray-600 mt-5">
+                  Have not an account?{' '}
+                  <Link to="/signup" className="text-[#2c91aa] hover:underline">
+                    Sign up!
+                  </Link>
+                </p>
 
-                  <div className="mb-6">
-                    <label className="flex items-center justify-center text-sm text-gray-700">
-                      <input
-                          type="checkbox"
-                          onChange={handleCheck}
-                          checked={check}
-                          className="mr-2 border-teal-500 w-7 h-7 accent-[#288299] cursor-pointer"
-                      />
-                      <div className="text-[14px] text-start font-sans text-gray-600">
-                        I am 16 years of age or older and agree to the{' '}
-                        <a href="#" className="hover:text-[#288299] underline">
-                          Terms of Use and Privacy Policy
-                        </a>.
-                      </div>
-                    </label>
-                  </div>
-
-                  <button
-                      className={`w-full py-3 rounded-full mb-4 transition-colors duration-300 cursor-pointer ${
-                          check
-                              ? 'bg-[#2c91aa] text-white hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b]'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                      onClick={handleSubmit}
-                      disabled={!check}
-                  >
-                    SING IN
-                  </button>
-
-                  <p className="text-base font-bold text-gray-600 mb-4">
-                    Have not an account?{' '}
-                    <Link to="/signup" className="text-[#2c91aa] hover:underline cursor-pointer">Sign up!</Link>
-                  </p>
-
-                  <div className="text-sm text-[#2c91aa] flex justify-center space-x-2">
-                    <a href="#" className="hover:underline flex items-center">
-                      <span className="mr-1">⚙️</span> Accessibility
-                    </a>
-                    <span>|</span>
-                    <a href="#" className="hover:underline">
-                      Terms of Use
-                    </a>
-                    <span>|</span>
-                    <a href="#" className="hover:underline">
-                      Privacy Policy
-                    </a>
-                  </div>
+                <div className="text-sm text-[#2c91aa] flex justify-center gap-4 mt-4">
+                  <a href="#" className="hover:underline flex items-center">
+                    <span className="mr-1">⚙️</span> Accessibility
+                  </a>
+                  <span>|</span>
+                  <a href="#" className="hover:underline">Terms of Use</a>
+                  <span>|</span>
+                  <a href="#" className="hover:underline">Privacy Policy</a>
                 </div>
               </div>
 
               <div className="absolute top-10 right-8">
                 <button
-                    className="cursor-pointer flex items-center justify-center gap-1 px-[13px] py-[6px] bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border-3 border-[#ea6645] transition-colors duration-300"
+                    className="flex items-center gap-2 px-5 py-2 bg-[#ffe6e6] hover:bg-[#efc8c8] text-[#ea6645] font-medium rounded-md border border-[#ea6645] transition duration-300"
                     onClick={handleCancel}
                 >
                   Cancel
