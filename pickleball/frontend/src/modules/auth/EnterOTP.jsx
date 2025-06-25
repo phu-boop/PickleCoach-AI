@@ -1,10 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const EnterOTP = () => {
     const [otp, setOtp] = useState(Array(6).fill(''));
+    const [error, setError] = useState('');
     const inputsRef = useRef([]);
     const navigate = useNavigate();
+    const [resendTimer, setResendTimer] = useState(15); // Bắt đầu với 15 giây khi vào trang
+    const [canResend, setCanResend] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (resendTimer > 0) {
+            timer = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (resendTimer === 0 && !canResend) {
+            setCanResend(true);
+            clearInterval(timer);
+        }
+        return () => clearInterval(timer);
+    }, [resendTimer, canResend]);
 
     const handleChange = (element, index) => {
         const value = element.value.replace(/[^0-9]/g, '');
@@ -12,29 +28,71 @@ const EnterOTP = () => {
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
+        setError(''); // Xóa thông báo lỗi khi nhập lại
         if (index < 5 && value) {
             inputsRef.current[index + 1].focus();
+        } else if (index === 5 && value) {
+            inputsRef.current[0].focus(); // Quay lại ô đầu nếu nhập đủ
         }
     };
 
     const handleKeyDown = (e, index) => {
-        if (e.key === 'Backspace' && !otp[index] && index > 0) {
-            inputsRef.current[index - 1].focus();
+        if (e.key === 'Backspace') {
+            e.preventDefault(); // Ngăn hành vi mặc định
+            const newOtp = [...otp];
+            if (!newOtp[index] && index > 0) {
+                newOtp[index - 1] = '';
+                setOtp(newOtp);
+                inputsRef.current[index - 1].focus();
+            } else if (newOtp[index]) {
+                newOtp[index] = '';
+                setOtp(newOtp);
+            }
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const otpValue = otp.join('');
-        try {
-            const response = await fetch('http://localhost:8080/api/users/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ otp: otpValue }),
-            });
-            if (response.ok) navigate('/auth/reset-password');
-        } catch (error) {
-            console.error(error);
+        if (otpValue.length === 6) {
+            try {
+                const response = await fetch('http://localhost:8080/api/users/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp: otpValue }),
+                });
+                if (response.ok) navigate('/auth/reset-password');
+                else setError('OTP không đúng');
+            } catch (error) {
+                console.error(error);
+                setError('OTP không đúng');
+            }
+        } else {
+            setError('Vui lòng nhập đủ 6 số');
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (canResend) {
+            try {
+                const email = localStorage.getItem('resetEmail');
+                if (email) {
+                    const response = await fetch('http://localhost:8080/api/users/forgot-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email }),
+                    });
+                    if (response.ok) {
+                        setResendTimer(15);
+                        setCanResend(false);
+                        setOtp(Array(6).fill('')); // Xóa OTP cũ khi gửi lại
+                        setError(''); // Xóa thông báo lỗi khi gửi lại
+                        inputsRef.current[0].focus();
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to resend OTP:', error);
+            }
         }
     };
 
@@ -73,11 +131,20 @@ const EnterOTP = () => {
                             />
                         ))}
                     </div>
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     <button
                         type="submit"
                         className="w-full bg-[#2c91aa] text-white rounded-full py-4 text-lg font-semibold hover:bg-gradient-to-b hover:from-[#2d97b2] hover:to-[#135a6b] shadow-md"
                     >
                         Confirm
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleResendOtp}
+                        disabled={!canResend}
+                        className={`w-full text-[#2c91aa] text-lg font-semibold ${!canResend ? 'opacity-50 cursor-not-allowed' : 'hover:underline'}`}
+                    >
+                        {canResend ? 'Resend OTP' : `Resend OTP in ${resendTimer}s`}
                     </button>
                 </form>
             </div>
