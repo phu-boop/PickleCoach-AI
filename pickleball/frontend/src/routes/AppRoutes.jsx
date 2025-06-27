@@ -20,8 +20,12 @@ import LessonDetailPage from '../modules/pages/learner/LessonDetailPage';
 import CourseManager from '../modules/admin/Learnerning/CourseManager';
 import LessonManager from '../modules/admin/Learnerning/LessonManager';
 import LearnerProgress from '../modules/admin/Learnerning/LearnerProgress';
+import ForgotPasswordEmail from '../modules/auth/ForgotPasswordEmail'; // (note: thêm mới)
+import EnterOTP from '../modules/auth/EnterOTP'; // (note: thêm mới)
+import ResetPassword from '../modules/auth/ResetPassword'; // (note: thêm mới)
 import CourseCard from'../modules/pages/learner/CourseCard';
 import LessonByCourse from'../modules/pages/learner/LessonByCourse';
+<<<<<<< HEAD
 import Register from '../modules/pages/user/Register';
 import Verifying from '../modules/pages/user/Verifying';
 import Coach from '../modules/admin/coach/Coach';
@@ -29,6 +33,9 @@ import CoachDashboard from '../modules/pages/coach/CoachDashboard';
 import CoachSchedule from '../modules/pages/coach/CoachSchedule';
 import VideoCallRoom from '../modules/pages/coach/VideoCallRoom';
 import CoachBookingPage from '../modules/pages/learner/lCoachBookingPage';
+=======
+import UploadVideo from '../modules/pages/UploadVideo'; 
+>>>>>>> 3cda13bf3417c7ad6c687ade20b2d9a9516b838a
 //import Profile from '../modules/pages/learner/Profile'; 
 
 function AppRoutesUser() {
@@ -52,7 +59,10 @@ function AppRoutesUser() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-            <Route path="/home" element={<OAuth2RedirectHandler />} /> {/* Thêm route /home để xử lý redirect từ backend */}
+            <Route path="/home" element={<OAuth2RedirectHandler />} />
+            <Route path="/auth/forgot-password-email" element={<ForgotPasswordEmail />} /> {/* (note: thêm mới) */}
+            <Route path="/auth/enter-otp" element={<EnterOTP />} /> {/* (note: thêm mới) */}
+            <Route path="/auth/reset-password" element={<ResetPassword />} /> {/* (note: thêm mới) */}
 
             {/* Protected routes - Yêu cầu người dùng đã đăng nhập (ROLE_USER) */}
             <Route
@@ -64,6 +74,7 @@ function AppRoutesUser() {
                 }
             >
                 <Route path="input-assessment" element={<InputAssessment />} />
+                <Route path="upload-video" element={<UploadVideo />} />
                 <Route path="quiz" element={<QuizPage />} />
             </Route>
       {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
