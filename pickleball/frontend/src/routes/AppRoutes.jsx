@@ -21,7 +21,14 @@ import CourseManager from '../modules/admin/Learnerning/CourseManager';
 import LessonManager from '../modules/admin/Learnerning/LessonManager';
 import LearnerProgress from '../modules/admin/Learnerning/LearnerProgress';
 import CourseCard from'../modules/pages/learner/CourseCard';
-import LessonByCourse from'../modules/pages/learner/LessonByCourse'
+import LessonByCourse from'../modules/pages/learner/LessonByCourse';
+import Register from '../modules/pages/user/Register';
+import Verifying from '../modules/pages/user/Verifying';
+import Coach from '../modules/admin/coach/Coach';
+import CoachDashboard from '../modules/pages/coach/CoachDashboard';
+import CoachSchedule from '../modules/pages/coach/CoachSchedule';
+import VideoCallRoom from '../modules/pages/coach/VideoCallRoom';
+import CoachBookingPage from '../modules/pages/learner/lCoachBookingPage';
 //import Profile from '../modules/pages/learner/Profile'; 
 
 function AppRoutesUser() {
@@ -35,6 +42,11 @@ function AppRoutesUser() {
                 <Route index element={<Home />} />
                 <Route path="contact" element={<h1>Contact</h1>} />
                 <Route path="*" element={<h1>404 Not Found</h1>} />
+                <Route path='coach_register' element={<Register />} />
+                <Route path='verifying' element={<Verifying />} />
+                <Route path="coach" element={<CoachDashboard />} />
+                <Route path="coach_schedule" element={<CoachSchedule />} />
+                <Route path="video_call_room" element={<VideoCallRoom />} />
             </Route>
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -66,6 +78,7 @@ function AppRoutesUser() {
         <Route path="learner" element={<HomePage userId={userId} />} />
         <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
         <Route path="course/:id" element={<LessonByCourse/>}/>
+        <Route path="learner_CoachBookingPage" element={<CoachBookingPage />} />
       </Route>
 
             {/* Admin routes - Yêu cầu ROLE_ADMIN */}
@@ -77,6 +90,7 @@ function AppRoutesUser() {
                     </ProtectedRoute>
                 }
             >
+                <Route path="coach" element={<Coach />} />
                 <Route index element={<Dashboard />} />
                 <Route path="dashboards" element={<Dashboard />} />
                 <Route path="users" element={<Users />} />

@@ -3,6 +3,9 @@ import Button from "../../components/Button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createUpdate } from "../../api/user/update";
+import { useAuth } from "../../contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+import Swal from "sweetalert2";
 export default function InputAssessment() {
   const navigate = useNavigate();
   const handleQuiz = () => {
@@ -38,6 +41,7 @@ export default function InputAssessment() {
 
 function QuizForm() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [experience, setExperience] = useState("");
   const [backhand, setBackhand] = useState(5);
   const [goal, setGoal] = useState("");
@@ -56,10 +60,16 @@ function QuizForm() {
     }
     try {
       const respond = await createUpdate(data);
-      if(respond)
-      {
-        navigate('/');
-      }
+      if (respond.status === 200) {
+        Swal.fire({
+          title: "Success",
+          text: "Your skill assessment has been submitted successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      };
+      logout();
+      navigate("/login");
     } catch (error) {
       console.log(error);
     }

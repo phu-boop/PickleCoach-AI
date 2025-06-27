@@ -31,7 +31,7 @@ const LoginPage = () => {
     try {
       const response = await ApiLogin(email, password);
       const { token, role, id_user } = response;
-      login(token, role, id_user);
+      login(token, role, id_user, email); 
       if (response) {
         Swal.fire({
           title: response.message,
@@ -41,7 +41,9 @@ const LoginPage = () => {
         });
         if (role === 'ROLE_admin') {
           Navigate('/admin');
-        } else {
+        }else if( role === 'ROLE_coach' ){
+          Navigate('/coach');
+        }else {
           Navigate('/');
         }
       }
