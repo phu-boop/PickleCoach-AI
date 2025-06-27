@@ -51,7 +51,13 @@ const Sidebar = () => {
       icon: <GraduationCap className="w-7 h-7" />,
       pro: true,
       submenu: [],
-    }
+    },
+    {
+      title: 'Coach',
+      icon: <Store className="w-7 h-7" />,
+      count: 5,
+      submenu: [],
+    },
   ];
 
   return (

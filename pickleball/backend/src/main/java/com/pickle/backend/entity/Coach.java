@@ -17,11 +17,12 @@ import java.util.List;
 @AllArgsConstructor
 public class Coach {
     @Id
-    @Column(name = "userId", nullable = false)
+    @Column(name = "userId", nullable = false, length = 36)
     private String userId;
 
     @NotNull(message = "User is mandatory")
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 

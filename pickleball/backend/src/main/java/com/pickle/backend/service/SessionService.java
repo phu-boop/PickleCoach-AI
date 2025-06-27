@@ -1,5 +1,6 @@
 package com.pickle.backend.service;
 
+import com.pickle.backend.dto.SessionResponseDTO;
 import com.pickle.backend.entity.Session;
 import com.pickle.backend.exception.ResourceNotFoundException;
 import com.pickle.backend.repository.SessionRepository;
@@ -33,14 +34,15 @@ public class SessionService {
         return sessionRepository.findById(sessionId);
     }
 
-    public Session createSession(Session session) {
-        logger.info("Creating session with coach: {} at {}", 
-            session.getCoach().getUserId(), session.getDatetime());
+    public SessionResponseDTO createSession(Session session) {
+        logger.info("Creating session with coach: {} at {}",
+                session.getCoach().getUserId(), session.getDatetime());
         coachService.getCoachById(session.getCoach().getUserId())
-            .orElseThrow(() -> new ResourceNotFoundException(
-                "Coach not found with id " + session.getCoach().getUserId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Coach not found with id " + session.getCoach().getUserId()));
         session.setSessionId(UUID.randomUUID().toString());
-        return sessionRepository.save(session);
+        Session savedSession = sessionRepository.save(session);
+        return new SessionResponseDTO(savedSession);
     }
 
     public Session updateSession(String sessionId, Session sessionDetails) {
