@@ -10,9 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.pickle.backend.dto.UserRegistrationRequest;
 import com.pickle.backend.service.JwtService;
+import com.pickle.backend.dto.OTPRequestDTO;
+import com.pickle.backend.dto.ResetPasswordDTO;
 import java.util.List;
 import com.pickle.backend.dto.LoginResponse;
 import org.springframework.http.MediaType;
+import java.util.Map; // Thêm import này
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -80,17 +84,37 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request){
-        if(userService.checkAccount(request.getEmail(), request.getPassword())){
+    public ResponseEntity<LoginResponse> login(@RequestBody UserRegistrationRequest request) {
+        if (userService.checkAccount(request.getEmail(), request.getPassword())) {
             String role = userService.getRolebyEmail(request.getEmail());
             String token = jwtService.generateToken(request.getEmail(), List.of(role));
             String id_user = userService.getIdbyEmail(request.getEmail());
-            return ResponseEntity.ok(new LoginResponse(token,"login successful", role, id_user));
-        }else {
-
-            // Trả về một đối tượng LoginResponse với token là null và message lỗi
+            return ResponseEntity.ok(new LoginResponse(token, "login successful", role, id_user));
+        } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, "Invalid email or password", null, null));
-
         }
+    }
+
+    @PostMapping("/forgot-password")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        ResponseEntity<String> response = userService.initiatePasswordReset(email);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(Map.of("message", response.getBody()));
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<Map<String, String>> verifyOtp(@RequestBody OTPRequestDTO otpRequest) {
+        ResponseEntity<String> response = userService.verifyOtp(otpRequest.getOtp());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(Map.of("message", response.getBody()));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        ResponseEntity<String> response = userService.resetPassword(resetPasswordDTO.getPassword());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(Map.of("message", response.getBody()));
     }
 }

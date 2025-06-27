@@ -6,11 +6,15 @@ import com.pickle.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -18,6 +22,17 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    // Biến tĩnh để lưu email tạm thời trong quá trình quên mật khẩu
+    private String tempEmailForReset;
+
+    private String storedOtp;
+
+    // Thời gian gửi OTP cuối cùng
+    private LocalDateTime lastOtpSentTime;
 
     public List<User> getAllUsers() {
         logger.info("Fetching all users");
@@ -45,14 +60,17 @@ public class UserService {
             return userRepository.save(user);
         }).orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
     }
-    public  String getRolebyEmail(String email){
+
+    public String getRolebyEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email " + email));
-        return "ROLE_"+user.getRole();
+        return "ROLE_" + user.getRole();
     }
-    public String getIdbyEmail( String email) {
+
+    public String getIdbyEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email " + email));
         return user.getId();
     }
+
     public void deleteUser(String userId) {
         logger.info("Deleting user with id: {}", userId);
         if (!userRepository.existsById(userId)) {
@@ -66,28 +84,93 @@ public class UserService {
         logger.info("Fetching user with email: {}", email);
         return userRepository.findByEmail(email);
     }
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
     public User registerUser(String name, String email, String rawPassword) {
         String hashedPassword = passwordEncoder.encode(rawPassword);
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already exists");
         }
-
-        // Tạo user mới
         User user = new User();
         user.setUserId(UUID.randomUUID().toString());
         user.setName(name);
         user.setEmail(email);
-        user.setPassword(hashedPassword); // Sử dụng passwordEncoder đã inject
-        user.setRole("USER"); // Hoặc một vai trò mặc định khác, ví dụ "USER" hoặc "ROLE_MEMBER"**
+        user.setPassword(hashedPassword);
+        user.setRole("USER");
         return userRepository.save(user);
     }
+
     public boolean checkAccount(String email, String password) {
         if (userRepository.existsByEmail(email)) {
             User user = userRepository.findByEmail(email).orElse(null);
             return (user != null && passwordEncoder.matches(password, user.getPassword()));
         }
         return false;
+    }
+
+    @Autowired
+    private EmailService emailService;
+
+    public ResponseEntity<String> initiatePasswordReset(String email) {
+        // Kiểm tra định dạng email phải là xxx@gmail.com
+        String emailRegex = "^[A-Za-z0-9+_.-]+@gmail\\.com$";
+        if (!Pattern.matches(emailRegex, email)) {
+            return ResponseEntity.badRequest().body("Vui lòng nhập đúng định dạng xxx@gmail.com");
+        }
+
+        // Kiểm tra sự tồn tại của email trong database
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null || "ADMIN".equalsIgnoreCase(user.getRole()) || user.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Không có tài khoản nào khớp với email bạn nhập");
+        }
+
+        // Kiểm tra thời gian chờ 15 giây
+        if (lastOtpSentTime != null) {
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(lastOtpSentTime.plusSeconds(15))) {
+                long secondsLeft = 15 - java.time.Duration.between(lastOtpSentTime, now).getSeconds();
+                return ResponseEntity.badRequest().body("Vui lòng đợi " + secondsLeft + " giây trước khi gửi lại OTP.");
+            }
+        }
+
+        String otp = generateOtp();
+        storedOtp = otp;
+        tempEmailForReset = email; // Lưu email tạm thời
+        lastOtpSentTime = LocalDateTime.now(); // Cập nhật thời gian gửi OTP
+        logger.info("Sending OTP to email: {}", email);
+        emailService.sendOtpEmail(email, otp);
+        return ResponseEntity.ok("Mã OTP đã được gửi đến email của bạn.");
+    }
+
+    public ResponseEntity<String> verifyOtp(String otp) {
+        logger.info("Verifying OTP: {}", otp);
+        if (otp != null && otp.equals(storedOtp)) {
+            return ResponseEntity.ok("Mã OTP hợp lệ.");
+        }
+        return ResponseEntity.badRequest().body("Mã OTP không đúng.");
+    }
+
+    public ResponseEntity<String> resetPassword(String newPassword) {
+        if (tempEmailForReset == null) {
+            logger.warn("No email found for password reset");
+            return ResponseEntity.badRequest().body("Không thể xác định email. Vui lòng thử lại.");
+        }
+
+        User user = userRepository.findByEmail(tempEmailForReset).orElse(null);
+        if (user != null && user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            storedOtp = null;
+            tempEmailForReset = null;
+            lastOtpSentTime = null; // Xóa thời gian khi hoàn tất
+            logger.info("Password reset successful for email: {}", tempEmailForReset);
+            return ResponseEntity.ok("Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.");
+        }
+        logger.warn("Password reset failed for email: {}", tempEmailForReset);
+        return ResponseEntity.badRequest().body("Lỗi khi cập nhật mật khẩu.");
+    }
+
+    private String generateOtp() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(1000000));
     }
 }
