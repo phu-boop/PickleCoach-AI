@@ -9,6 +9,7 @@ import Alert from '../../components/Alert';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage = () => {
+  const Navigate = useNavigate();
   const [check, setCheck] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const LoginPage = () => {
     try {
       const response = await ApiLogin(email, password);
       const { token, role, id_user } = response;
-      login(token, role, id_user);
+      login(token, role, id_user, email); 
       if (response) {
         Swal.fire({
           title: response.message,
@@ -41,9 +42,11 @@ const LoginPage = () => {
           timer: 1500,
         });
         if (role === 'ROLE_admin') {
-          navigate('/admin');
-        } else {
-          navigate('/');
+          Navigate('/admin');
+        }else if( role === 'ROLE_coach' ){
+          Navigate('/coach');
+        }else {
+          Navigate('/');
         }
       }
     } catch (error) {
