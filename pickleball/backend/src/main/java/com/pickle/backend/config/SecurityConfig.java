@@ -43,7 +43,6 @@ public class SecurityConfig {
                                 "/api/users/forgot-password", "/api/users/verify-otp", "/api/users/reset-password", // Thêm các endpoint này
                                 "/api/questions/**", "/login/oauth2/code/google", "/api/checkLearnerProgress").permitAll()
                         .requestMatchers("/api/users/profile").hasRole("USER")
-                        .requestMatchers("/api/users/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,

@@ -27,3 +27,12 @@ export const deleteCoach = async (userId) => {
         throw error;
     }
 }
+export const fetchCoachById = async (userId) => {
+    try {
+        const response = await apiAdmin.get(`/coaches/${userId}`);
+        return response;
+    } catch (error) {
+        console.error("Error fetching coach by ID:", error);
+        throw error;
+    }
+}

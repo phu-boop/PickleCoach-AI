@@ -9,6 +9,7 @@ import Alert from '../../components/Alert';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage = () => {
+  const Navigate = useNavigate();
   const [check, setCheck] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
@@ -41,17 +42,11 @@ const LoginPage = () => {
           timer: 1500,
         });
         if (role === 'ROLE_admin') {
-<<<<<<< HEAD
           Navigate('/admin');
         }else if( role === 'ROLE_coach' ){
           Navigate('/coach');
         }else {
           Navigate('/');
-=======
-          navigate('/admin');
-        } else {
-          navigate('/');
->>>>>>> 3cda13bf3417c7ad6c687ade20b2d9a9516b838a
         }
       }
     } catch (error) {

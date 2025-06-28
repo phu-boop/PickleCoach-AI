@@ -24,11 +24,10 @@ public class CoachController {
     }
 
     @GetMapping("/{coachId}")
-    @PreAuthorize("hasRole('admin') or principal.userId == #coachId")
-    public ResponseEntity<Coach> getCoachById(@PathVariable String coachId) {
-        Optional<Coach> coach = coachService.getCoachById(coachId);
-        return coach.map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<CoachDTO> getCoachById(@PathVariable String coachId) {
+        return coachService.getCoachById(coachId)
+                .map(coach -> ResponseEntity.ok(new CoachDTO(coach)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
     @GetMapping("/confirm/{coachId}")
     @PreAuthorize("hasRole('admin')")

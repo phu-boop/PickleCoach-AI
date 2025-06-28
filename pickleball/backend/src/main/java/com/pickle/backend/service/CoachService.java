@@ -61,7 +61,7 @@ public class CoachService {
     @Autowired
     private UserRepository userRepository;
     public Optional<Coach> getCoachById(String coachId) {
-        logger.info("Fetching coach with id: {}", coachId);
+        System.out.println("Fetching coach with id: " + coachId);
         return coachRepository.findById(coachId);
     }
 
