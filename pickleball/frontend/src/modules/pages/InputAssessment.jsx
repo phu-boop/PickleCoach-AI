@@ -3,18 +3,11 @@ import Button from "../../components/Button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createUpdate } from "../../api/user/update";
-<<<<<<< HEAD
 import { useAuth } from "../../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import Swal from "sweetalert2";
-=======
-
->>>>>>> 3cda13bf3417c7ad6c687ade20b2d9a9516b838a
 export default function InputAssessment() {
   const navigate = useNavigate();
-  const handleQuiz = () => {
-    navigate("/quiz");
-  };
   return (
     <div className="max-w-4xl mx-auto p-6 font-sans">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 font-grandstander">
@@ -74,7 +67,6 @@ function QuizForm() {
       return;
     }
     try {
-<<<<<<< HEAD
       const respond = await createUpdate(data);
       if (respond.status === 200) {
         Swal.fire({
@@ -86,17 +78,6 @@ function QuizForm() {
       };
       logout();
       navigate("/login");
-=======
-      const respond = await createUpdate(data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (respond) {
-        navigate("/");
-      }
->>>>>>> 3cda13bf3417c7ad6c687ade20b2d9a9516b838a
     } catch (error) {
       console.error("Submission error:", error.response ? error.response.data : error.message);
       setError(`Failed to submit. Error: ${error.response?.data?.message || error.message}`);

@@ -25,7 +25,6 @@ import EnterOTP from '../modules/auth/EnterOTP'; // (note: thêm mới)
 import ResetPassword from '../modules/auth/ResetPassword'; // (note: thêm mới)
 import CourseCard from'../modules/pages/learner/CourseCard';
 import LessonByCourse from'../modules/pages/learner/LessonByCourse';
-<<<<<<< HEAD
 import Register from '../modules/pages/user/Register';
 import Verifying from '../modules/pages/user/Verifying';
 import Coach from '../modules/admin/coach/Coach';
@@ -33,11 +32,10 @@ import CoachDashboard from '../modules/pages/coach/CoachDashboard';
 import CoachSchedule from '../modules/pages/coach/CoachSchedule';
 import VideoCallRoom from '../modules/pages/coach/VideoCallRoom';
 import CoachBookingPage from '../modules/pages/learner/lCoachBookingPage';
-=======
 import UploadVideo from '../modules/pages/UploadVideo'; 
->>>>>>> 3cda13bf3417c7ad6c687ade20b2d9a9516b838a
-//import Profile from '../modules/pages/learner/Profile'; 
-
+import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails'; 
+import ReviewCoach from '../modules/pages/learner/ReviewCoach';
+import DetailCoach from '../modules/pages/DetailCoach';
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
@@ -54,6 +52,7 @@ function AppRoutesUser() {
                 <Route path="coach" element={<CoachDashboard />} />
                 <Route path="coach_schedule" element={<CoachSchedule />} />
                 <Route path="video_call_room" element={<VideoCallRoom />} />
+                <Route path="profile" element={<ProfileDetail />} />
             </Route>
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -86,6 +85,8 @@ function AppRoutesUser() {
           </ProtectedRoute>
         }
       >
+        <Route path="DetailCoach/:id" element={<DetailCoach />} />
+        <Route path="review-coach" element={<ReviewCoach />} />
         <Route path="learner" element={<HomePage userId={userId} />} />
         <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
         <Route path="course/:id" element={<LessonByCourse/>}/>

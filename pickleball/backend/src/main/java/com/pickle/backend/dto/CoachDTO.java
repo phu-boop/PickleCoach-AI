@@ -4,6 +4,7 @@ import com.pickle.backend.entity.Coach;
 import java.util.List;
 
 public class CoachDTO {
+    private String urlAvata;
     private String userId;
     private String name;
     private String email;
@@ -20,6 +21,7 @@ public class CoachDTO {
         this.availability = coach.getAvailability();
         this.specialties = coach.getSpecialties();
         this.role = coach.getUser().getRole();
+        this.urlAvata = coach.getUser().getUrlavata();
     }
 
     public String getUserId() {
@@ -50,4 +52,11 @@ public class CoachDTO {
         return specialties;
     }
 
+    public String getUrlAvata() {
+        return urlAvata;
+    }
+
+    public void setUrlAvata(String urlAvata) {
+        this.urlAvata = urlAvata;
+    }
 }

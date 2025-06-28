@@ -173,4 +173,22 @@ public class UserService {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
     }
+
+    public String updateAvata(String url, String id) {
+        try {
+            // Sử dụng findById để lấy Optional<User>
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (!optionalUser.isPresent()) {
+                return "Không tìm thấy người dùng với id: " + id;
+            }
+
+            // Lấy đối tượng User từ Optional
+            User user = optionalUser.get();
+            user.setUrlavata(url); // Cập nhật URL avatar
+            userRepository.save(user); // Lưu thay đổi vào cơ sở dữ liệu
+            return "Cập nhật avatar thành công";
+        } catch (Exception e) {
+            return "Lỗi: " + e.getMessage();
+        }
+    }
 }

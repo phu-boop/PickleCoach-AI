@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import {getCoaches} from '../../../api/admin/coach';
-//import {createSession} from '../../../api/learner/learningService';
+import { getCoaches } from '../../../api/admin/coach';
+import { createSession } from '../../../api/learner/learningService';
+
 export default function CoachBookingPage() {
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCoachId, setSelectedCoachId] = useState(null);
+  const [selectedDateTime, setSelectedDateTime] = useState('');
+
+  // Giả sử learnerId được lấy từ context hoặc prop
+  const learnerId = sessionStorage.getItem('id_user'); // Thay bằng cách lấy thực tế
 
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
-        const response = await getCoaches(); // Gọi API
-        setCoaches(response); // Lưu dữ liệu từ API vào state
+        const response = await getCoaches();
+        setCoaches(response);
         setLoading(false);
       } catch (err) {
         console.log('Lỗi khi gọi API:', err);
@@ -23,8 +30,40 @@ export default function CoachBookingPage() {
   }, []);
 
   const handleBook = (userId) => {
-    alert(`🗓️ Bạn chọn đặt lịch với huấn luyện viên ID: ${userId}`);
-    // Sau này mở modal hoặc route qua trang chi tiết đặt lịch
+    setSelectedCoachId(userId);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!selectedDateTime) {
+      alert('Vui lòng chọn thời gian!');
+      return;
+    }
+
+    try {
+      const sessionData = {
+        coach: { userId: selectedCoachId },
+        learner: { userId: learnerId },
+        datetime: selectedDateTime,
+        status: 'SCHEDULED',
+        videoLink: null,
+        feedback: null,
+      };
+      console.log('Đặt lịch với dữ liệu:', sessionData);
+      await createSession(sessionData);
+      alert('Đặt lịch thành công!');
+      setIsModalOpen(false);
+      setSelectedDateTime('');
+    } catch (err) {
+      console.error('Lỗi khi đặt lịch:', err);
+      alert('Đặt lịch thất bại, vui lòng thử lại.');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedDateTime('');
+    setSelectedCoachId(null);
   };
 
   if (loading) {
@@ -55,7 +94,6 @@ export default function CoachBookingPage() {
             key={coach.userId}
             className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 flex flex-col items-center"
           >
-            {/* Sử dụng avatar placeholder vì API không cung cấp avatar */}
             <img
               src={`https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100)}.jpg`}
               alt={coach.name}
@@ -90,6 +128,34 @@ export default function CoachBookingPage() {
           </div>
         ))}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-semibold text-indigo-800 mb-4">Chọn thời gian</h2>
+            <input
+              type="datetime-local"
+              value={selectedDateTime}
+              onChange={(e) => setSelectedDateTime(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+            />
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handleCloseModal}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmBooking}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              >
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
