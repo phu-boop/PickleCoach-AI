@@ -34,6 +34,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id)
@@ -115,5 +116,12 @@ public class UserController {
         ResponseEntity<String> response = userService.resetPassword(resetPasswordDTO.getPassword());
         return ResponseEntity.status(response.getStatusCode())
                 .body(Map.of("message", response.getBody()));
+    }
+    @PostMapping("update-avata")
+    public ResponseEntity<String> avata(@RequestBody Map<String, String> request) {
+        String url = request.get("avata");
+        String id = request.get("id");
+        String response =userService.updateAvata(url,id);
+        return ResponseEntity.ok(response);
     }
 }

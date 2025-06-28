@@ -1,5 +1,6 @@
 package com.pickle.backend.controller;
 
+import com.pickle.backend.dto.SessionResponseDTO;
 import com.pickle.backend.entity.Session;
 import com.pickle.backend.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class SessionController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('admin', 'coach', 'learner')")
-    public Session createSession(@RequestBody Session session) {
+    public SessionResponseDTO createSession(@RequestBody Session session) {
         return sessionService.createSession(session);
     }
 

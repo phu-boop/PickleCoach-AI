@@ -6,11 +6,14 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(sessionStorage.getItem('role') || null);
   const [token, setToken] = useState(sessionStorage.getItem('token') || null);
   const [id_user, setIdUser] = useState(sessionStorage.getItem('id_user') || null);
+  const [email, setEmail] = useState(sessionStorage.getItem('email') || null);
 
-  const login = (newToken, newRole, newId) => {
+  const login = (newToken, newRole, newId, email) => {
     sessionStorage.setItem('id_user', newId);
     sessionStorage.setItem('token', newToken);
     sessionStorage.setItem('role', newRole);
+    sessionStorage.setItem('email', email);
+    setEmail(email);
     setToken(newToken);
     setRole(newRole);
     setIdUser(newId);
@@ -20,6 +23,8 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem('id_user');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('role');
+    sessionStorage.removeItem('email');
+    setEmail(null);
     setToken(null);
     setRole(null);
     setIdUser(null);
@@ -37,7 +42,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ role, token, id_user, login, logout }}>
+    <AuthContext.Provider value={{ role, token, id_user, login, logout, email }}>
       {children}
     </AuthContext.Provider>
   );
