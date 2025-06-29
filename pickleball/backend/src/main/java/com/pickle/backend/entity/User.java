@@ -46,6 +46,8 @@ public class User {
     @Column(name = "login_type", length = 255)
     private String loginType;
 
+    @Column(name = "url_avata", length = 500)
+    private String urlavata;
     // Getter tùy chỉnh cho role (nếu cần)
     // public String getRole() {
     //     return role;

@@ -3,12 +3,11 @@ import Button from "../../components/Button";
 import { Card, CardContent } from "../../components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createUpdate } from "../../api/user/update";
-
+import { useAuth } from "../../contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+import Swal from "sweetalert2";
 export default function InputAssessment() {
   const navigate = useNavigate();
-  const handleQuiz = () => {
-    navigate("/quiz");
-  };
   return (
     <div className="max-w-4xl mx-auto p-6 font-sans">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 font-grandstander">
@@ -38,6 +37,7 @@ export default function InputAssessment() {
 
 function QuizForm() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [experience, setExperience] = useState("");
   const [backhand, setBackhand] = useState(5);
   const [goal, setGoal] = useState("");
@@ -67,15 +67,17 @@ function QuizForm() {
       return;
     }
     try {
-      const respond = await createUpdate(data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (respond) {
-        navigate("/");
-      }
+      const respond = await createUpdate(data);
+      if (respond.status === 200) {
+        Swal.fire({
+          title: "Success",
+          text: "Your skill assessment has been submitted successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      };
+      logout();
+      navigate("/login");
     } catch (error) {
       console.error("Submission error:", error.response ? error.response.data : error.message);
       setError(`Failed to submit. Error: ${error.response?.data?.message || error.message}`);
