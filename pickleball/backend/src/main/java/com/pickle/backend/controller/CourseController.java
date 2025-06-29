@@ -22,6 +22,7 @@ import java.util.UUID; // Vẫn cần nếu LessonDTO dùng UUID, nếu không t
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CourseController {
     private static final Logger log = LoggerFactory.getLogger(CourseController.class);
     @Autowired
@@ -43,6 +44,17 @@ public class CourseController {
     @GetMapping("/courses")
     public ResponseEntity<List<Course>> getAllCourses() {
         List<Course> courses = courseService.getAllCourses();
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/featured-courses")
+    public ResponseEntity<List<Course>> getFeaturedCourses() {
+        List<String> featuredTitles = List.of(
+                "Pickleball Cơ Bản – Làm Quen Và Làm Chủ Cơ Bản",
+                "Pickleball Trung Cấp – Chiến Thuật Và Phối Hợp Đội",
+                "Pickleball Nâng Cao – Chiến Lược Thi Đấu & Tâm Lý"
+        );
+        List<Course> courses = courseService.getCoursesByTitles(featuredTitles);
         return ResponseEntity.ok(courses);
     }
 
