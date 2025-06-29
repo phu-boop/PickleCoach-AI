@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/ai/full-analysis").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login",
                                 "/api/users/forgot-password", "/api/users/verify-otp", "/api/users/reset-password", // Thêm các endpoint này
-                                "/api/questions/**", "/login/oauth2/code/google", "/api/checkLearnerProgress").permitAll()
+                                "/api/questions/**", "/login/oauth2/code/google", "/api/checkLearnerProgress", "/api/featured-courses" ).permitAll()
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/api/users/**").hasRole("admin")
                         .anyRequest().authenticated()

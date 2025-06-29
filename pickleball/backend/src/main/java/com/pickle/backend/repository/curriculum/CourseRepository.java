@@ -12,4 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByLevelRequired(LevelRequired levelRequired);
+    List<Course> findByTitleIn(List<String> titles);
 }
