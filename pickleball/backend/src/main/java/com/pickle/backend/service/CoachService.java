@@ -1,7 +1,9 @@
 package com.pickle.backend.service;
 
 import com.pickle.backend.dto.CoachDTO;
+import com.pickle.backend.dto.ScheduleDTO;
 import com.pickle.backend.entity.Coach;
+import com.pickle.backend.entity.Session;
 import com.pickle.backend.entity.User;
 import com.pickle.backend.exception.ResourceNotFoundException;
 import com.pickle.backend.repository.CoachRepository;
@@ -12,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +30,8 @@ public class CoachService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SessionService sessionService;
     public String confirmCoachById(String id) {
         Optional<Coach> optionalCoach = coachRepository.findById(id);
         logger.info("start");
@@ -144,5 +150,29 @@ public class CoachService {
     public List<Coach> getCoachesByCertification(String certification) {
         logger.info("Fetching coaches with certification: {}", certification);
         return coachRepository.findByCertificationsContaining(certification);
+    }
+
+    public List<ScheduleDTO> getScheduleByCoaches(String coachId) {
+        Optional<Coach> coach = coachRepository.findById(coachId);
+        if (coach.isPresent()) {
+            List<String> listSchedule = coach.get().getAvailability();
+            List<Session> sessions = sessionService.getSessionByCoachId(coachId);
+            List<ScheduleDTO> scheduleDTOList = new ArrayList<>();
+
+            // Duyệt qua từng khoảng thời gian trong lịch
+            for (String scheduleItem : listSchedule) {
+                // Kiểm tra xem khoảng thời gian có khớp với bất kỳ phiên nào không
+                boolean isAvailable = sessions.stream()
+                        .noneMatch(session -> session.getDatetime().equals(scheduleItem));
+                // Thêm ScheduleDTO với trạng thái rảnh/không rảnh
+                scheduleDTOList.add(new ScheduleDTO(scheduleItem, isAvailable));
+            }
+
+            logger.info("List session: {}", sessions);
+            return scheduleDTOList;
+        } else {
+            logger.warn("Coach with id {} not found", coachId);
+            return null;
+        }
     }
 }
