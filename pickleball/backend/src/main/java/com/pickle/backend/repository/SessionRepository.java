@@ -12,5 +12,5 @@ public interface SessionRepository extends JpaRepository<Session, String> {
     List<Session> findByCoachUserId(String coachId);
     List<Session> findByLearnerUserId(String learnerId);
     List<Session> findByStatus(Session.Status status);
-    List<Session> findByDatetimeBetween(LocalDateTime start, LocalDateTime end);
+    List<Session> findByDatetimeBetween(String start, String end);
 }
