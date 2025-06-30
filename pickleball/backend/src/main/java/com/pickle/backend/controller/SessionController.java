@@ -59,7 +59,7 @@ public class SessionController {
 
     @GetMapping("/datetime")
     @PreAuthorize("hasAnyRole('admin', 'coach', 'learner')")
-    public List<Session> getSessionsByDateRange(@RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
+    public List<Session> getSessionsByDateRange(@RequestParam String start, @RequestParam String end) {
         return sessionService.getSessionsByDateRange(start, end);
     }
 }

@@ -141,12 +141,6 @@ const ReviewCoach = () => {
                             </span>
                             ))}
                         </div>
-                        <p className="text-gray-600 text-sm mb-4 text-center">
-                        <strong>Availability:</strong>{' '}
-                        {coach.availability && coach.availability.length > 0
-                            ? coach.availability.join(', ')
-                            : 'No availability listed'}
-                        </p>
                         <button
                         onClick={() => alert(`Booking for ${coach.name} is not implemented yet.`)}
                         className="bg-[#2d93ad] hover:bg-[#1a6f8c] text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 w-full text-center cursor-pointer"

@@ -1,6 +1,7 @@
 package com.pickle.backend.controller;
 
 import com.pickle.backend.dto.CoachDTO;
+import com.pickle.backend.dto.ScheduleDTO;
 import com.pickle.backend.entity.Coach;
 import com.pickle.backend.service.CoachService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,14 @@ public class CoachController {
                 .map(coach -> ResponseEntity.ok(new CoachDTO(coach)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/schedule/{coachId}")
+    @PreAuthorize("hasAnyRole('admin', 'learner', 'coach')")
+    public ResponseEntity<List<ScheduleDTO>> getScheduleByCoaches(@PathVariable String coachId) {
+        List<ScheduleDTO> schedule = coachService.getScheduleByCoaches(coachId);
+        return schedule != null ? ResponseEntity.ok(schedule) : ResponseEntity.notFound().build();
+    }
+
     @GetMapping("/confirm/{coachId}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<String> confirmCoachById(@PathVariable String coachId) {
