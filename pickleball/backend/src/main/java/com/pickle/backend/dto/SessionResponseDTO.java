@@ -7,7 +7,7 @@ public class SessionResponseDTO {
     private String sessionId;
     private String coachId;
     private String learnerId;
-    private LocalDateTime datetime;
+    private String datetime;
     private Session.Status status;
     private String videoLink;
     private String feedback;
@@ -30,8 +30,8 @@ public class SessionResponseDTO {
     public void setCoachId(String coachId) { this.coachId = coachId; }
     public String getLearnerId() { return learnerId; }
     public void setLearnerId(String learnerId) { this.learnerId = learnerId; }
-    public LocalDateTime getDatetime() { return datetime; }
-    public void setDatetime(LocalDateTime datetime) { this.datetime = datetime; }
+    public String getDatetime() { return datetime; }
+    public void String(String datetime) { this.datetime = datetime; }
     public Session.Status getStatus() { return status; }
     public void setStatus(Session.Status status) { this.status = status; }
     public String getVideoLink() { return videoLink; }
