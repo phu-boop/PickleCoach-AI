@@ -32,7 +32,7 @@ public class Session {
 
     @NotNull(message = "Datetime is mandatory")
     @Column(name = "datetime")
-    private LocalDateTime datetime;
+    private String datetime;
 
     @NotNull(message = "Status is mandatory")
     @Enumerated(EnumType.STRING)

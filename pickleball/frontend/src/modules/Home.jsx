@@ -1,10 +1,50 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
 export default function SearchSection() {
   const [openIndex, setOpenIndex] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [lesson, setLesson] = useState(null);
+  const navigate = useNavigate();
+  const scrollContainerRef = useRef(null);
+
+  useEffect(() => {
+    // Fetch 3 khóa học cơ bản
+    fetch('http://localhost:8080/api/featured-courses', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => setCourses(data.slice(0, 3))) // Giới hạn 3 khóa học
+        .catch((error) => console.error('Error fetching courses:', error.message));
+
+    // Fetch bài học "Nhập môn Pickleball"
+    fetch('http://localhost:8080/api/lessons?course_id=2', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          const nhapMonLesson = data.find(lesson => lesson.title === 'Nhập môn Pickleball') || data[0];
+          setLesson(nhapMonLesson);
+        })
+        .catch((error) => console.error('Error fetching lesson:', error.message));
+  }, []);
 
   const toggleIndex = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -78,6 +118,7 @@ export default function SearchSection() {
             <Button
             children={"Join Pickleheads Now"}
             className={'font-black py-3 px-7 text-lg'}
+            onClick={() => window.location.href = 'http://localhost:5173/input-assessment'}
             >
 
             </Button>
@@ -196,86 +237,99 @@ export default function SearchSection() {
         </div>
       </div>
     </div>
-    <div className="max-w-7xl mx-auto py-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
-        <div className="space-y-8 border-r border-dotted pr-6 border-[#1a96b7]">
-          <h2 className="text-4xl font-extrabold text-[#1a96b7] mb-10">Learn to play</h2>
-          {miniGuides.map((guide, index) => (
-            <div key={index} className="flex items-start gap-5">
-              <img
-                src={guide.image}
-                alt={`Guide ${index + 1}`}
-                className="w-40 h-28 md:w-48 md:h-32 object-cover rounded-xl"
-              />
-              <div>
-                <span className="inline-block bg-[#bbedff] text-[#0a0b3d] text-sm font-bold px-2 py-1 rounded">
-                  Guides
+      <div className="max-w-7xl mx-auto py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+          <div className="space-y-8 border-r border-dotted pr-6 border-[#1a96b7]">
+            <h2 className="text-4xl font-extrabold text-[#1a96b7] mb-10">Learn to play</h2>
+            {courses.length > 0 ? (
+                courses.map((course, index) => (
+                    <div
+                        key={index}
+                        className="flex items-start gap-5 cursor-pointer"
+                        onClick={() => navigate(`/course/${course.id || index}`)} // Thêm sự kiện điều hướng
+                    >
+                      <img
+                          src={course.thumbnailUrl || `https://via.placeholder.com/400x266?text=Image+${index + 1}`}
+                          alt={`Course ${index + 1}`}
+                          className="w-40 h-28 md:w-48 md:h-32 object-cover rounded-xl"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/400x266'; }}
+                      />
+                      <div>
+                        <span className="inline-block bg-[#bbedff] text-[#0a0b3d] text-sm font-bold px-2 py-1 rounded">
+                          Guides
+                        </span>
+                        <h3 className="mt-2 text-lg font-bold text-[#111943]">
+                          {course.title || `Course ${index + 1}`}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {course.description || 'No description available'}
+                        </p>
+                      </div>
+                    </div>
+                ))
+            ) : (
+                <p>Error loading courses. Please check if the API at http://localhost:8080/api/featured-courses is running. See console for details.</p>
+            )}
+          </div>
+
+          {/* Phần bên phải: Hiển thị lesson "Nhập môn Pickleball" */}
+          <div className="space-y-6">
+            <div className="relative">
+              <iframe
+                  width="100%"
+                  height="315"
+                  src={lesson?.video_url || 'https://www.youtube.com/embed/kqLRRNOpe8U'}
+                  title="Nhập môn Pickleball"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="rounded-xl border-4 border-black shadow-lg"
+              ></iframe>
+              <div className="absolute bottom-16 left-4 bg-[#d9f7ff] px-6 py-4 rounded-xl shadow-md max-w-[90%] opacity-70">
+                <p className="text-black font-semibold leading-snug text-base">
+                  🎯 Học các kỹ thuật cơ bản với video hướng dẫn chi tiết
+                </p>
+              </div>
+            </div>
+            <div className="space-x-3">
+              <span className="bg-[#bbedff] font-bold text-[#0a0b3d] text-sm px-2 py-1 rounded">Guides</span>
+              <span className="bg-[#bbedff] font-bold text-[#0a0b3d] text-sm px-2 py-1 rounded">Learn</span>
+            </div>
+            <h3 className="text-3xl font-extrabold text-[#111943]">
+              {lesson?.title || 'Nhập môn Pickleball'}
+            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-3">
+              <button
+                  className="cursor-pointer bg-gradient-to-b from-[#2ca6c9] to-[#1a96b7] hover:from-[#2d93ad] hover:to-[#226a7c] text-white font-bold px-6 py-3 rounded-full shadow transition duration-300"
+                  onClick={() => navigate('/lessons/8a3b3a4a-2446-47f9-8a8f-26e49f1e6caf')}
+              >
+                Watch Now
+              </button>
+              <p className="text-[#111943] font-medium">
+                <span
+                    className="text-[#2ca6c9] font-semibold hover:underline inline-flex items-center cursor-pointer"
+                    onClick={() => navigate('/learner')}
+                >
+                  OR read our guides
+                  <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="ml-1 h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </span>
-                <h3 className="mt-2 text-lg font-bold text-[#111943]">
-                  {guide.title}
-                </h3>
-              </div>
+              </p>
             </div>
-          ))}
-        </div>
-
-        {/* Right side - Video feature */}
-        <div className="space-y-6">
-          <div className="relative">
-            <img
-              src="https://cdn.filestackcontent.com/resize=w:1200,h:800,fit:crop/auto_image/Snd9sKdGSCCGKnyrJymM"
-              alt="Virtual Clinic"
-              className="rounded-xl w-full h-auto object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 bg-[#2ca6c9] rounded-full flex items-center justify-center shadow-lg cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-white ml-1"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-x-3">
-            <span className="bg-[#bbedff] font-bold text-[#0a0b3d] text-sm px-2 py-1 rounded">Guides</span>
-            <span className="bg-[#bbedff] font-bold text-[#0a0b3d] text-sm px-2 py-1 rounded">Learn</span>
-          </div>
-
-          <h3 className="text-3xl font-extrabold text-[#111943]">
-            How To Play Pickleball: Free Virtual Clinic for Beginners
-          </h3>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-3">
-            <button className="cursor-pointer bg-gradient-to-b from-[#2ca6c9] to-[#1a96b7] hover:from-[#2d93ad] hover:to-[#226a7c] text-white font-bold px-6 py-3 rounded-full shadow transition duration-300">
-              Watch Now
-            </button>
-            <p className="text-[#111943] font-medium">
-              <a href="#" className="text-[#2ca6c9] font-semibold hover:underline inline-flex items-center">
-                OR read our guides
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="ml-1 h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-            </p>
           </div>
         </div>
       </div>
-    </div>
     <div className="bg-[#d9f7ff] rounded-2xl p-6 container-main flex flex-col md:flex-row items-center justify-between gap-4">
       {/* Left: Icon + Text */}
       <div className="flex items-center gap-4 w-2/5">
-        {/* Replace this with actual image if needed */}
+        {/* Replace this with if needed */}
         <div className="text-4xl"><img src="https://www.pickleheads.com/images/duotone-icons/news.svg" alt="" className='w-[56px] mr-3'/></div>
         <p className="text-[#0076a3] font-bold text-[28px] flex-1">
           Epic points, pro tips & more –<br className="hidden md:block" /> delivered weekly to your inbox
@@ -350,6 +404,7 @@ export default function SearchSection() {
         <Button
         children={"upload video"}
         className={'absolute bottom-[-260px] left-[20%] transform -translate-x-1/2 mt-3 px-4 py-3'}
+        onClick={() => window.location.href = 'http://localhost:5173/upload-video'}
         ></Button>
         <div className="absolute bottom-[-60px] left-[50%] mt-3">
           {/* Đường dọc (từ trên xuống) */}
@@ -375,52 +430,77 @@ export default function SearchSection() {
           <button className="text-gray-400 uppercase font-black">Amenities</button>
         </div>
         <div className="relative">
-          <button className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
-            ←
+          <button
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-[#2A96AC] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-md hover:bg-[#24839A] transition z-10"
+              onClick={() => {
+                const container = scrollContainerRef.current;
+                if (container) container.scrollLeft -= 300;
+              }}
+          >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={3}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
-          <div className="flex overflow-x-auto scrollbar-hide space-x-8">
+          <div
+              className="flex overflow-x-auto scrollbar-hide space-x-8"
+              ref={scrollContainerRef}
+              style={{ maxWidth: '100%', overflowX: 'auto', scrollBehavior: 'smooth' }}
+          >
             {cities.map((city, index) => (
-              <div
-                key={index}
-                className="w-60 rounded-xl overflow-hidden shadow-md bg-white"
-              >
-                <div className="relative h-40">
-                  <img
-                    src={city.image}
-                    alt={city.city}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <h3 className="text-white text-2xl font-bold drop-shadow-md">
-                      {city.city}
-                    </h3>
+                <div
+                    key={index}
+                    className="w-60 min-w-[240px] rounded-xl overflow-hidden shadow-md bg-white flex-shrink-0"
+                >
+                  <div className="relative h-40">
+                    <img
+                        src={city.image}
+                        alt={city.city}
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <h3 className="text-white text-2xl font-bold drop-shadow-md">
+                        {city.city}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 p-4 text-sm">
+                    <div className="flex justify-between py-1">
+                      <span>Locations</span>
+                      <span className="text-sky-600 font-semibold">{city.locations}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span>Courts</span>
+                      <span className="text-sky-600 font-semibold">{city.courts}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span>Games</span>
+                      <span className="text-sky-600 font-semibold">{city.games}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="bg-blue-50 p-4 text-sm">
-                  <div className="flex justify-between py-1">
-                    <span>Locations</span>
-                    <span className="text-sky-600 font-semibold">{city.locations}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span>Courts</span>
-                    <span className="text-sky-600 font-semibold">{city.courts}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span>Games</span>
-                    <span className="text-sky-600 font-semibold">{city.games}</span>
-                  </div>
-                </div>
-              </div>
             ))}
           </div>
-          <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#2A96AC] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-md hover:bg-[#24839A] transition">
+          <button
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#2A96AC] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-md hover:bg-[#24839A] transition z-10"
+              onClick={() => {
+                const container = scrollContainerRef.current;
+                if (container) container.scrollLeft += 300;
+              }}
+          >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={3}
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={3}
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
@@ -518,29 +598,42 @@ export default function SearchSection() {
     </>
   );
 }
-const miniGuides = [
-  {
-    title: "Cách chơi pickleball - 9 quy tắc đơn giản dành cho người mới bắt đầu",
-    image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F6600e8971938f3d573f194fdc48f079ab32f51c6-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
-  },
-  {
-    title: "Xếp hạng kỹ năng chơi pickleball của tôi là bao nhiêu? Hãy làm bài kiểm tra này để...",
-    image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2Fd6feb1e7dcddd082cc630123aea5dee4fc4900f8-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
-  },
-  {
-    title: "Cách tổ chức giải đấu nhỏ trên Pickleheads",
-    image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F93f647a93b9c1101b141e9c6815c700e5d515b4d-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
-  },
-];
+// const miniGuides = [
+//   {
+//     title: "Cách chơi pickleball - 9 quy tắc đơn giản dành cho người mới bắt đầu",
+//     image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F6600e8971938f3d573f194fdc48f079ab32f51c6-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
+//   },
+//   {
+//     title: "Xếp hạng kỹ năng chơi pickleball của tôi là bao nhiêu? Hãy làm bài kiểm tra này để...",
+//     image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2Fd6feb1e7dcddd082cc630123aea5dee4fc4900f8-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
+//   },
+//   {
+//     title: "Cách tổ chức giải đấu nhỏ trên Pickleheads",
+//     image: "https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F93f647a93b9c1101b141e9c6815c700e5d515b4d-736x490.png%3Fauto%3Dformat%26w%3D400%26h%3D266%26fit%3Dclip&w=1920&q=75",
+//   },
+// ];
 
 const cities = [
-    { city: 'Chicago', locations: 68, courts: 309, games: 162, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
-    { city: 'New York', locations: 62, courts: 231, games: 317, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
-    { city: 'Seattle', locations: 62, courts: 249, games: 379, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
-    { city: 'San Diego', locations: 58, courts: 261, games: 445, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
-    { city: 'Ottawa', locations: 56, courts: 206, games: 285, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
-    { city: 'Austin', locations: 55, courts: 216, games: 515, image: 'https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.filestackcontent.com%2Fresize%3Dw%3A400%2Ch%3A400%2Fauto_image%2FlWZm6O7gR4yOeOZ0K0b9&w=1920&q=75' },
-  ];
+  { city: 'Quận 1', locations: 10, courts: 25, games: 50, image: 'https://lh7-us.googleusercontent.com/RpJsZJpUE7GiSnl6q-zehT1zgdRPVzkYRkzBnfvhq3CRQQaLmZzuxDFq2uLRhlgXEOpQusxAbKRLNsOD5ygXGoO0y0hKGA5s3AKz89G957hGLv20SBiwcIgiAzSrCMXCepOlO6pMkokJkzVA1M212tA' },
+  { city: 'Quận 2', locations: 8, courts: 20, games: 40, image: 'https://nasaland.vn/wp-content/uploads/2022/09/Quan-2-1.jpg' },
+  { city: 'Quận 3', locations: 12, courts: 30, games: 60, image: 'https://file-quan3.hochiminhcity.gov.vn/data/images/0/2018/03/14/host/48.png' },
+  { city: 'Quận 4', locations: 7, courts: 15, games: 30, image: 'https://maisonoffice.vn/wp-content/uploads/2024/04/1-gioi-thieu-tong-quan-ve-quan-4-tphcm.jpg' },
+  { city: 'Quận 5', locations: 9, courts: 22, games: 45, image: 'https://mttqquan5.vn/wp-content/uploads/2019/12/3-1.jpg' },
+  { city: 'Quận 6', locations: 6, courts: 18, games: 35, image: 'https://blog.homenext.vn/hs-fs/hubfs/tong-quan-quan-6.jpg?width=900&name=tong-quan-quan-6.jpg' },
+  { city: 'Quận 7', locations: 11, courts: 28, games: 55, image: 'https://iwater.vn/Image/Picture/New/333/quan_7.jpg' },
+  { city: 'Quận 8', locations: 5, courts: 12, games: 25, image: 'https://quanlykhachsan.edu.vn/wp-content/uploads/2021/12/dia-diem-chup-anh-dep-o-quan-8.jpg' },
+  { city: 'Quận 9', locations: 8, courts: 20, games: 40, image: 'https://iwater.vn/Image/Picture/New/333/quan_9.jpg' },
+  { city: 'Quận 10', locations: 10, courts: 24, games: 48, image: 'https://maisonoffice.vn/wp-content/uploads/2024/04/2-quan-10-duoc-thanh-lap-vao-nam-1969.jpg' },
+  { city: 'Quận 11', locations: 7, courts: 16, games: 32, image: 'https://offer.rever.vn/hubfs/dia-diem-vui-choi-quan-11-1.jpg' },
+  { city: 'Quận 12', locations: 9, courts: 21, games: 42, image: 'https://nasaland.vn/wp-content/uploads/2022/10/quan-12-1.jpg' },
+  { city: 'Gò Vấp', locations: 12, courts: 30, games: 60, image: 'https://iwater.vn/Image/Picture/New/333/quan_go_vap.jpg' },
+  { city: 'Bình Thạnh', locations: 8, courts: 19, games: 38, image: 'https://www.dienvinh.vn/wp-content/uploads/2024/05/binh-thanh-gan-quan-nao-01.webp' },
+  { city: 'Phú Nhuận', locations: 10, courts: 23, games: 46, image: 'https://blog.homenext.vn/hs-fs/hubfs/chua-phap-hoa-phu-nhuan.jpg?width=900&name=chua-phap-hoa-phu-nhuan.jpg' },
+  { city: 'Tân Bình', locations: 9, courts: 22, games: 44, image: 'https://cdn.xanhsm.com/2025/05/93e733a3-tan-binh-o-dau-4.jpg' },
+  { city: 'Tân Phú', locations: 7, courts: 17, games: 34, image: 'https://lh6.googleusercontent.com/c3u_JAe0Bu7mWgEU8Giw1mNdiVq-W8fJqRe4fboqe18bHO2sPRTRDCwzKm9C937kG6HPtFIbOd81mBV9yPRJ_WJ7tyR_QS_vX79J20i1o9AkVP1ABn6qnCqwAluXbtioz8yMRVPYKx9n2vPY8Xo0X5M' },
+  { city: 'Bình Tân', locations: 11, courts: 27, games: 54, image: 'https://upload.wikimedia.org/wikipedia/commons/1/18/Sieu_thi_Aeonmall%2Cduong_Ten_lua_duong_so17A%2Cphuong_B%C3%ACnh_Tr%E1%BB%8B_%C4%90%C3%B4ng_B%2C_B%C3%ACnh_T%C3%A2n%2C_TPHCM%2C_Vi%E1%BB%87t_Nam%2C24-07-16-Dyt_-_panoramio.jpg' },
+  { city: 'Thủ Đức', locations: 13, courts: 32, games: 65, image: 'https://homeless.vn/static/uploads/ckeditor/images/quan-thu-duc-1.jpg' },
+];
 
 
   const faqData = [
