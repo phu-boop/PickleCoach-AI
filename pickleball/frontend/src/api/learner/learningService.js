@@ -45,3 +45,13 @@ export const updateLessonComplete = async (idProgress) => {
   const response = await apiLearner.get(`/updateLessonComplete/${idProgress}`);
   return response;
 }
+
+export const createSession = async (sessionData) => {
+  const response = await apiLearner.post('/sessions', sessionData);
+  return response.data;
+}
+
+export const getScheduledSessions = async (userId) => {
+  const response = await apiLearner.get(`/coaches/schedule/${userId}`);
+  return response.data;
+}

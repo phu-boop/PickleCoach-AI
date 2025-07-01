@@ -1,16 +1,24 @@
 package com.pickle.backend.service;
 
+import com.pickle.backend.dto.CoachDTO;
+import com.pickle.backend.dto.ScheduleDTO;
 import com.pickle.backend.entity.Coach;
+import com.pickle.backend.entity.Session;
 import com.pickle.backend.entity.User;
 import com.pickle.backend.exception.ResourceNotFoundException;
 import com.pickle.backend.repository.CoachRepository;
+import com.pickle.backend.repository.UserRepository;
+import com.pickle.backend.dto.CoachDTO;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CoachService {
@@ -22,36 +30,99 @@ public class CoachService {
     @Autowired
     private UserService userService;
 
-    public List<Coach> getAllCoaches() {
-        logger.info("Fetching all coaches");
-        return coachRepository.findAll();
+    @Autowired
+    private SessionService sessionService;
+    public String confirmCoachById(String id) {
+        Optional<Coach> optionalCoach = coachRepository.findById(id);
+        logger.info("start");
+        if (optionalCoach.isPresent()) {
+            Coach coach = optionalCoach.get();
+
+            User user = coach.getUser();
+
+            user.setRole("coach");
+
+            userRepository.save(user);
+
+            return "Coach confirmed successfully.";
+        } else {
+            throw new RuntimeException("Coach with ID " + id + " not found.");
+        }
     }
 
+    public List<CoachDTO> getAllCoaches() {
+        logger.info("Fetching all coaches");
+
+        List<Coach> coaches = coachRepository.findAll();
+
+        for (Coach coach : coaches) {
+            coach.getUser().getName();
+        }
+
+        return coaches.stream()
+                .map(CoachDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Autowired
+    private UserRepository userRepository;
     public Optional<Coach> getCoachById(String coachId) {
-        logger.info("Fetching coach with id: {}", coachId);
+        System.out.println("Fetching coach with id: " + coachId);
         return coachRepository.findById(coachId);
     }
 
+    @Transactional
     public Coach createCoach(Coach coach) {
         logger.info("Creating coach for user with email: {}", coach.getUser().getEmail());
         User userDetails = coach.getUser();
         Optional<User> existingUser = userService.findByEmail(userDetails.getEmail());
-        User savedUser;
 
+        User savedUser;
         if (existingUser.isPresent()) {
-            logger.info("User with email {} already exists", userDetails.getEmail());
-            savedUser = existingUser.get();
+            logger.info("User with email {} already exists, userId: {}", userDetails.getEmail(), existingUser.get().getUserId());
+            // Tái truy vấn User để đảm bảo trạng thái managed
+            savedUser = userRepository.findByEmail(userDetails.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found with email: " + userDetails.getEmail()));
         } else {
             logger.info("Creating new user for coach with email: {}", userDetails.getEmail());
-            userDetails.setRole("coach");
             savedUser = userService.createUser(userDetails);
         }
 
-        coach.setUser(savedUser);
-        coach.setUserId(savedUser.getUserId());
-        return coachRepository.save(coach);
-    }
+        // Log chi tiết User
+        logger.info("User details: userId={}, email={}, name={}, role={}, skillLevel={}, preferences={}",
+                savedUser.getUserId(), savedUser.getEmail(), savedUser.getName(),
+                savedUser.getRole(), savedUser.getSkillLevel(), savedUser.getPreferences());
 
+        // Kiểm tra userId
+        if (savedUser.getUserId() == null) {
+            logger.error("User ID is null for email: {}", savedUser.getEmail());
+            throw new IllegalStateException("User ID cannot be null");
+        }
+
+        // Kiểm tra xem Coach đã tồn tại chưa
+        if (coachRepository.existsByUserId(savedUser.getUserId())) {
+            logger.warn("Coach already exists for userId: {}", savedUser.getUserId());
+            throw new RuntimeException("Coach already exists");
+        }
+        // sửa role
+        savedUser.setRole("verifying");
+
+        // Tạo Coach mới
+        Coach newCoach = new Coach();
+        newCoach.setUser(savedUser); // Gán User, @MapsId sẽ tự động gán userId
+        newCoach.setCertifications(coach.getCertifications());
+        newCoach.setAvailability(coach.getAvailability());
+        newCoach.setSpecialties(coach.getSpecialties());
+
+        logger.info("Coach before save: userId={}, user.email={}",
+                newCoach.getUserId(), newCoach.getUser().getEmail());
+
+        // Lưu Coach
+        Coach savedCoach = coachRepository.save(newCoach);
+        logger.info("Coach after save: userId={}, user.email={}",
+                savedCoach.getUserId(), savedCoach.getUser().getEmail());
+        return savedCoach;
+    }
     public Coach updateCoach(String coachId, Coach coachDetails) {
         logger.info("Updating coach with id: {}", coachId);
         return coachRepository.findById(coachId).map(coach -> {
@@ -79,5 +150,29 @@ public class CoachService {
     public List<Coach> getCoachesByCertification(String certification) {
         logger.info("Fetching coaches with certification: {}", certification);
         return coachRepository.findByCertificationsContaining(certification);
+    }
+
+    public List<ScheduleDTO> getScheduleByCoaches(String coachId) {
+        Optional<Coach> coach = coachRepository.findById(coachId);
+        if (coach.isPresent()) {
+            List<String> listSchedule = coach.get().getAvailability();
+            List<Session> sessions = sessionService.getSessionByCoachId(coachId);
+            List<ScheduleDTO> scheduleDTOList = new ArrayList<>();
+
+            // Duyệt qua từng khoảng thời gian trong lịch
+            for (String scheduleItem : listSchedule) {
+                // Kiểm tra xem khoảng thời gian có khớp với bất kỳ phiên nào không
+                boolean isAvailable = sessions.stream()
+                        .noneMatch(session -> session.getDatetime().equals(scheduleItem));
+                // Thêm ScheduleDTO với trạng thái rảnh/không rảnh
+                scheduleDTOList.add(new ScheduleDTO(scheduleItem, isAvailable));
+            }
+
+            logger.info("List session: {}", sessions);
+            return scheduleDTOList;
+        } else {
+            logger.warn("Coach with id {} not found", coachId);
+            return null;
+        }
     }
 }

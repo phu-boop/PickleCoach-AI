@@ -28,4 +28,8 @@ public class CourseService {
     public void deleteCourse(Long id) {
         courseRepository.deleteById(id);
     }
+
+    public List<Course> getCoursesByTitles(List<String> titles) {
+        return courseRepository.findByTitleIn(titles);
+    }
 }
