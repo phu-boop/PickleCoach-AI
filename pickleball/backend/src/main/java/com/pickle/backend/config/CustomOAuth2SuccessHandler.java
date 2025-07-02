@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,23 +49,33 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 newUser.setUserId(UUID.randomUUID().toString());
                 newUser.setEmail(email);
                 newUser.setName(name);
-                newUser.setPassword(null); // Đặt null thay vì rỗng để tránh vấn đề
+                newUser.setPassword(null);
                 newUser.setRole("USER");
-                newUser.setPreferences(""); // Giữ lại vì giờ đã có trường
-                newUser.setSkillLevel("");  // Giữ lại vì giờ đã có trường
+                newUser.setPreferences("");
+                newUser.setSkillLevel("");
                 System.out.println("Saving new user: " + newUser);
                 return userRepository.save(newUser);
             });
 
             String token = jwtService.generateToken(user.getEmail(), List.of(user.getRole()));
+            if (token == null || token.isEmpty()) {
+                throw new IllegalStateException("Failed to generate JWT token");
+            }
             System.out.println("Generated token for user: " + user.getEmail() + ", token: " + token);
             String successMessage = optionalUser.isPresent() ? "Login successful" : "User registered successfully with ID: " + user.getUserId();
 
-            response.sendRedirect("http://localhost:5173/home?token=" + token + "&role=" + user.getRole() + "&message=" + java.net.URLEncoder.encode(successMessage, "UTF-8"));
+            // Redirect to /oauth2/redirect instead of /home
+            String redirectUrl = "http://localhost:5173/oauth2/redirect" +
+                    "?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8) +
+                    "&role=" + URLEncoder.encode(user.getRole(), StandardCharsets.UTF_8) +
+                    "&message=" + URLEncoder.encode(successMessage, StandardCharsets.UTF_8);
+            System.out.println("Redirecting to: " + redirectUrl); // Debug log
+            response.sendRedirect(redirectUrl);
         } catch (Exception e) {
             System.err.println("Error in OAuth2 handler: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("Internal server error: " + e.getMessage(), "UTF-8"));
+            String errorMessage = "Internal server error: " + e.getMessage();
+            response.sendRedirect("http://localhost:5173/login?error=" + URLEncoder.encode(errorMessage, StandardCharsets.UTF_8));
         }
     }
 }

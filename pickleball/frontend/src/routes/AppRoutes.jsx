@@ -57,8 +57,7 @@ function AppRoutesUser() {
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-            <Route path="/home" element={<OAuth2RedirectHandler />} />
+            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} /> {/* Route duy nhất cho OAuth2 callback */}
             <Route path="/auth/forgot-password-email" element={<ForgotPasswordEmail />} /> {/* (note: thêm mới) */}
             <Route path="/auth/enter-otp" element={<EnterOTP />} /> {/* (note: thêm mới) */}
             <Route path="/auth/reset-password" element={<ResetPassword />} /> {/* (note: thêm mới) */}
