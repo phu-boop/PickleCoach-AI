@@ -142,7 +142,6 @@ const ReviewCoach = () => {
                             ))}
                         </div>
                         <button
-                        onClick={() => alert(`Booking for ${coach.name} is not implemented yet.`)}
                         className="bg-[#2d93ad] hover:bg-[#1a6f8c] text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 w-full text-center cursor-pointer"
                         >
                         see now
