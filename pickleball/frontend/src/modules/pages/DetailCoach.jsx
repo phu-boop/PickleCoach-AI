@@ -138,7 +138,7 @@ const DetailCoach = () => {
                 <img src="https://www.pickleheads.com/images/duotone-icons/sms.svg" alt="" className='h-15' />
                 <h2 className="text-2xl font-bold text-[#0a0b3d] font-grandstander">Weekly Schedule</h2>
             </div>
-            <WeeklySchedule scheduleList={scheduleList} />
+            <WeeklySchedule scheduleList={scheduleList} id_coach={id}/>
         </div>
       </div>
     </>
