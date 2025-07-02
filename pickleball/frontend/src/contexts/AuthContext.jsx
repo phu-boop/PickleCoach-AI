@@ -19,6 +19,10 @@ export function AuthProvider({ children }) {
     setIdUser(newId);
   };
 
+  const loginWithGoogle = () => {
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google'; // Redirect đến endpoint Google OAuth2
+  };
+
   const logout = () => {
     sessionStorage.removeItem('id_user');
     sessionStorage.removeItem('token');
