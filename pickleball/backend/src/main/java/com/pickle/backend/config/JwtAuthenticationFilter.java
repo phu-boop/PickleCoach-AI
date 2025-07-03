@@ -45,6 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // return;
             // }
             if (path.equals("/api/ai/full-analysis") ||
+                    path.startsWith("/oauth2/authorization") ||
+                    path.startsWith("/login/oauth2/code") ||
                     path.startsWith("/api/users/register") ||
                     path.startsWith("/api/users/login") ||
                     path.startsWith("/api/questions/")) {

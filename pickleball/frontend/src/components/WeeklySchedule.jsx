@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaLock, FaHandPaper } from 'react-icons/fa';
-
+import { createSession } from '../api/learner/learningService';
+import Swal from 'sweetalert2';
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const timeSlots = [
   { start: '08:00', end: '11:00' },
@@ -9,12 +10,43 @@ const timeSlots = [
   { start: '17:00', end: '20:00' },
   { start: '20:00', end: '23:00' },
 ];
-
+const handleCreateSession = async (schedule,id_coach) => {
+  try {
+    const sessionData = {
+        coach: { userId: id_coach },
+        learner: { userId: sessionStorage.getItem('id_user') },
+        datetime: schedule,
+        status: 'SCHEDULED',
+        videoLink: null,
+        feedback: null,
+      };
+    console.log('Creating session with data:', sessionData);
+    Swal.fire({
+      title: 'Confirm Booking',
+      text: `Do you want to book a session on ${schedule}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, book it!',
+      cancelButtonText: 'No, cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await createSession(sessionData);
+        Swal.fire('Booked!', 'Your session has been booked.', 'success');
+        
+      } else {
+        Swal.fire('Cancelled', 'Your booking has been cancelled.', 'info');
+      }
+    });
+  } catch (error) {
+    console.error('Error creating session:', error);
+    alert('Failed to book session. Please try again.');
+  }
+}
 // Helpers
 const getDayShort = (scheduleStr) => scheduleStr.split(' ')[0].slice(0, 3);
 const getTimeRange = (scheduleStr) => scheduleStr.split(' ')[1];
 
-const WeeklySchedule = ({ scheduleList }) => {
+const WeeklySchedule = ({ scheduleList,id_coach }) => {
   const scheduleMap = {};
   scheduleList.forEach(item => {
     const day = getDayShort(item.schedule);
@@ -75,11 +107,31 @@ const WeeklySchedule = ({ scheduleList }) => {
                       </>
                     )}
                   </div>
-                  {session.status && (
-                    <button className="mt-1 self-start bg-white text-blue-600 text-xs font-bold px-2 py-1 rounded-full border border-blue-400 hover:bg-blue-50 transition">
-                      See Details
-                    </button>
-                  )}
+                  <div>
+                    {
+                      sessionStorage.getItem('role') === 'ROLE_learner' ? ( 
+                        session.status && (
+                          <button className="mt-1 self-start bg-white cursor-pointer text-blue-600 text-xs font-bold px-2 py-1 rounded-full border border-blue-400 hover:bg-blue-50 transition" onClick={() => {handleCreateSession(session.schedule,id_coach)}}>
+                            Book Now
+                          </button>
+                        )
+                      ) : (
+                        session.status ? (
+                        <button
+                          className="mt-1 self-start bg-white cursor-not-allowed text-gray-400 text-xs font-bold px-2 py-1 rounded-full border border-gray-300"
+                        >
+                          available
+                        </button>
+                        ):(
+                        <button
+                          className="mt-1 self-start bg-white cursor-not-allowed text-gray-400 text-xs font-bold px-2 py-1 rounded-full border border-gray-300"
+                        >
+                          booked
+                        </button>
+                        )
+                      )
+                    }
+                  </div>
                 </div>
               ) : (
                 <div

@@ -20,3 +20,14 @@ export async function ApiLogin(email, password) {
     throw error;
   }
 }
+
+// Thêm hàm cho Google Login (nếu cần xử lý callback)
+export async function handleGoogleCallback() {
+  // Logic xử lý sau khi Google redirect về (nếu cần)
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token'); // Giả sử backend trả token qua query param
+  if (token) {
+    // Lưu token và gọi login từ AuthContext
+    // Cần tích hợp với backend để lấy token từ /login/oauth2/code/google
+  }
+}
