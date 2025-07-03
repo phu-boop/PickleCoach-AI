@@ -241,8 +241,8 @@ function UploadVideo() {
                           {feedback.balance?.feedback || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {feedback.swing
-                            ? `${feedback.swing.direction} (${feedback.swing.feedback}, tốc độ: ${feedback.swing.velocity?.toFixed(3)})`
+                          {feedback.swing && feedback.swing.feedback
+                            ? `${feedback.swing.feedback}${feedback.swing.velocity !== undefined ? ", tốc độ: " + feedback.swing.velocity.toFixed(3) : ""}`
                             : "N/A"}
                         </td>
                       </tr>
