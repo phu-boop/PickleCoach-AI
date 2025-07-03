@@ -77,7 +77,43 @@ function UploadVideo() {
         });
       } catch (err) {
         console.log("Error details:", err.response);
-        setError("Error uploading video: " + (err.response?.data?.message || err.message));
+        let backendMsg = "";
+        if (err.response?.data) {
+          if (typeof err.response.data === "string") {
+            // Tìm tất cả JSON trong chuỗi lớn
+            const matches = err.response.data.match(/{[^{}]+}/g);
+            let foundError = false;
+            if (matches) {
+              for (const jsonStr of matches) {
+                try {
+                  const jsonObj = JSON.parse(jsonStr);
+                  if (jsonObj.error) {
+                    backendMsg = jsonObj.error;
+                    foundError = true;
+                    break;
+                  }
+                } catch (e) {}
+              }
+            }
+            if (!foundError) backendMsg = err.response.data;
+          } else if (err.response.data.error) {
+            backendMsg = err.response.data.error;
+          } else if (err.response.data.message) {
+            backendMsg = err.response.data.message;
+          }
+        } else {
+          backendMsg = err.message;
+        }
+        if (
+          backendMsg.includes("Không phát hiện hoạt động pickleball") ||
+          backendMsg.includes("Phân tích video không thành công") ||
+          backendMsg.includes("BAD REQUEST") ||
+          backendMsg.includes("error")
+        ) {
+          setError("Không phân tích được video. Vui lòng nhập video khác");
+        } else {
+          setError(backendMsg);
+        }
       } finally {
         setLoading(false);
       }
@@ -190,19 +226,19 @@ function UploadVideo() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{feedback.timestamp}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{feedback.overall_score}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {feedback.shot?.type} ({feedback.shot?.description})
+                          {feedback.shot?.description}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {feedback.position?.location}: {feedback.position?.advice}
+                          {feedback.position?.advice}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {feedback.stance?.type}: {feedback.stance?.feedback}
+                          {feedback.stance?.feedback}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {feedback.grip?.type}: {feedback.grip?.feedback}
+                          {feedback.grip?.feedback}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {feedback.balance?.status || "N/A"}: {feedback.balance?.feedback || "N/A"}
+                          {feedback.balance?.feedback || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {feedback.swing
