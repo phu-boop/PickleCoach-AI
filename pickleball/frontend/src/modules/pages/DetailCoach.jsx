@@ -4,8 +4,9 @@ import { getScheduledSessions } from '../../api/learner/learningService';
 import { useParams } from 'react-router-dom';
 import { FaMapMarkerAlt, FaPhoneAlt, FaGlobe, FaCamera } from 'react-icons/fa';
 import WeeklySchedule from '../../components/WeeklySchedule';
-
+import { useNavigate } from 'react-router-dom';
 const DetailCoach = () => {
+  const navegative = useNavigate();
   const { id } = useParams();
   const [coach, setCoach] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -126,9 +127,9 @@ const DetailCoach = () => {
           </div>
           <p className="text-right text-sm text-gray-400 mt-2 font-grandstander">Image by Coach</p>
 
-          <button className="mt-6 bg-[#2d93ad] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#1a6f8c] transition font-grandstander">
+          {(sessionStorage.getItem('role') === 'ROLE_learner') && <button className="mt-6 bg-[#2d93ad] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#1a6f8c] transition font-grandstander">
             Book a Lesson
-          </button>
+          </button>}
         </div>
       </div>
       <div className='mt-20 container-main border-t-4 border-dotted border-[#A2DFFF]'>
@@ -141,6 +142,22 @@ const DetailCoach = () => {
             <WeeklySchedule scheduleList={scheduleList} id_coach={id}/>
         </div>
       </div>
+      {/* Action Buttons */}
+      {
+      sessionStorage.getItem('role') === 'ROLE_coach' && ( 
+      <div className="flex flex-wrap gap-4 ml-40 mb-30 mt-20">
+        <button onClick={()=>{navegative(`/Detail_coach/${sessionStorage.getItem('id_user')}`)}} className="bg-[#696cff] hover:bg-[#4445a0] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+          Manage Schedule
+        </button>
+        <button onClick={()=>{navegative('/coach')}} className="bg-[#82e14f] hover:bg-[#548f35] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+          View Reports
+        </button>
+        <button onClick={()=>{navegative('/profile')}} className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+          Update Profile
+        </button>
+      </div>
+      )
+    }
     </>
   );
 };

@@ -1,5 +1,6 @@
 package com.pickle.backend.controller;
 
+import com.pickle.backend.dto.LearnerDTO;
 import com.pickle.backend.dto.SessionResponseDTO;
 import com.pickle.backend.entity.Session;
 import com.pickle.backend.service.SessionService;
@@ -61,5 +62,17 @@ public class SessionController {
     @PreAuthorize("hasAnyRole('admin', 'coach', 'learner')")
     public List<Session> getSessionsByDateRange(@RequestParam String start, @RequestParam String end) {
         return sessionService.getSessionsByDateRange(start, end);
+    }
+
+    @GetMapping("/getLearner/{coachId}")
+    @PreAuthorize("hasRole('coach')")
+    public ResponseEntity<List<LearnerDTO>> getLearnerBycoach(@PathVariable String coachId) {
+        return ResponseEntity.ok(sessionService.getLearnerByCoach(coachId));
+    }
+
+    @GetMapping("/getSessionByCoach/{coachId}")
+    @PreAuthorize("hasAnyRole('coach','admin')")
+    public ResponseEntity<List<SessionResponseDTO>> getSessionBycoachId(@PathVariable String coachId) {
+        return ResponseEntity.ok(sessionService.getSessionBycoachId(coachId));
     }
 }
