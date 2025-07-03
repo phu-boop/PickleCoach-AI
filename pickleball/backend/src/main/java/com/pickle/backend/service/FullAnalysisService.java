@@ -71,13 +71,29 @@ public class FullAnalysisService {
 
         Learner learner = findOrCreateLearner(userId);
 
+        File tempFile = null;
+        String tempVideoPath = null;
+        String finalVideoPath = null;
         try {
             if (video != null) {
                 validateVideo(video);
-                String videoPath = saveVideoFile(video);
-                analysis.setVideoPath(videoPath);
+                // 1. Lưu file tạm vào TempUploads
+                tempVideoPath = saveVideoFileToDir(video, "TempUploads");
+                tempFile = new File("D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + tempVideoPath);
 
-                Map<String, Object> analysisResponse = callEnhancedAnalysisAPI(videoPath, userId);
+                // 2. Gọi Python API kiểm tra hợp lệ
+                Map<String, Object> analysisResponse = callEnhancedAnalysisAPI(tempVideoPath, userId);
+                if (analysisResponse == null || analysisResponse.containsKey("error")) {
+                    // Xóa file tạm nếu không hợp lệ
+                    if (tempFile.exists()) tempFile.delete();
+                    String errMsg = analysisResponse != null && analysisResponse.get("error") != null ? analysisResponse.get("error").toString() : "Video không hợp lệ";
+                    response.put("message", errMsg);
+                    response.put("result", null);
+                    return response;
+                }
+                // 3. Nếu hợp lệ, chuyển file sang Uploads
+                finalVideoPath = moveTempToUploads(tempFile, video.getOriginalFilename());
+                analysis.setVideoPath(finalVideoPath);
                 processEnhancedAnalysisResponse(analysis, analysisResponse, learner);
             }
 
@@ -89,6 +105,8 @@ public class FullAnalysisService {
             return response;
         } catch (Exception e) {
             logger.error("Error in analyze method: {}", e.getMessage(), e);
+            // Xóa file tạm nếu có lỗi
+            if (tempFile != null && tempFile.exists()) tempFile.delete();
             response.put("message", "Phân tích video không thành công: " + e.getMessage());
             response.put("result", null);
             return response;
@@ -126,26 +144,40 @@ public class FullAnalysisService {
         }
     }
 
-    private String saveVideoFile(MultipartFile video) throws IOException {
+    // Lưu file vào thư mục chỉ định (TempUploads hoặc Uploads)
+    private String saveVideoFileToDir(MultipartFile video, String dirName) throws IOException {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String filename = timestamp + "_" + video.getOriginalFilename();
-        String videoPath = "Uploads/" + filename;
+        String videoPath = dirName + "/" + filename;
         String fullVideoPath = "D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + videoPath;
 
         File videoFile = new File(fullVideoPath);
         File directory = videoFile.getParentFile();
-
         if (!directory.exists() && !directory.mkdirs()) {
             throw new IOException("Failed to create directory: " + directory.getAbsolutePath());
         }
-
         video.transferTo(videoFile);
-
         if (!videoFile.exists() || !videoFile.canRead()) {
             throw new IOException("Video file not accessible: " + fullVideoPath);
         }
-
         return videoPath;
+    }
+
+    // Di chuyển file từ TempUploads sang Uploads
+    private String moveTempToUploads(File tempFile, String originalFilename) throws IOException {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String filename = timestamp + "_" + originalFilename;
+        String uploadsPath = "Uploads/" + filename;
+        String fullUploadsPath = "D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + uploadsPath;
+        File uploadsFile = new File(fullUploadsPath);
+        File uploadsDir = uploadsFile.getParentFile();
+        if (!uploadsDir.exists() && !uploadsDir.mkdirs()) {
+            throw new IOException("Failed to create uploads directory: " + uploadsDir.getAbsolutePath());
+        }
+        if (!tempFile.renameTo(uploadsFile)) {
+            throw new IOException("Failed to move file to uploads");
+        }
+        return uploadsPath;
     }
 
     private Map<String, Object> callEnhancedAnalysisAPI(String videoPath, String userId) { // Thay learnerId thành

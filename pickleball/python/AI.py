@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
+import math
 import mediapipe as mp
 from scipy.spatial.distance import euclidean
-import math
 from flask import Flask, request, jsonify
 import logging
 import os
@@ -221,8 +221,60 @@ class EnhancedPickleballAnalyzer:
             
         return max(0, score)
 
+def is_pickleball_video(video_path, min_frames_with_action=1):
+    """Kiểm tra video có phải là pickleball (có vợt hoặc chuyển động đặc trưng và đủ tư thế)"""
+    mp_pose = mp.solutions.pose
+    pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        return False
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    sample_frames = [0, total_frames // 2, total_frames - 1] if total_frames > 0 else [0]
+    action_count = 0
+    prev_wrist = None
+    frame_idx = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        if frame_idx not in sample_frames:
+            frame_idx += 1
+            continue
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = pose.process(rgb_frame)
+        if results.pose_landmarks:
+            landmarks = results.pose_landmarks.landmark
+            # Kiểm tra đủ các landmark đặc trưng (cả 2 cổ tay, 2 vai, 2 mắt cá chân)
+            required = [
+                mp_pose.PoseLandmark.RIGHT_WRIST.value,
+                mp_pose.PoseLandmark.LEFT_WRIST.value,
+                mp_pose.PoseLandmark.RIGHT_SHOULDER.value,
+                mp_pose.PoseLandmark.LEFT_SHOULDER.value,
+                mp_pose.PoseLandmark.RIGHT_ANKLE.value,
+                mp_pose.PoseLandmark.LEFT_ANKLE.value
+            ]
+            if not all(0 <= idx < len(landmarks) and landmarks[idx].visibility > 0.5 for idx in required):
+                frame_idx += 1
+                continue
+            right_wrist = landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value]
+            # Kiểm tra chuyển động vung vợt (wrist di chuyển nhanh)
+            if prev_wrist is not None:
+                dx = right_wrist.x - prev_wrist.x
+                dy = right_wrist.y - prev_wrist.y
+                velocity = math.sqrt(dx**2 + dy**2)
+                # Chỉ tính nếu chuyển động đủ lớn và có đủ tư thế
+                if velocity > 0.07:
+                    action_count += 1
+            prev_wrist = right_wrist
+        frame_idx += 1
+    cap.release()
+    return action_count >= min_frames_with_action
+
 def enhanced_analyze_video(video_path):
     """Hàm phân tích video cải tiến, giới hạn 3 phản hồi"""
+    # Kiểm tra video có phải pickleball không
+    if not is_pickleball_video(video_path):
+        return {"error": "Không phát hiện hoạt động pickleball (vợt/bóng) trong video. Vui lòng tải lên video phù hợp."}
     analyzer = EnhancedPickleballAnalyzer()
     cap = cv2.VideoCapture(video_path)
     
@@ -308,28 +360,29 @@ def enhanced_analyze_video(video_path):
 
 @app.route('/video-analysis-enhanced', methods=['POST'])
 def enhanced_analysis():
+    temp_path = None
     try:
+        if 'video' not in request.files:
+            return jsonify({"error": "No video file provided"}), 400
         video = request.files['video']
-        user_id = request.form['userId']
-        analysis_type = request.form.get('analysisType')
-        
-        logging.debug(f"Received request with userId: {user_id}, analysisType: {analysis_type}")
-        
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_file:
-            video.save(temp_file.name)
-            temp_file_path = temp_file.name
-        
-        result = enhanced_analyze_video(temp_file_path)
-        
-        os.unlink(temp_file_path)
-        
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp:
+            video.save(temp.name)
+            temp_path = temp.name
+        result = enhanced_analyze_video(temp_path)
         if result is None:
             return jsonify({"error": "Không thể phân tích video"}), 400
-            
+        if isinstance(result, dict) and result.get("error"):
+            return jsonify(result), 400
         return jsonify(result)
     except Exception as e:
-        logging.error(f"Error in enhanced_analysis: {str(e)}")
+        logging.exception("Error in enhanced_analysis")
         return jsonify({"error": str(e)}), 500
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.unlink(temp_path)
+            except Exception as ex:
+                logging.warning(f"Could not delete temp file: {temp_path} - {ex}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
