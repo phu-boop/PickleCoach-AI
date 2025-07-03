@@ -74,4 +74,5 @@ public class CoachController {
     public List<Coach> getCoachesByCertification(@PathVariable String certification) {
         return coachService.getCoachesByCertification(certification);
     }
+
 }

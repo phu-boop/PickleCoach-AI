@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { fetchUserById } from '../../../../api/admin/user';
-
+import { useNavigate } from 'react-router-dom';
 const ProfileDetails = () => {
+  const navegative = useNavigate();
   const [user, setUser] = useState({
     userId: '',
     name: '',
@@ -35,6 +36,7 @@ const ProfileDetails = () => {
   }, []);
 
   return (
+    <>
     <div className="flex justify-between my-10 w-[80%] mx-auto min-h-screen">
       <Sidebar />
       <div className="p-6 flex-1 bg-white rounded-lg">
@@ -102,6 +104,23 @@ const ProfileDetails = () => {
         </div>
       </div>
     </div>
+    {/* Action Buttons */}
+    {
+    sessionStorage.getItem('role') === 'ROLE_coach' && ( 
+    <div className="flex flex-wrap gap-4 ml-40 mb-30 mt-20">
+      <button onClick={()=>{navegative(`/Detail_coach/${sessionStorage.getItem('id_user')}`)}} className="bg-[#696cff] hover:bg-[#4445a0] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+        Manage Schedule
+      </button>
+      <button onClick={()=>{navegative('/coach')}} className="bg-[#82e14f] hover:bg-[#548f35] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+        View Reports
+      </button>
+      <button onClick={()=>{navegative('/profile')}} className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+        Update Profile
+      </button>
+    </div>
+    )
+  }
+    </>
   );
 };
 
