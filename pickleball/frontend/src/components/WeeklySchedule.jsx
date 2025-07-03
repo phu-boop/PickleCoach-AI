@@ -107,11 +107,31 @@ const WeeklySchedule = ({ scheduleList,id_coach }) => {
                       </>
                     )}
                   </div>
-                  {session.status && (
-                    <button className="mt-1 self-start bg-white cursor-pointer text-blue-600 text-xs font-bold px-2 py-1 rounded-full border border-blue-400 hover:bg-blue-50 transition" onClick={() => {handleCreateSession(session.schedule,id_coach)}}>
-                      Book Now
-                    </button>
-                  )}
+                  <div>
+                    {
+                      sessionStorage.getItem('role') === 'ROLE_learner' ? ( 
+                        session.status && (
+                          <button className="mt-1 self-start bg-white cursor-pointer text-blue-600 text-xs font-bold px-2 py-1 rounded-full border border-blue-400 hover:bg-blue-50 transition" onClick={() => {handleCreateSession(session.schedule,id_coach)}}>
+                            Book Now
+                          </button>
+                        )
+                      ) : (
+                        session.status ? (
+                        <button
+                          className="mt-1 self-start bg-white cursor-not-allowed text-gray-400 text-xs font-bold px-2 py-1 rounded-full border border-gray-300"
+                        >
+                          available
+                        </button>
+                        ):(
+                        <button
+                          className="mt-1 self-start bg-white cursor-not-allowed text-gray-400 text-xs font-bold px-2 py-1 rounded-full border border-gray-300"
+                        >
+                          booked
+                        </button>
+                        )
+                      )
+                    }
+                  </div>
                 </div>
               ) : (
                 <div

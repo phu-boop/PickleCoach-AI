@@ -1,6 +1,8 @@
 package com.pickle.backend.service;
 
+import com.pickle.backend.dto.LearnerDTO;
 import com.pickle.backend.dto.SessionResponseDTO;
+import com.pickle.backend.entity.Learner;
 import com.pickle.backend.entity.Session;
 import com.pickle.backend.exception.ResourceNotFoundException;
 import com.pickle.backend.repository.CoachRepository;
@@ -8,11 +10,13 @@ import com.pickle.backend.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class SessionService {
@@ -81,5 +85,39 @@ public class SessionService {
     public List<Session> getSessionsByDateRange(String start, String end) {
         logger.info("Fetching sessions between {} and {}", start, end);
         return sessionRepository.findByDatetimeBetween(start, end);
+    }
+
+    public List<LearnerDTO> getLearnerByCoach(String coachId) {
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.info("Fetching sessions with CoachId: {}", coachId);
+
+        List<Session> sessions = sessionRepository.findByCoachUserId(coachId);
+
+        List<LearnerDTO> learnerDTOs = sessions.stream()
+                .map(Session::getLearner)
+                .filter(learner -> learner != null)
+                .map(this::convertToLearnerDTO)
+                .collect(Collectors.toList());
+
+        logger.info("Found {} learners for coachId: {}", learnerDTOs.size(), coachId);
+        return learnerDTOs;
+    }
+    private LearnerDTO convertToLearnerDTO(Learner learner) {
+        LearnerDTO dto = new LearnerDTO();
+        dto.setId(learner.getUserId());
+        dto.setUserName(learner.getUser().getName());
+        dto.setSkillLevel(learner.getSkillLevel());
+        dto.setGoals(learner.getGoals());
+        dto.setProgress(learner.getProgress());
+        return dto;
+    }
+    private SessionResponseDTO convertToSessionResponseDTO(Session session) {
+        SessionResponseDTO dto = new SessionResponseDTO(session);
+        return dto;
+    }
+    public List<SessionResponseDTO> getSessionBycoachId(String  coachId) {
+        logger.info("Fetching sessions with CoachId: {}", coachId);
+        List<Session> sessions = sessionRepository.findByCoachUserId(coachId);
+        return  sessions.stream().map(this::convertToSessionResponseDTO).collect(Collectors.toList());
     }
 }
