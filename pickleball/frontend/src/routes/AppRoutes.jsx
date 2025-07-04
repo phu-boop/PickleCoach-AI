@@ -91,7 +91,17 @@ function AppRoutesUser() {
         <Route path="course/:id" element={<LessonByCourse/>}/>
         <Route path="learner_CoachBookingPage" element={<CoachBookingPage />} />
       </Route>
-
+        {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_coach) */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute requiredRole="ROLE_coach">
+            <LayoutMain />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="Detail_coach/:id" element={<DetailCoach />} />
+      </Route>
             {/* Admin routes - Yêu cầu ROLE_ADMIN */}
             <Route
                 path="/admin"

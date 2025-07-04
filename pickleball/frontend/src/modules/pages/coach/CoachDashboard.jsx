@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCoachById, fetchLearnerById, getSessionbyCoach } from '../../../api/coach/Service';
-
+import { Navigate, useNavigate } from 'react-router-dom';
 export default function CoachDashboard() {
   const [coach, setCoach] = useState(null);
   const [scheduleList, setScheduleList] = useState([]);
@@ -9,6 +9,17 @@ export default function CoachDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
+
+  // Define getNamelearner before usage
+  // const getNamelearner = async (learnerId) => {
+  //   try {
+  //     const learner = await fetchLearnerById(learnerId);
+  //     return learner?.name || learner?.userName || learner?.fullName || 'Unknown';
+  //   } catch (error) {
+  //     console.error(`Error fetching learner ${learnerId}:`, error);
+  //     return 'Unknown';
+  //   }
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,12 +45,12 @@ export default function CoachDashboard() {
               if (id === "88c3c563-877a-4d61-8ab2-74ca93547eb5") {
                 console.log('Specific check for ID 88c3c563-877a-4d61-8ab2-74ca93547eb5:', result);
               }
-              const name = result?.name || result?.userName || result?.fullName || 'No learner (ID: ' + id + ')';
+              const name = result?.name || result?.userName || result?.fullName || '(ID: ' + id + ')';
               return { id, name };
             })
             .catch(err => {
               console.error(`Error fetching learner ${id}:`, err);
-              return { id, name: 'No learner (ID: ' + id + ')' };
+              return { id, name: '(ID: ' + id + ')' };
             })
         );
         const learnerResults = await Promise.all(learnerPromises);
@@ -73,14 +84,14 @@ export default function CoachDashboard() {
     }
   };
 
-  // Filter and process today's schedule (Wednesday, 07/02/2025)
+  // Filter and process today's schedule (Thursday, 03/07/2025)
   const todaySchedule = scheduleList
-    .filter(session => session.datetime?.startsWith('Wednesday'))
+    .filter(session => session.datetime?.startsWith('Thursday'))
     .map(session => ({
       sessionId: session.sessionId || 'N/A',
       timeRange: session.datetime?.split(' ').slice(1).join(' ') || 'N/A',
       day: session.datetime?.split(' ')[0] || 'N/A',
-      learner: learnerNames[session.learnerId] || 'No learner (ID: ' + (session.learnerId || 'N/A') + ')',
+      learner: learnerNames[session.learnerId] || '(ID: ' + (session.learnerId || 'N/A') + ')', // Removed getNamelearner from .map
       status: mapStatus(session.status),
       feedback: session.feedback || 'None',
       videoLink: session.videoLink || null
@@ -94,7 +105,7 @@ export default function CoachDashboard() {
     rating: learner.progress || 'N/A',
     goals: learner.goals || 'No goals set'
   }));
-
+  const navegative = useNavigate();
   // Handle View Details button
   const handleViewDetails = (session) => {
     setSelectedSession(session);
@@ -114,9 +125,9 @@ export default function CoachDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 p-6 font-sans">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-        <span className="text-blue-600">🎓</span> Coach Dashboard
+    <div className="px-20 min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 p-6 font-grandstander font-bold pt-20">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3 font-grandstander">
+        <span className="text-blue-600 "><img src="https://www.pickleheads.com/images/duotone-icons/paper-plane.svg" className='h-13' alt="" /></span> Coach Dashboard
       </h1>
 
       {/* Coach Info */}
@@ -125,7 +136,7 @@ export default function CoachDashboard() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">Welcome, Coach {coach?.name || 'N/A'}!</h2>
           <p className="text-gray-600 text-sm mb-1">Email: <strong>{coach?.email || 'N/A'}</strong></p>
           <p className="text-gray-600 text-sm mb-1">Specialties: <strong>{coach?.specialties?.join(', ') || 'N/A'}</strong></p>
-          <p className="text-gray-600 text-sm mb-1">Certifications: <strong>{coach?.certifications?.join(', ') || 'N/A'}</strong></p>
+          <p className="text-sm mb-1 text-[#162556]">Certifications: <strong>{coach?.certifications?.join(', ') || 'N/A'}</strong></p>
           <p className="text-gray-600 text-sm">Today's Schedule: <strong>{todaySchedule.length} sessions</strong> | Learners: <strong>{learners.length}</strong></p>
         </div>
         <img 
@@ -140,7 +151,7 @@ export default function CoachDashboard() {
       {coach?.availability?.length > 0 && (
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            🕒 Available Slots
+            <img src="https://www.pickleheads.com/images/duotone-icons/dupr-send.svg" className='h-10' alt="" /> Available Slots
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {coach.availability.map((slot, index) => (
@@ -156,7 +167,7 @@ export default function CoachDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-2xl shadow-xl p-6 transform hover:-translate-y-1 transition-all duration-300">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            📅 Today's Schedule (07/02/2025)
+            <img src="https://www.pickleheads.com/images/duotone-icons/news.svg" className='h-10' alt="" /> Today's Schedule (03/07/2025)
           </h3>
           {todaySchedule.length === 0 ? (
             <p className="text-gray-500 text-center py-6">No sessions scheduled today</p>
@@ -167,18 +178,17 @@ export default function CoachDashboard() {
                   <tr className="border-b border-gray-200 bg-gray-50">
                     <th className="py-3 px-6 text-left font-medium w-1/5">Day</th>
                     <th className="py-3 px-6 text-left font-medium w-1/5">Time Range</th>
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Learner</th>
                     <th className="py-3 px-6 text-left font-medium w-1/5">Status</th>
                     <th className="py-3 px-6 text-left font-medium w-1/5">Notes</th>
+                    <th className="py-3 px-6 text-left font-medium w-1/5">Feedback</th>
                     <th className="py-3 px-6 text-left font-medium w-1/5">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {todaySchedule.map((item, index) => (
                     <tr key={item.sessionId} className={`border-b border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                      <td className="py-3 px-6">Wednesday</td>
+                      <td className="py-3 px-6">Thursday</td>
                       <td className="py-3 px-6">{item.timeRange}</td>
-                      <td className="py-3 px-6">{item.learner}</td>
                       <td className="py-3 px-6">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                           item.status === 'Empty'
@@ -192,11 +202,16 @@ export default function CoachDashboard() {
                       </td>
                       <td className="py-3 px-6">{item.feedback}</td>
                       <td className="py-3 px-6">
+                        <button className= 'font-bold text-amber-50 text-xs font-medium py-1 px-2 bg-amber-600 cursor-pointer font-black rounded-xl shadow-md hover:bg-amber-700 transition duration-200 transform hover:-translate-y-1'>
+                        oppen class
+                        </button>
+                      </td>
+                      <td className="py-3 px-6">
                         <button 
                           onClick={() => handleViewDetails(item)}
-                          className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                          className="text-blue-600 hover:text-blue-800 font-medium text-xs py-1 px-2 bg-blue-100 cursor-pointer rounded-xl shadow-md hover:bg-blue-200 transition duration-200 transform hover:-translate-y-1"
                         >
-                          View Details
+                          view details
                         </button>
                       </td>
                     </tr>
@@ -210,7 +225,7 @@ export default function CoachDashboard() {
         {/* Learner List */}
         <div className="bg-white rounded-2xl shadow-xl p-6 transform hover:-translate-y-1 transition-all duration-300">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            👨‍🎓 Learner List
+            <img src="https://www.pickleheads.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjvolei4i%2Fproduction%2F24c230142f23d51c845cf93e562a5e29a9c8b903-160x160.png&w=128&q=75" className='h-10' alt="" /> Learner List
           </h3>
           {formattedLearners.length === 0 ? (
             <div className="text-gray-500 text-center py-6">
@@ -228,7 +243,7 @@ export default function CoachDashboard() {
               <table className="w-full text-sm text-gray-700">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="py-3 px-6 text-left font-medium w-1/4">Name</th>
+                    <th className="py-3 text-[#162556] px-6 text-left font-medium w-1/4">Name</th>
                     <th className="py-3 px-6 text-left font-medium w-1/4">Goals</th>
                     <th className="py-3 px-6 text-left font-medium w-1/4">Last Session</th>
                     <th className="py-3 px-6 text-left font-medium w-1/4">Progress</th>
@@ -237,7 +252,7 @@ export default function CoachDashboard() {
                 <tbody>
                   {formattedLearners.map((learner, index) => (
                     <tr key={index} className={`border-b border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                      <td className="py-3 px-6 font-medium">{learner.name}</td>
+                      <td className="py-3 text-[#162556] px-6 font-medium">{learner.name}</td>
                       <td className="py-3 px-6">{learner.goals}</td>
                       <td className="py-3 px-6">{learner.lastSession}</td>
                       <td className="py-3 px-6">
@@ -254,7 +269,7 @@ export default function CoachDashboard() {
 
       {/* Session Details Modal */}
       {selectedSession && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Session Details</h3>
             <p className="text-gray-600 text-sm mb-2"><strong>Session ID:</strong> {selectedSession.sessionId}</p>
@@ -285,13 +300,13 @@ export default function CoachDashboard() {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-4">
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+        <button onClick={()=>{navegative(`/Detail_coach/${sessionStorage.getItem('id_user')}`)}} className="bg-[#696cff] hover:bg-[#4445a0] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
           Manage Schedule
         </button>
-        <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+        <button onClick={()=>{navegative('/coach')}} className="bg-[#82e14f] hover:bg-[#548f35] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
           View Reports
         </button>
-        <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+        <button onClick={()=>{navegative('/profile')}} className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
           Update Profile
         </button>
       </div>
