@@ -43,4 +43,8 @@ public class Learner {
         this.skillLevel = skillLevel;
         this.goals = goals;
     }
+
+    public String getId() {
+        return userId;
+    }
 }
