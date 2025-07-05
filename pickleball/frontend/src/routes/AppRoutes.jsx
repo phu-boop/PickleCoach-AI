@@ -36,6 +36,8 @@ import UploadVideo from '../modules/pages/UploadVideo';
 import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails'; 
 import ReviewCoach from '../modules/pages/learner/ReviewCoach';
 import DetailCoach from '../modules/pages/DetailCoach';
+import CoachVideoCall from '../modules/pages/coach/CoachVideoCall';
+import LearnerVideoCall from '../modules/pages/learner/LearnerVideoCall';
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
@@ -52,6 +54,8 @@ function AppRoutesUser() {
                 <Route path="coach" element={<CoachDashboard />} />
                 <Route path="coach_schedule" element={<CoachSchedule />} />
                 <Route path="video_call_room/:roomId" element={<VideoCallRoom />} />
+                <Route path="coach_video_call/:roomId" element={<CoachVideoCall />} />
+                <Route path="learner_video_call/:roomId" element={<LearnerVideoCall />} />
                 <Route path="profile" element={<ProfileDetail />} />
                 <Route path="upload-video" element={<UploadVideo />} />
             </Route>
