@@ -51,7 +51,7 @@ function AppRoutesUser() {
                 <Route path='verifying' element={<Verifying />} />
                 <Route path="coach" element={<CoachDashboard />} />
                 <Route path="coach_schedule" element={<CoachSchedule />} />
-                <Route path="video_call_room" element={<VideoCallRoom />} />
+                <Route path="video_call_room/:roomId" element={<VideoCallRoom />} />
                 <Route path="profile" element={<ProfileDetail />} />
                 <Route path="upload-video" element={<UploadVideo />} />
             </Route>
