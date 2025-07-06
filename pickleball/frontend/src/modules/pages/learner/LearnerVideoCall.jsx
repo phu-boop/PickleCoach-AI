@@ -81,11 +81,24 @@ export default function LearnerVideoCall() {
   }
 
   return (
-    <div>
-      <h2>Learner View</h2>
-      <video ref={localVideoRef} autoPlay muted playsInline style={{ width: 300 }} />
-      <video ref={remoteVideoRef} autoPlay playsInline style={{ width: 300 }} />
-      <p>{connected ? "WebSocket Connected" : "Disconnected"}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+      <h2 className="text-2xl font-semibold mb-4">Learner View</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-xl overflow-hidden bg-black shadow-lg">
+          <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-64 object-cover" />
+          <p className="text-sm text-center py-2 bg-black bg-opacity-50">Learner (You)</p>
+        </div>
+        <div className="rounded-xl overflow-hidden bg-black shadow-lg">
+          <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-64 object-cover" />
+          <p className="text-sm text-center py-2 bg-black bg-opacity-50">Coach</p>
+        </div>
+      </div>
+      <p className="mt-4 text-sm">
+        WebSocket Status:
+        <span className={connected ? "text-green-400 ml-2" : "text-red-400 ml-2"}>
+          {connected ? "Connected ✅" : "Disconnected ❌"}
+        </span>
+      </p>
     </div>
   );
 }
