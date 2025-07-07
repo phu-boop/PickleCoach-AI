@@ -46,6 +46,8 @@ public class SecurityConfig {
                                 "/api/questions/**", "/login/oauth2/code/google", "/api/checkLearnerProgress", "/api/featured-courses" ).permitAll()
                         .requestMatchers("/oauth2/authorization/google").permitAll() // Cho phép truy cập endpoint OAuth2
                         .requestMatchers("/api/users/profile").hasRole("USER")
+                        .requestMatchers("/signal/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,

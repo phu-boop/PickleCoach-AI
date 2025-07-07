@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 
 const SIGNALING_SERVER_URL = "ws://localhost:8080/signal";
 
@@ -12,6 +13,10 @@ export default function CoachVideoCall() {
   const pendingCandidates = useRef([]);
   const [stream, setStream] = useState(null);
   const [connected, setConnected] = useState(false);
+  const [micEnabled, setMicEnabled] = useState(true);
+  const [camEnabled, setCamEnabled] = useState(true);
+  const [learnerJoined, setLearnerJoined] = useState(false);
+  const [joinTime, setJoinTime] = useState(null);
 
   useEffect(() => {
     let ws;
@@ -27,6 +32,8 @@ export default function CoachVideoCall() {
         const msg = JSON.parse(event.data);
 
         if (msg.type === "ready" && msg.role === "learner") {
+          setLearnerJoined(true);
+          setJoinTime(new Date().toLocaleTimeString());
           await createPeerConnection(mediaStream);
         }
 
@@ -74,25 +81,60 @@ export default function CoachVideoCall() {
     wsRef.current.send(JSON.stringify(offer));
   }
 
+  const toggleMic = () => {
+    stream.getAudioTracks().forEach(track => track.enabled = !track.enabled);
+    setMicEnabled(prev => !prev);
+  };
+
+  const toggleCam = () => {
+    stream.getVideoTracks().forEach(track => track.enabled = !track.enabled);
+    setCamEnabled(prev => !prev);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <h2 className="text-2xl font-semibold mb-4">Coach View</h2>
+      <h2 className="text-2xl font-semibold mb-4">🎥 Coach View</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="rounded-xl overflow-hidden bg-black shadow-lg">
           <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-64 object-cover" />
-          <p className="text-sm text-center py-2 bg-black bg-opacity-50">Coach (You)</p>
+          <p className="text-sm text-center py-2 bg-black bg-opacity-50">👤 Coach (You)</p>
         </div>
         <div className="rounded-xl overflow-hidden bg-black shadow-lg">
           <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-64 object-cover" />
-          <p className="text-sm text-center py-2 bg-black bg-opacity-50">Learner</p>
+          <p className="text-sm text-center py-2 bg-black bg-opacity-50">🎓 Learner</p>
         </div>
       </div>
+
+      <div className="flex space-x-4 mt-6">
+        <button
+          onClick={toggleMic}
+          className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full shadow"
+        >
+          {micEnabled ? <Mic className="w-5 h-5 text-green-400" /> : <MicOff className="w-5 h-5 text-red-400" />}
+        </button>
+        <button
+          onClick={toggleCam}
+          className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full shadow"
+        >
+          {camEnabled ? <Video className="w-5 h-5 text-green-400" /> : <VideoOff className="w-5 h-5 text-red-400" />}
+        </button>
+      </div>
+
       <p className="mt-4 text-sm">
         WebSocket Status:
         <span className={connected ? "text-green-400 ml-2" : "text-red-400 ml-2"}>
           {connected ? "Connected ✅" : "Disconnected ❌"}
         </span>
       </p>
+
+      <div className="mt-2 text-sm">
+        {learnerJoined ? (
+          <p className="text-green-400">🎉 Learner joined at {joinTime}</p>
+        ) : (
+          <p className="text-yellow-400">⏳ Waiting for learner to join...</p>
+        )}
+      </div>
     </div>
   );
 }
