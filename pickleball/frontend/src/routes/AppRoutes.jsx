@@ -36,6 +36,7 @@ import UploadVideo from '../modules/pages/UploadVideo';
 import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails'; 
 import ReviewCoach from '../modules/pages/learner/ReviewCoach';
 import DetailCoach from '../modules/pages/DetailCoach';
+
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
