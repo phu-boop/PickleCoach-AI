@@ -30,12 +30,17 @@ import Verifying from '../modules/pages/user/Verifying';
 import Coach from '../modules/admin/coach/Coach';
 import CoachDashboard from '../modules/pages/coach/CoachDashboard';
 import CoachSchedule from '../modules/pages/coach/CoachSchedule';
-import VideoCallRoom from '../modules/pages/coach/VideoCallRoom';
 import CoachBookingPage from '../modules/pages/learner/lCoachBookingPage';
 import UploadVideo from '../modules/pages/UploadVideo'; 
 import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails'; 
 import ReviewCoach from '../modules/pages/learner/ReviewCoach';
 import DetailCoach from '../modules/pages/DetailCoach';
+import CoachVideoCall from '../modules/pages/coach/CoachVideoCall';
+import LearnerVideoCall from '../modules/pages/learner/LearnerVideoCall';
+import Organize from '../modules/pages/user/Organize';
+import Earn from '../modules/pages/user/Earn';
+import Gear from '../modules/pages/user/Gear';
+import Learn from '../modules/pages/user/Learn';
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
@@ -44,6 +49,10 @@ function AppRoutesUser() {
         <Routes>
             {/* Public routes */}
             <Route path="/" element={<LayoutMain />}>
+                <Route path="earn" element={<Earn />} />
+                <Route path="organize" element={<Organize />} />
+                <Route path="gear" element={<Gear />} />
+                <Route path="learn" element={<Learn />} />
                 <Route index element={<Home />} />
                 <Route path="contact" element={<h1>Contact</h1>} />
                 <Route path="*" element={<h1>404 Not Found</h1>} />
@@ -51,7 +60,8 @@ function AppRoutesUser() {
                 <Route path='verifying' element={<Verifying />} />
                 <Route path="coach" element={<CoachDashboard />} />
                 <Route path="coach_schedule" element={<CoachSchedule />} />
-                <Route path="video_call_room/:roomId" element={<VideoCallRoom />} />
+                <Route path="coach_video_call/:roomId" element={<CoachVideoCall />} />
+                <Route path="learner_video_call/:roomId" element={<LearnerVideoCall />} />
                 <Route path="profile" element={<ProfileDetail />} />
                 <Route path="upload-video" element={<UploadVideo />} />
             </Route>
