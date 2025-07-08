@@ -41,6 +41,7 @@ import Organize from '../modules/pages/user/Organize';
 import Earn from '../modules/pages/user/Earn';
 import Gear from '../modules/pages/user/Gear';
 import Learn from '../modules/pages/user/Learn';
+
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
