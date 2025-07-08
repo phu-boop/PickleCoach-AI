@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MdOutlineLocalLibrary, MdOutlineFeaturedPlayList } from 'react-icons/md'; // For courses and recommended lessons
 import { getAllCourses, getRecommendedLessons } from '../../../api/learner/learningService';
 import CourseCard from './CourseCard';
@@ -12,14 +12,22 @@ const HomePage = ({ userId }) => {
   const [recommendedLessons, setRecommendedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchRecommendedLessons = useCallback(async () => {
+    try {
+      const lessonsData = await getRecommendedLessons(userId);
+      setRecommendedLessons(lessonsData);
+    } catch (error) {
+      console.error('Error fetching recommended lessons:', error);
+    }
+  }, [userId]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const coursesData = await getAllCourses();
         setCourses(coursesData);
 
-        const lessonsData = await getRecommendedLessons(userId);
-        setRecommendedLessons(lessonsData);
+        await fetchRecommendedLessons();
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -28,7 +36,31 @@ const HomePage = ({ userId }) => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, fetchRecommendedLessons]);
+
+  // Lắng nghe sự kiện refresh từ localStorage sau khi upload video
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'videoAnalysisComplete' && e.newValue === 'true') {
+        console.log('Video analysis completed, refreshing recommended lessons...');
+        fetchRecommendedLessons();
+        // Xóa flag
+        localStorage.removeItem('videoAnalysisComplete');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Kiểm tra flag khi component mount
+    if (localStorage.getItem('videoAnalysisComplete') === 'true') {
+      fetchRecommendedLessons();
+      localStorage.removeItem('videoAnalysisComplete');
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [fetchRecommendedLessons]);
 
   return (
     <div className="w-[90%] mx-auto px-4 py-8 sm:px-6 lg:px-8">

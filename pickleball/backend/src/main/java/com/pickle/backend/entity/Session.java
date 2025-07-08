@@ -45,6 +45,16 @@ public class Session {
     @Column(name = "feedback")
     private String feedback;
 
+    // Thêm trường created_at
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    // Tự động gán giá trị khi tạo mới
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
     public enum Status {
         SCHEDULED,
         IN_PROGRESS,

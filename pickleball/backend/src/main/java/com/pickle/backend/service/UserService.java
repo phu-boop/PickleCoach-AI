@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -190,5 +191,17 @@ public class UserService {
         } catch (Exception e) {
             return "Lỗi: " + e.getMessage();
         }
+    }
+
+    // Thêm phương thức để lấy số lượng người dùng theo vai trò
+    public List<Object[]> getUserRoleCounts() {
+        logger.info("Fetching user role counts");
+        return userRepository.countUsersByRole();
+    }
+
+    // Thêm phương thức để lấy tổng số người dùng
+    public Long getTotalUsers() {
+        logger.info("Fetching total number of users");
+        return userRepository.countTotalUsers();
     }
 }
