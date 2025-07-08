@@ -1,15 +1,20 @@
 package com.pickle.backend.service;
 
 import com.pickle.backend.dto.LearnerDTO;
+import com.pickle.backend.dto.ScheduleDTO;
+import com.pickle.backend.entity.Coach;
 import com.pickle.backend.entity.Learner;
+import com.pickle.backend.entity.Session;
 import com.pickle.backend.entity.User;
 import com.pickle.backend.exception.ResourceNotFoundException;
 import com.pickle.backend.repository.LearnerRepository;
+import com.pickle.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -22,6 +27,8 @@ public class LearnerService {
     @Autowired
     private LearnerRepository learnerRepository;
 
+    @Autowired
+    private SessionService sessionService;
     @Autowired
     private UserService userService;
 
@@ -131,5 +138,23 @@ public class LearnerService {
     public List<Learner> getLearnersByGoal(String goal) {
         logger.info("Fetching learners with goal: {}", goal);
         return learnerRepository.findByGoalsContaining(goal);
+    }
+    public List<ScheduleDTO> getScheduleByleanerId(String learnerId) {
+        Optional<Learner> learner = learnerRepository.findById(learnerId);
+        if (learner.isPresent()) {
+            List<Session> sessions = sessionService.getSessionByLeanerId(learnerId);
+            List<ScheduleDTO> scheduleDTOList = new ArrayList<>();
+
+            for (Session session : sessions) {
+                String scheduleString = session.getDatetime().toString();
+                boolean status = true;
+                scheduleDTOList.add(new ScheduleDTO(scheduleString, status));
+            }
+
+            return scheduleDTOList;
+        } else {
+            logger.warn("Learner with id {} not found", learnerId);
+            return null;
+        }
     }
 }
