@@ -17,4 +17,10 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID> {
     List<Lesson> findByLevelAndSkillType(LevelRequired levelRequired, SkillType skillType);
 
     List<Lesson> findByLevel(LevelRequired levelRequired);
+
+    // Thêm method để tìm bài học theo skill type và level
+    List<Lesson> findBySkillTypeAndLevel(SkillType skillType, LevelRequired levelRequired);
+
+    // Thêm method để tìm bài học theo level và sắp xếp theo order
+    List<Lesson> findByLevelOrderByOrderInCourse(LevelRequired levelRequired);
 }

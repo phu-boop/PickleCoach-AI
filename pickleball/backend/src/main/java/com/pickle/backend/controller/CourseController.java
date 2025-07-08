@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID; // Vẫn cần nếu LessonDTO dùng UUID, nếu không thì bỏ
 
@@ -73,8 +74,14 @@ public class CourseController {
     }
     @GetMapping("/learners/{userId}/recommended-lessons")
     public ResponseEntity<List<Lesson>> getRecommendedLessons(@PathVariable String userId) {
-        List<Lesson> recommendedLessons = curriculumService.getRecommendedLessons(userId);
-        return ResponseEntity.ok(recommendedLessons);
+        try {
+            // Ưu tiên lấy bài học đề xuất từ video analysis gần nhất
+            List<Lesson> recommendedLessons = curriculumService.getRecommendedLessonsFromLatestAnalysis(userId);
+            return ResponseEntity.ok(recommendedLessons);
+        } catch (Exception e) {
+            log.error("Error getting recommended lessons for user {}: {}", userId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+        }
     }
 
     @PostMapping("/learner-progress")
@@ -223,6 +230,33 @@ public class CourseController {
         }
     }
     
+    // Endpoint để lấy bài học đề xuất dựa trên kết quả phân tích video
+    @GetMapping("/recommended-lessons-from-analysis/{userId}")
+    public ResponseEntity<List<Lesson>> getRecommendedLessonsFromAnalysis(
+            @PathVariable String userId,
+            @RequestParam(required = false) String skillLevel,
+            @RequestParam(required = false) List<String> weakestShots) {
+        
+        try {
+            List<Lesson> lessons;
+            
+            if (skillLevel != null && weakestShots != null && !weakestShots.isEmpty()) {
+                // Lấy bài học đề xuất dựa trên kết quả phân tích
+                lessons = curriculumService.getRecommendedLessonsBasedOnAnalysis(userId, skillLevel, weakestShots);
+                log.info("Đã lấy {} bài học đề xuất dựa trên phân tích video cho user {}", lessons.size(), userId);
+            } else {
+                // Lấy bài học đề xuất thông thường
+                lessons = curriculumService.getRecommendedLessons(userId);
+                log.info("Đã lấy {} bài học đề xuất thông thường cho user {}", lessons.size(), userId);
+            }
+            
+            return ResponseEntity.ok(lessons);
+        } catch (Exception e) {
+            log.error("Lỗi khi lấy bài học đề xuất cho user {}: {}", userId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+        }
+    }
+
     // Helper methods for DTO conversion
     private Lesson convertToLessonEntity(LessonDTO dto) {
         log.info("➡️  Bắt đầu convert LessonDTO: {}", dto);
