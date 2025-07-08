@@ -140,31 +140,6 @@ const ProfileDetails = () => {
           </div>
         </div>
       </div>
-      {/* Action Buttons */}
-      {sessionStorage.getItem("role") === "ROLE_coach" && (
-        <div className="flex flex-wrap gap-4 ml-40 mb-12 mt-20"> {/* Sửa mb-30 thành mb-12 */}
-          <button
-            onClick={() =>
-              navigate(`/Detail_coach/${sessionStorage.getItem("id_user")}`)
-            }
-            className="bg-[#696cff] hover:bg-[#4445a0] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200"
-          >
-            Manage Schedule
-          </button>
-          <button
-            onClick={() => navigate("/coach")}
-            className="bg-[#82e14f] hover:bg-[#548f35] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200"
-          >
-            View Reports
-          </button>
-          <button
-            onClick={() => navigate("/profile")}
-            className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200"
-          >
-            Update Profile
-          </button>
-        </div>
-      )}
     </>
   );
 };

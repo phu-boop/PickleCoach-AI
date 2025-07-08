@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { fetchUserById } from "../../../../api/admin/user";
 import { updateavata } from "../../../../api/user/update";
 import "font-awesome/css/font-awesome.min.css";
-
+import { Navigate } from "react-router-dom";
 const Sidebar = () => {
   const [avata, setAvata] = useState(null);
   const [user, setUser] = useState(null);
@@ -54,8 +54,9 @@ const Sidebar = () => {
   ];
 
   return (
-    <>
-      <div className="w-72 h-screen bg-white my-5 shadow-lg flex flex-col relative">
+  <div>
+    <div className="">
+      <div className="w-72 h-screen bg-white my-5 shadow-lg flex flex-col relative mb-30">
         {/* Avatar + Info */}
         <div className="flex flex-col pt-8 pb-5 relative">
           <div className="relative">
@@ -172,7 +173,23 @@ const Sidebar = () => {
           </div>
         </>
       )}
-    </>
+    </div>
+    {
+          sessionStorage.getItem('role') === 'ROLE_coach' && ( 
+          <div className="flex absolute gap-4 bottom-[-255px]">
+            <button onClick={()=>{navigate(`/Detail_coach/${sessionStorage.getItem('id_user')}`)}} className="bg-[#696cff] hover:bg-[#4445a0] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+              Manage Schedule
+            </button>
+            <button onClick={()=>{navigate('/coach')}} className="bg-[#82e14f] hover:bg-[#548f35] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+              View Reports
+            </button>
+            <button onClick={()=>{navigate('/profile')}} className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+              Update Profile
+            </button>
+          </div>
+          )
+        }
+  </div>
   );
 };
 
