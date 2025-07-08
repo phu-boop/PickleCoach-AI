@@ -17,7 +17,18 @@ export default function CoachVideoCall() {
   const [camEnabled, setCamEnabled] = useState(true);
   const [learnerJoined, setLearnerJoined] = useState(false);
   const [joinTime, setJoinTime] = useState(null);
-
+  const leaveCall = () => {
+  if (wsRef.current) {
+    wsRef.current.close();
+  }
+  if (pcRef.current) {
+    pcRef.current.close();
+  }
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+  }
+  window.location.href = "/"; 
+};
   useEffect(() => {
     let ws;
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(async (mediaStream) => {
@@ -93,7 +104,7 @@ export default function CoachVideoCall() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <h2 className="text-2xl font-semibold mb-4">🎥 Coach View</h2>
+      <h2 className="text-2xl font-semibold mb-4"><img src="https://www.pickleheads.com/assets/logo-lockup-reverse.svg" alt="" className="h-15 mb-8" /></h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="rounded-xl overflow-hidden bg-black shadow-lg">
@@ -122,7 +133,7 @@ export default function CoachVideoCall() {
       </div>
 
       <p className="mt-4 text-sm">
-        WebSocket Status:
+        Status:
         <span className={connected ? "text-green-400 ml-2" : "text-red-400 ml-2"}>
           {connected ? "Connected ✅" : "Disconnected ❌"}
         </span>
@@ -130,11 +141,18 @@ export default function CoachVideoCall() {
 
       <div className="mt-2 text-sm">
         {learnerJoined ? (
-          <p className="text-green-400">🎉 Learner joined at {joinTime}</p>
+          <p className="text-green-400"> Learner joined at {joinTime}</p>
         ) : (
-          <p className="text-yellow-400">⏳ Waiting for learner to join...</p>
+          <p className="text-yellow-400"> Waiting for learner to join...</p>
         )}
       </div>
+      <button
+        onClick={leaveCall}
+        className="p-3 bg-red-600 hover:bg-red-700 rounded-full shadow text-white font-semibold mt-10"
+      >
+        Leave Call
+      </button>
+
     </div>
   );
 }

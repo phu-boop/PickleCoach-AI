@@ -68,10 +68,12 @@ export default function CoachDashboard() {
         return 'Confirmed';
       case 'COMPLETED':
         return 'Completed';
-      case null:
-        return 'Empty';
+      case 'IN_PROGRESS':
+        return 'IN_PROGRESS';
+      case 'CANCELLED':
+        return 'cancelled';
       default:
-        return 'Completed';
+        return '';
     }
   };
 
@@ -153,7 +155,7 @@ export default function CoachDashboard() {
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <img src="https://www.pickleheads.com/images/duotone-icons/news.svg" className='h-10' alt="" />
-            Today's Schedule ({new Date().toLocaleDateString('en-GB')})
+            Schedule Availability
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {coach.availability.map((slot, index) => (

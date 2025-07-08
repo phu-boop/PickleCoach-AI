@@ -19,3 +19,7 @@ export const updateStatus = async (id) => {
   const response = await apiCoach.put(`/sessions/status/${id}`,id);
   return response.data;
 }
+export const deleteSession = async (id) => {
+  const response = await apiCoach.delete(`/sessions/${id}`);
+  return response.data;
+}

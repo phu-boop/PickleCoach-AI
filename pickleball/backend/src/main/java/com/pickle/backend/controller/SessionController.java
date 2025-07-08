@@ -52,7 +52,7 @@ public class SessionController {
     }
 
     @DeleteMapping("/{sessionId}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('coach')")
     public ResponseEntity<Void> deleteSession(@PathVariable String sessionId) {
         sessionService.deleteSession(sessionId);
         return ResponseEntity.ok().build();
