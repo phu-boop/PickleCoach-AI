@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/signal/**").permitAll()
                         // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả OPTIONS
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/ai/full-analysis").permitAll()
@@ -46,6 +47,8 @@ public class SecurityConfig {
                                 "/api/questions/**", "/login/oauth2/code/google", "/api/checkLearnerProgress", "/api/featured-courses" ).permitAll()
                         .requestMatchers("/oauth2/authorization/google").permitAll() // Cho phép truy cập endpoint OAuth2
                         .requestMatchers("/api/users/profile").hasRole("USER")
+                        .requestMatchers("/signal/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,
