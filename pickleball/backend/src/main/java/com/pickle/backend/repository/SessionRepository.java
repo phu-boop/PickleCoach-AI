@@ -34,7 +34,7 @@ public interface SessionRepository extends JpaRepository<Session, String> {
     // Thống kê theo năm
     @Query(value = "SELECT YEAR(s.created_at) as booking_year, COUNT(*) as booking_count " +
             "FROM sessions s " +
-            "WHERE s.status IN ('COMPLETED', 'IN_PROGRESS') " +
+            "WHERE s.status IN ('COMPLETED', 'IN_PROGRESS', 'SCHEDULED') " +
             "GROUP BY YEAR(s.created_at) " +
             "ORDER BY booking_year", nativeQuery = true)
     List<Object[]> getBookingStatsByYear();

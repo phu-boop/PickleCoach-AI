@@ -25,4 +25,10 @@ export const getBookingStats = async (groupBy) => {
     return response.data;
 };
 
+// Hàm lấy dữ liệu thống kê vai trò người dùng
+export const getUserRoleStats = async () => {
+    const response = await apiAdmin.get('/users/stats/roles');
+    return response.data;
+};
+
 export default apiAdmin;
