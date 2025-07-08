@@ -1,6 +1,7 @@
 package com.pickle.backend.controller;
 
 import com.pickle.backend.dto.LearnerDTO;
+import com.pickle.backend.dto.ScheduleDTO;
 import com.pickle.backend.entity.Learner;
 import com.pickle.backend.service.LearnerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,4 +62,10 @@ public class LearnerController {
         return learnerService.getLearnersByGoal(goal);
     }
 
+    @GetMapping("/schedule/{leanerId}")
+    @PreAuthorize("hasAnyRole('admin', 'learner')")
+    public ResponseEntity<List<ScheduleDTO>> getScheduleByCoaches(@PathVariable String leanerId) {
+        List<ScheduleDTO> schedule = learnerService.getScheduleByleanerId(leanerId);
+        return schedule != null ? ResponseEntity.ok(schedule) : ResponseEntity.notFound().build();
+    }
 }

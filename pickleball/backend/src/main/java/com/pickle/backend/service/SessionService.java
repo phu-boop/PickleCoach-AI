@@ -43,6 +43,11 @@ public class SessionService {
         return sessionRepository.findByCoachUserId(coachId);
     }
 
+    public List<Session> getSessionByLeanerId(String learnerId) {
+        logger.info("Fetching session with LeanerId: {}", learnerId);
+        return sessionRepository.findByLearnerUserId(learnerId);
+    }
+
     public SessionResponseDTO createSession(Session session) {
         logger.info("Creating session with coach: {} at {}",
                 session.getCoach().getUserId(), session.getDatetime());
@@ -115,7 +120,7 @@ public class SessionService {
         SessionResponseDTO dto = new SessionResponseDTO(session);
         return dto;
     }
-    public List<SessionResponseDTO> getSessionBycoachId(String  coachId) {
+    public List<SessionResponseDTO> getSessionBycoachId(String coachId) {
         logger.info("Fetching sessions with CoachId: {}", coachId);
         List<Session> sessions = sessionRepository.findByCoachUserId(coachId);
         return  sessions.stream().map(this::convertToSessionResponseDTO).collect(Collectors.toList());
