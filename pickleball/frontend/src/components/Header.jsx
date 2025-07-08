@@ -80,21 +80,25 @@ function Header() {
           </div>
 
           <a href="#" 
+          onClick={() => Navigate('/organize')}
           className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Organize
             <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
           <a href="#" 
+          onClick={() => Navigate('/earn')}
           className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Earn
             <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
           <a href="#" 
+          onClick={() => Navigate('/learn')}ư
           className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Learn
             <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
           </a>
           <a href="#" 
+          onClick={() => Navigate('/gear')}
           className="h-9 px-3 relative flex items-center text-black after:content-[''] after:absolute after:left-0 after:-bottom-6 after:w-0 after:h-[9px] after:bg-[#2d93ad] hover:after:w-full after:rounded-[30px]">
             Gear
             <FontAwesomeIcon icon={faCaretDown} className="w-4 h-4 ml-1 text-[#2d93ad]" />
