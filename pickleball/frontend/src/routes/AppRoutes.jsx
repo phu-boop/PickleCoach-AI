@@ -65,6 +65,7 @@ function AppRoutesUser() {
                 <Route path="learner_video_call/:roomId" element={<LearnerVideoCall />} />
                 <Route path="profile" element={<ProfileDetail />} />
                 <Route path="upload-video" element={<UploadVideo />} />
+
             </Route>
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
