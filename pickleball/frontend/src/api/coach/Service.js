@@ -15,3 +15,7 @@ export const getSessionbyCoach = async (id) => {
   const response = await apiCoach.get(`/sessions/getSessionByCoach/${id}`);
   return response.data;
 }
+export const updateStatus = async (id) => {
+  const response = await apiCoach.put(`/sessions/status/${id}`,id);
+  return response.data;
+}

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.support.SessionStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,11 @@ public class SessionService {
         return sessionRepository.findByCoachUserId(coachId);
     }
 
+    public List<Session> getSessionByLeanerId(String learnerId) {
+        logger.info("Fetching session with LeanerId: {}", learnerId);
+        return sessionRepository.findByLearnerUserId(learnerId);
+    }
+
     public SessionResponseDTO createSession(Session session) {
         logger.info("Creating session with coach: {} at {}",
                 session.getCoach().getUserId(), session.getDatetime());
@@ -67,7 +73,13 @@ public class SessionService {
             return sessionRepository.save(session);
         }).orElseThrow(() -> new ResourceNotFoundException("Session not found with id " + sessionId));
     }
-
+    public Session updateStatusSession(String sessionId) {
+        logger.info("Updating status session with id: {}", sessionId);
+        return sessionRepository.findById(sessionId).map(session -> {
+            session.setStatus(Session.Status.valueOf("IN_PROGRESS"));
+            return sessionRepository.save(session);
+        }).orElseThrow(() -> new ResourceNotFoundException("Session not found with id " + sessionId));
+    }
     public void deleteSession(String sessionId) {
         logger.info("Deleting session with id: {}", sessionId);
         if (!sessionRepository.existsById(sessionId)) {
@@ -115,7 +127,7 @@ public class SessionService {
         SessionResponseDTO dto = new SessionResponseDTO(session);
         return dto;
     }
-    public List<SessionResponseDTO> getSessionBycoachId(String  coachId) {
+    public List<SessionResponseDTO> getSessionBycoachId(String coachId) {
         logger.info("Fetching sessions with CoachId: {}", coachId);
         List<Session> sessions = sessionRepository.findByCoachUserId(coachId);
         return  sessions.stream().map(this::convertToSessionResponseDTO).collect(Collectors.toList());

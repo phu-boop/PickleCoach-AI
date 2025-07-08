@@ -1,6 +1,9 @@
+import { use } from "react";
 import Button from "../../../components/Button";
 import { FaCheckCircle } from "react-icons/fa";
+import { Navigate, useNavigate } from "react-router-dom";
 const Earn = () => {
+  const navigate = useNavigate();
   return (
     <>
      <div className="bg-white mt-30 px-22 font-grandstander container-main max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-10">
@@ -17,8 +20,9 @@ const Earn = () => {
 
         <div className="flex items-center gap-7">
           <Button
+          onClick={()=>{navigate("/review-coach")}}
           >Get a live walkthrough</Button>
-          <a href="#" className="text-[#35211a] font-bold text-sm hover:underline">
+          <a href="" className="text-[#35211a] font-bold text-sm hover:underline">
             See it in action →
           </a>
         </div>
