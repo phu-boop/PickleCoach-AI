@@ -44,7 +44,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/register", "/api/users/login",
                                 "/api/users/forgot-password", "/api/users/verify-otp", "/api/users/reset-password", // Thêm các endpoint này
                                 "/api/questions/**", "/login/oauth2/code/google", "/api/checkLearnerProgress", "/api/featured-courses" ).permitAll()
-                        .requestMatchers("/oauth2/authorization/google").permitAll() // Cho phép truy cập endpoint OAuth2
+                        .requestMatchers("/oauth2/authorization/google").permitAll()
+                        .requestMatchers("/api/sessions/status/**").hasRole("coach")
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/signal/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()

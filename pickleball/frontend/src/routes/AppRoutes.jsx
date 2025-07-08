@@ -44,7 +44,7 @@ import Gear from '../modules/pages/user/Gear';
 import Learn from '../modules/pages/user/Learn';
 import Schedule from '../modules/pages/learner/detail_profile/Schedule';
 import Courts from '../modules/pages/learner/detail_profile/Courts';
-import Payment from '../modules/pages/learner/detail_profile/Payment';
+import PaymentSettings from '../modules/pages/learner/detail_profile/Payment';
 import Groups from '../modules/pages/learner/detail_profile/Groups';
 function AppRoutesUser() {
     const { id_user } = useAuth();
@@ -73,7 +73,7 @@ function AppRoutesUser() {
                 <Route path="quiz" element={<QuizPage />} />
                 <Route path="schedule" element={<Schedule />}/>
                 <Route path="courts" element={<Courts />}/>
-                <Route path="payment" element={<Payment />}/>
+                <Route path="payments" element={<PaymentSettings />}/>
                 <Route path="groups" element={<Groups />}/>
 
                 

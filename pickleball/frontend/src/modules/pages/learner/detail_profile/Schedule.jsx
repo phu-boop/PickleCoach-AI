@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchUserById } from "../../../../api/admin/user";
 import Sidebar from "./Sidebar"; 
 import { FaLock, FaHandPaper } from "react-icons/fa";
-import { getScheduledSessionsLearner } from "../../../../api/learner/learningService";
+import { getScheduledSessionsLearner,getScheduledSessions } from "../../../../api/learner/learningService";
 import "font-awesome/css/font-awesome.min.css";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -104,7 +104,7 @@ const WeeklySchedule = ({ scheduleList }) => {
 const Schedule = () => {
   const [user, setUser] = useState(null);
   const [scheduleList, setScheduleList] = useState([]);
-
+  console.log(user);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -113,9 +113,13 @@ const Schedule = () => {
         if (response.status === 200) {
           setUser(response.data);
         }
-
-        const scheduleResponse = await getScheduledSessionsLearner(learnerId);
-        setScheduleList(scheduleResponse);
+        if(sessionStorage.getItem('role')==='ROLE_coach'){
+          const scheduleResponse = await getScheduledSessions(sessionStorage.getItem('id_user'));
+          setScheduleList(scheduleResponse);
+        }else{
+          const scheduleResponse = await getScheduledSessionsLearner(learnerId);
+          setScheduleList(scheduleResponse);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }

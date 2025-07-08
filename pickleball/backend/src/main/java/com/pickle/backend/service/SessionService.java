@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.support.SessionStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,13 @@ public class SessionService {
             return sessionRepository.save(session);
         }).orElseThrow(() -> new ResourceNotFoundException("Session not found with id " + sessionId));
     }
-
+    public Session updateStatusSession(String sessionId) {
+        logger.info("Updating status session with id: {}", sessionId);
+        return sessionRepository.findById(sessionId).map(session -> {
+            session.setStatus(Session.Status.valueOf("IN_PROGRESS"));
+            return sessionRepository.save(session);
+        }).orElseThrow(() -> new ResourceNotFoundException("Session not found with id " + sessionId));
+    }
     public void deleteSession(String sessionId) {
         logger.info("Deleting session with id: {}", sessionId);
         if (!sessionRepository.existsById(sessionId)) {

@@ -44,6 +44,12 @@ public class SessionController {
     public ResponseEntity<Session> updateSession(@PathVariable String sessionId, @RequestBody Session sessionDetails) {
         return ResponseEntity.ok(sessionService.updateSession(sessionId, sessionDetails));
     }
+    @PutMapping("/status/{sessionId}")
+    @PreAuthorize("hasRole('coach')")
+    public ResponseEntity<?> updateStatusSession(@PathVariable String sessionId) {
+        sessionService.updateStatusSession(sessionId);
+        return ResponseEntity.ok("Status updated successfully");
+    }
 
     @DeleteMapping("/{sessionId}")
     @PreAuthorize("hasRole('admin')")
@@ -75,4 +81,5 @@ public class SessionController {
     public ResponseEntity<List<SessionResponseDTO>> getSessionBycoachId(@PathVariable String coachId) {
         return ResponseEntity.ok(sessionService.getSessionBycoachId(coachId));
     }
+
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchCoachById, fetchLearnerById, getSessionbyCoach } from '../../../api/coach/Service';
+import { fetchCoachById, fetchLearnerById, getSessionbyCoach,updateStatus } from '../../../api/coach/Service';
 import { Navigate, useNavigate } from 'react-router-dom';
 export default function CoachDashboard() {
   const [coach, setCoach] = useState(null);
@@ -9,18 +9,9 @@ export default function CoachDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
+  const todayDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
-  // Define getNamelearner before usage
-  // const getNamelearner = async (learnerId) => {
-  //   try {
-  //     const learner = await fetchLearnerById(learnerId);
-  //     return learner?.name || learner?.userName || learner?.fullName || 'Unknown';
-  //   } catch (error) {
-  //     console.error(`Error fetching learner ${learnerId}:`, error);
-  //     return 'Unknown';
-  //   }
-  // };
-
+  console.log('lich',scheduleList);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -84,18 +75,17 @@ export default function CoachDashboard() {
     }
   };
 
-  // Filter and process today's schedule (Thursday, 03/07/2025)
   const todaySchedule = scheduleList
-    .filter(session => session.datetime?.startsWith('Thursday'))
-    .map(session => ({
-      sessionId: session.sessionId || 'N/A',
-      timeRange: session.datetime?.split(' ').slice(1).join(' ') || 'N/A',
-      day: session.datetime?.split(' ')[0] || 'N/A',
-      learner: learnerNames[session.learnerId] || '(ID: ' + (session.learnerId || 'N/A') + ')', // Removed getNamelearner from .map
-      status: mapStatus(session.status),
-      feedback: session.feedback || 'None',
-      videoLink: session.videoLink || null
-    }));
+  .filter(session => session.datetime?.startsWith(todayDay))
+  .map(session => ({
+    sessionId: session.sessionId || 'N/A',
+    timeRange: session.datetime?.split(' ').slice(1).join(' ') || 'N/A',
+    day: session.datetime?.split(' ')[0] || 'N/A',
+    learner: learnerNames[session.learnerId] || '(ID: ' + (session.learnerId || 'N/A') + ')',
+    status: mapStatus(session.status),
+    feedback: session.feedback || 'None',
+    videoLink: session.videoLink || null
+  }));
 
   // Process learner data
   const formattedLearners = learners.map(learner => ({
@@ -110,7 +100,18 @@ export default function CoachDashboard() {
   const handleViewDetails = (session) => {
     setSelectedSession(session);
   };
-
+  // oppen class
+  const handleOppenClass = async(id_session) =>{
+    try{
+      const response = await updateStatus(id_session);
+      if(response){
+      navegative(`/coach_video_call/${id_session}`);
+      }
+      
+    }catch(e){
+      console.log(e);
+    }
+  }
   // Close modal
   const closeModal = () => {
     setSelectedSession(null);
@@ -151,7 +152,8 @@ export default function CoachDashboard() {
       {coach?.availability?.length > 0 && (
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <img src="https://www.pickleheads.com/images/duotone-icons/dupr-send.svg" className='h-10' alt="" /> Available Slots
+            <img src="https://www.pickleheads.com/images/duotone-icons/news.svg" className='h-10' alt="" />
+            Today's Schedule ({new Date().toLocaleDateString('en-GB')})
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {coach.availability.map((slot, index) => (
@@ -167,7 +169,7 @@ export default function CoachDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-2xl shadow-xl p-6 transform hover:-translate-y-1 transition-all duration-300">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <img src="https://www.pickleheads.com/images/duotone-icons/news.svg" className='h-10' alt="" /> Today's Schedule (03/07/2025)
+            <img src="https://www.pickleheads.com/images/duotone-icons/news.svg" className='h-10' alt="" /> Today's Schedule ({new Date().toLocaleDateString('en-GB')})
           </h3>
           {todaySchedule.length === 0 ? (
             <p className="text-gray-500 text-center py-6">No sessions scheduled today</p>
@@ -176,12 +178,12 @@ export default function CoachDashboard() {
               <table className="w-full text-sm text-gray-700">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Day</th>
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Time Range</th>
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Status</th>
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Notes</th>
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Feedback</th>
-                    <th className="py-3 px-6 text-left font-medium w-1/5">Actions</th>
+                    <th className="py-3 px-5 text-left font-medium w-1/5">Day</th>
+                    <th className="py-3 px-5 text-left font-medium w-1/5">Time Range</th>
+                    <th className="py-3 px-5 text-left font-medium w-1/5">Status</th>
+                    <th className="py-3 px-5 text-left font-medium w-1/5">Notes</th>
+                    <th className="py-3 px-5 text-left font-medium w-1/5">Feedback</th>
+                    <th className="py-3 px-5 text-left font-medium w-1/5">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -202,7 +204,7 @@ export default function CoachDashboard() {
                       </td>
                       <td className="py-3 px-6">{item.feedback}</td>
                       <td className="py-3 px-6">
-                        <button className= 'font-bold text-amber-50 text-xs font-medium py-1 px-2 bg-amber-600 cursor-pointer font-black rounded-xl shadow-md hover:bg-amber-700 transition duration-200 transform hover:-translate-y-1'>
+                        <button onClick={()=>{handleOppenClass(item.sessionId)}} className= 'font-bold text-amber-50 text-xs font-medium py-1 px-2 bg-amber-600 cursor-pointer font-black rounded-xl shadow-md hover:bg-amber-700 transition duration-200 transform hover:-translate-y-1'>
                         oppen class
                         </button>
                       </td>
