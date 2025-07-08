@@ -44,7 +44,8 @@ import Gear from '../modules/pages/user/Gear';
 import Learn from '../modules/pages/user/Learn';
 import Schedule from '../modules/pages/learner/detail_profile/Schedule';
 import Courts from '../modules/pages/learner/detail_profile/Courts';
-import PaymentSettings from '../modules/pages/learner/detail_profile/Payment';
+import PaymentSettings from '../modules/pages/learner/detail_profile/PaymentSettings';
+import SessionList from '../modules/pages/learner/detail_profile/SessionList';
 import Groups from '../modules/pages/learner/detail_profile/Groups';
 
 function AppRoutesUser() {
@@ -76,8 +77,6 @@ function AppRoutesUser() {
                 <Route path="courts" element={<Courts />}/>
                 <Route path="payments" element={<PaymentSettings />}/>
                 <Route path="groups" element={<Groups />}/>
-
-
 
             </Route>
             {/* Auth routes */}
@@ -126,6 +125,7 @@ function AppRoutesUser() {
         }
       >
         <Route path="Detail_coach/:id" element={<DetailCoach />} />
+        <Route path="ListLearner" element={<SessionList/>}/>
       </Route>
             {/* Admin routes - Yêu cầu ROLE_ADMIN */}
             <Route

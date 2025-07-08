@@ -12,7 +12,6 @@ const Sidebar = () => {
   const [updateAvata, setUpdateAvata] = useState(false);
 
   const isActive = (path) => location.pathname === path;
-
   const handleUpdateAvata = async (data) => {
     try {
       const response = await updateavata(data);
@@ -44,14 +43,19 @@ const Sidebar = () => {
     fetchUser();
   }, []);
 
-  const menuItems = [
-    { label: "Profile", icon: "fa-user", path: "/profile" },
-    { label: "Alerts", icon: "fa-bell", path: "/alert" },
-    { label: "Courts", icon: "fa-balance-scale", path: "/courts" },
-    { label: "Schedule", icon: "fa-calendar", path: "/schedule" },
-    { label: "Groups", icon: "fa-users", path: "/groups" },
-    { label: "Payments", icon: "fa-credit-card", path: "/payments" },
-  ];
+  const role = sessionStorage.getItem('role');
+
+const menuItems = [
+  { label: "Profile", icon: "fa-user", path: "/profile" },
+  { label: "Alerts", icon: "fa-bell", path: "/alert" },
+  { label: "Courts", icon: "fa-balance-scale", path: "/courts" },
+  { label: "Schedule", icon: "fa-calendar", path: "/schedule" },
+  ...(role === 'ROLE_coach'
+    ? [{ label: "ListLearner", icon: "fa-users", path: "/ListLearner" }]
+    : [{ label: "Groups", icon: "fa-users", path: "/groups" }]
+  ),
+  { label: "Payments", icon: "fa-credit-card", path: "/payments" },
+];
 
   return (
   <div>
@@ -180,12 +184,16 @@ const Sidebar = () => {
             <button onClick={()=>{navigate(`/Detail_coach/${sessionStorage.getItem('id_user')}`)}} className="bg-[#696cff] hover:bg-[#4445a0] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
               Manage Schedule
             </button>
+            
+            {(location.pathname==='/ListLearner')?(<></>):<><button onClick={()=>{navigate('/profile')}} className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
+              Update Profile
+            </button>
             <button onClick={()=>{navigate('/coach')}} className="bg-[#82e14f] hover:bg-[#548f35] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
               View Reports
             </button>
-            <button onClick={()=>{navigate('/profile')}} className="bg-[#3dacce] hover:bg-[#3a849b] text-white cursor-pointer px-6 py-3 rounded-xl shadow-md transform hover:-translate-y-1 transition-all duration-200">
-              Update Profile
-            </button>
+            </>
+            }
+            
           </div>
           )
         }

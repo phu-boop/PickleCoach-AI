@@ -148,7 +148,11 @@ public class LearnerService {
             for (Session session : sessions) {
                 String scheduleString = session.getDatetime().toString();
                 boolean status = true;
-                scheduleDTOList.add(new ScheduleDTO(scheduleString, status));
+
+                ScheduleDTO.StatusSession statusSession = mapToScheduleStatus(session.getStatus());
+                String sessionId = session.getSessionId();
+
+                scheduleDTOList.add(new ScheduleDTO(sessionId, scheduleString, status, statusSession));
             }
 
             return scheduleDTOList;
@@ -157,4 +161,23 @@ public class LearnerService {
             return null;
         }
     }
+
+
+    private ScheduleDTO.StatusSession mapToScheduleStatus(Session.Status status) {
+        if (status == null) return null;
+
+        switch (status) {
+            case SCHEDULED:
+                return ScheduleDTO.StatusSession.SCHEDULED;
+            case IN_PROGRESS:
+                return ScheduleDTO.StatusSession.IN_PROGRESS;
+            case COMPLETED:
+                return ScheduleDTO.StatusSession.COMPLETED;
+            case CANCELLED:
+                return ScheduleDTO.StatusSession.CANCELLED;
+            default:
+                return null;
+        }
+    }
+
 }
