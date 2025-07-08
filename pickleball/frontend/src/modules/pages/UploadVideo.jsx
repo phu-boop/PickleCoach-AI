@@ -11,6 +11,7 @@ function UploadVideo() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [showNotification, setShowNotification] = useState(false);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -75,6 +76,20 @@ function UploadVideo() {
           detailed_feedbacks: apiResult.detailedFeedbacks || [],
           recommendations: apiResult.recommendations || [],
         });
+
+        // Set flag để HomePage biết cần refresh bài học đề xuất
+        localStorage.setItem('videoAnalysisComplete', 'true');
+        
+        // Trigger storage event cho cùng tab
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'videoAnalysisComplete',
+          newValue: 'true'
+        }));
+
+        // Hiển thị thông báo cho user
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 5000); // Ẩn sau 5 giây
+        console.log("Video analysis completed successfully. Recommended lessons will be updated.");
       } catch (err) {
         console.log("Error details:", err.response);
         let backendMsg = "";
@@ -127,6 +142,16 @@ function UploadVideo() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Notification */}
+      {showNotification && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Phân tích thành công! Bài học đề xuất đã được cập nhật.
+        </div>
+      )}
+
       {/* Phần Upload Video */}
       <Card className="mb-6 bg-white shadow-lg rounded-xl">
         <CardContent className="space-y-6 p-6">

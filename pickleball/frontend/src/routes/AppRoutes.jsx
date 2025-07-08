@@ -53,6 +53,8 @@ function AppRoutesUser() {
                 <Route path="coach_schedule" element={<CoachSchedule />} />
                 <Route path="video_call_room" element={<VideoCallRoom />} />
                 <Route path="profile" element={<ProfileDetail />} />
+                <Route path="upload-video" element={<UploadVideo />} />
+
             </Route>
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -72,7 +74,6 @@ function AppRoutesUser() {
                 }
             >
                 <Route path="input-assessment" element={<InputAssessment />} />
-                <Route path="upload-video" element={<UploadVideo />} />
                 <Route path="quiz" element={<QuizPage />} />
             </Route>
       {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
