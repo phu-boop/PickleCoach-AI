@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import { FaLock, FaHandPaper } from "react-icons/fa";
 import { getScheduledSessionsLearner,getScheduledSessions } from "../../../../api/learner/learningService";
 import "font-awesome/css/font-awesome.min.css";
+import { useNavigate } from "react-router-dom";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const timeSlots = [
@@ -13,6 +14,7 @@ const timeSlots = [
   { start: "17:00", end: "20:00" },
   { start: "20:00", end: "23:00" },
 ];
+
 
 const getDayShort = (scheduleStr) => {
   const day = scheduleStr.split(" ")[0];
@@ -38,7 +40,7 @@ const WeeklySchedule = ({ scheduleList }) => {
     if (!scheduleMap[day]) scheduleMap[day] = {};
     scheduleMap[day][timeRange] = item;
   });
-
+const navigate = useNavigate();
   return (
     <div className="w-full overflow-x-auto">
       <div className="grid grid-cols-[100px_repeat(7,minmax(140px,1fr))] gap-3 min-w-[1100px]">
@@ -86,6 +88,13 @@ const WeeklySchedule = ({ scheduleList }) => {
                       </>
                     )}
                   </div>
+                  
+                    {(session.statusSession=='IN_PROGRESS') && (
+                      <div onClick={()=>{navigate(`/learner_video_call/${session.id}`)}} className="bg-[#ea6645] text-center font-[var(--font-primary)] font-extrabold text-[16px] text-white py-2 px-3 rounded-full transition-all duration-300 hover:bg-gradient-to-b hover:from-[#ea6645] hover:to-[#8e3e29] cursor-pointer">
+                        into room
+                      </div>
+                    )
+                    }
                 </div>
               ) : (
                 <div
