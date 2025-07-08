@@ -15,7 +15,9 @@ import com.pickle.backend.dto.ResetPasswordDTO;
 import java.util.List;
 import com.pickle.backend.dto.LoginResponse;
 import org.springframework.http.MediaType;
-import java.util.Map; // Thêm import này
+import java.util.Map;
+import java.util.HashMap;
+
 import java.util.Optional;
 
 @RestController
@@ -123,5 +125,19 @@ public class UserController {
         String id = request.get("id");
         String response =userService.updateAvata(url,id);
         return ResponseEntity.ok(response);
+    }
+
+    // Thêm endpoint mới để lấy thống kê vai trò người dùng
+    @PreAuthorize("hasRole('admin')")
+    @GetMapping("/stats/roles")
+    public ResponseEntity<Map<String, Object>> getUserRoleStats() {
+        List<Object[]> roleCounts = userService.getUserRoleCounts();
+        Long totalUsers = userService.getTotalUsers();
+
+        Map<String, Object> stats = new HashMap<>();
+        roleCounts.forEach(row -> stats.put((String) row[0], row[1]));
+        stats.put("total", totalUsers);
+
+        return ResponseEntity.ok(stats);
     }
 }

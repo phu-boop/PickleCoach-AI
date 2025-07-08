@@ -46,6 +46,7 @@ import Schedule from '../modules/pages/learner/detail_profile/Schedule';
 import Courts from '../modules/pages/learner/detail_profile/Courts';
 import PaymentSettings from '../modules/pages/learner/detail_profile/Payment';
 import Groups from '../modules/pages/learner/detail_profile/Groups';
+
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
@@ -76,7 +77,7 @@ function AppRoutesUser() {
                 <Route path="payments" element={<PaymentSettings />}/>
                 <Route path="groups" element={<Groups />}/>
 
-                
+
 
             </Route>
             {/* Auth routes */}

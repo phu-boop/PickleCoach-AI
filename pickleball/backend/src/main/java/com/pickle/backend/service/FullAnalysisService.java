@@ -7,9 +7,12 @@ import com.pickle.backend.entity.User;
 import com.pickle.backend.entity.VideoAnalysis;
 import com.pickle.backend.entity.curriculum.Course;
 import com.pickle.backend.entity.curriculum.Lesson;
+import com.pickle.backend.entity.curriculum.VideoLessonRecommendation;
 import com.pickle.backend.repository.curriculum.CourseRepository;
 import com.pickle.backend.repository.curriculum.LessonRepository;
+import com.pickle.backend.repository.curriculum.VideoLessonRecommendationRepository;
 import com.pickle.backend.repository.VideoAnalysisRepository;
+import com.pickle.backend.service.curriculum.CurriculumService;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +34,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.*;
 import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 public class FullAnalysisService {
@@ -58,6 +65,12 @@ public class FullAnalysisService {
     @Autowired
     private UserService userService; // Thêm UserService
 
+    @Autowired
+    private VideoLessonRecommendationRepository videoLessonRecommendationRepository;
+
+    @Autowired
+    private CurriculumService curriculumService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
@@ -74,6 +87,7 @@ public class FullAnalysisService {
         File tempFile = null;
         String tempVideoPath = null;
         String finalVideoPath = null;
+        Map<String, Object> analysisResponse = null;
         try {
             if (video != null) {
                 validateVideo(video);
@@ -82,7 +96,7 @@ public class FullAnalysisService {
                 tempFile = new File("D:/LTJAVA/Project/PickleCoach-AI/pickleball/backend/" + tempVideoPath);
 
                 // 2. Gọi Python API kiểm tra hợp lệ
-                Map<String, Object> analysisResponse = callEnhancedAnalysisAPI(tempVideoPath, userId);
+                analysisResponse = callEnhancedAnalysisAPI(tempVideoPath, userId);
                 if (analysisResponse == null || analysisResponse.containsKey("error")) {
                     // Xóa file tạm nếu không hợp lệ
                     if (tempFile.exists()) tempFile.delete();
@@ -99,6 +113,11 @@ public class FullAnalysisService {
 
             entityManager.persist(analysis);
             Map<String, Object> result = buildAnalysisResult(analysis, learner);
+
+            // Lưu bài học đề xuất dựa trên kết quả phân tích
+            if (video != null) {
+                saveVideoLessonRecommendations(userId, analysisResponse, analysis.getVideoId());
+            }
 
             response.put("message", "Phân tích thành công");
             response.put("result", result);
@@ -203,6 +222,7 @@ public class FullAnalysisService {
         return response.getBody();
     }
 
+    @SuppressWarnings("unchecked")
     private void processEnhancedAnalysisResponse(VideoAnalysis analysis, Map<String, Object> responseBody,
             Learner learner)
             throws IOException {
@@ -356,6 +376,7 @@ public class FullAnalysisService {
                 .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Long> analyzeCommonIssues(List<Map<String, Object>> detailedFeedbacks) {
         Map<String, Long> issueCount = new HashMap<>();
 
@@ -433,6 +454,7 @@ public class FullAnalysisService {
                                 : "Nên tập trung vào các kỹ năng cơ bản.");
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> buildAnalysisResult(VideoAnalysis analysis, Learner learner) throws IOException {
         Map<String, Object> learningPath = new HashMap<>();
 
@@ -466,5 +488,50 @@ public class FullAnalysisService {
         learningPath.put("recommendations", recommendations);
 
         return learningPath;
+    }
+
+    /**
+     * Lưu bài học đề xuất dựa trên kết quả phân tích video
+     */
+    @SuppressWarnings("unchecked")
+    private void saveVideoLessonRecommendations(String userId, Map<String, Object> analysisResponse, String videoAnalysisId) {
+        try {
+            // Lấy thông tin từ kết quả phân tích
+            String skillLevel = (String) analysisResponse.get("skill_level");
+            Double averageScore = (Double) analysisResponse.get("average_score");
+            
+            Map<String, Object> shotAnalysis = (Map<String, Object>) analysisResponse.get("shotAnalysis");
+            List<String> weakestShots = shotAnalysis != null ? 
+                (List<String>) shotAnalysis.get("weakest_shots") : new ArrayList<>();
+
+            // Lấy bài học đề xuất
+            List<Lesson> recommendedLessons = curriculumService.getRecommendedLessonsBasedOnAnalysis(
+                userId, skillLevel, weakestShots);
+
+            // Chuyển đổi thành JSON strings
+            List<String> lessonIds = recommendedLessons.stream()
+                .map(lesson -> lesson.getId().toString())
+                .collect(Collectors.toList());
+
+            // Tạo hoặc cập nhật VideoLessonRecommendation
+            VideoLessonRecommendation recommendation = videoLessonRecommendationRepository
+                .findFirstByUserIdOrderByCreatedAtDesc(userId)
+                .orElse(new VideoLessonRecommendation());
+
+            recommendation.setUserId(userId);
+            recommendation.setVideoAnalysisId(videoAnalysisId);
+            recommendation.setSkillLevel(skillLevel);
+            recommendation.setAverageScore(averageScore);
+            recommendation.setWeakestShots(objectMapper.writeValueAsString(weakestShots));
+            recommendation.setRecommendedLessonIds(objectMapper.writeValueAsString(lessonIds));
+
+            videoLessonRecommendationRepository.save(recommendation);
+
+            logger.info("Đã lưu {} bài học đề xuất cho user {} dựa trên phân tích video", 
+                       recommendedLessons.size(), userId);
+
+        } catch (Exception e) {
+            logger.error("Lỗi khi lưu bài học đề xuất cho user {}: {}", userId, e.getMessage(), e);
+        }
     }
 }
