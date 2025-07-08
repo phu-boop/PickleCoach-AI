@@ -247,7 +247,7 @@ export default function Gear() {
             style={{ color: 'transparent', margin: '0 auto', display: 'block' }}
           />
           <p className="text-sm text-gray-700 text-center mt-2">Find the right paddle for your game</p> {/* Adjusted class names */}
-          <a className="block text-center bg-[#01b6e4] text-white py-2 px-4 rounded-md text-sm font-semibold mt-4 hover:bg-opacity-90 transition-colors" href="/paddle-quiz" target="_blank">Take the Quiz</a> {/* Adjusted class names */}
+          <a className="block text-center bg-[#01b6e4] text-white py-2 px-4 rounded-md text-sm font-semibold mt-4 hover:bg-opacity-90 transition-colors" href="/quiz" target="_blank">Take the Quiz</a>
         </div>
       </aside>
     </div>

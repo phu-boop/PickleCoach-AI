@@ -55,3 +55,8 @@ export const getScheduledSessions = async (userId) => {
   const response = await apiLearner.get(`/coaches/schedule/${userId}`);
   return response.data;
 }
+
+export const getScheduledSessionsLearner = async (userId) => {
+  const response = await apiLearner.get(`/learners/schedule/${userId}`);
+  return response.data;
+}

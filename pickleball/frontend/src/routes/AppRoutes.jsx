@@ -33,6 +33,7 @@ import CoachSchedule from '../modules/pages/coach/CoachSchedule';
 import CoachBookingPage from '../modules/pages/learner/lCoachBookingPage';
 import UploadVideo from '../modules/pages/UploadVideo'; 
 import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails'; 
+import Alert from '../modules/pages/learner/detail_profile/Alert'; 
 import ReviewCoach from '../modules/pages/learner/ReviewCoach';
 import DetailCoach from '../modules/pages/DetailCoach';
 import CoachVideoCall from '../modules/pages/coach/CoachVideoCall';
@@ -41,6 +42,10 @@ import Organize from '../modules/pages/user/Organize';
 import Earn from '../modules/pages/user/Earn';
 import Gear from '../modules/pages/user/Gear';
 import Learn from '../modules/pages/user/Learn';
+import Schedule from '../modules/pages/learner/detail_profile/Schedule';
+import Courts from '../modules/pages/learner/detail_profile/Courts';
+import Payment from '../modules/pages/learner/detail_profile/Payment';
+import Groups from '../modules/pages/learner/detail_profile/Groups';
 function AppRoutesUser() {
     const { id_user } = useAuth();
     const userId = id_user;
@@ -63,7 +68,16 @@ function AppRoutesUser() {
                 <Route path="coach_video_call/:roomId" element={<CoachVideoCall />} />
                 <Route path="learner_video_call/:roomId" element={<LearnerVideoCall />} />
                 <Route path="profile" element={<ProfileDetail />} />
+                <Route path='alert' element={<Alert/>}/>
                 <Route path="upload-video" element={<UploadVideo />} />
+                <Route path="quiz" element={<QuizPage />} />
+                <Route path="schedule" element={<Schedule />}/>
+                <Route path="courts" element={<Courts />}/>
+                <Route path="payment" element={<Payment />}/>
+                <Route path="groups" element={<Groups />}/>
+
+                
+
             </Route>
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -83,7 +97,7 @@ function AppRoutesUser() {
                 }
             >
                 <Route path="input-assessment" element={<InputAssessment />} />
-                <Route path="quiz" element={<QuizPage />} />
+                
             </Route>
       {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
       <Route

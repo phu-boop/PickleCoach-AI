@@ -18,7 +18,8 @@ export default function Result({ score, total, onReset }) {
       </div>
     </div>
     <div className="mt-8">
-      <InputAssessment />
+      {(sessionStorage.getItem("role")==='ROLE_USER')&&(
+      <InputAssessment />)}
     </div>
     </>
   );

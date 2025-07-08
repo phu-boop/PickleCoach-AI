@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../../../components/Button';
 import { useInView } from 'react-intersection-observer';
-
+import { Navigate, useNavigate } from 'react-router-dom';
 const sections = [
   { id: 'how-to-play', title: 'How to play' },
   { id: 'starting-a-rally', title: 'Starting a rally' },
@@ -26,6 +26,7 @@ const sections = [
 ];
 
 export default function Learn() {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(null);
 
   const updateActiveSection = (id, inView) => {
@@ -296,7 +297,7 @@ export default function Learn() {
           />
           <h3 className="text-lg font-bold text-[#162556] mb-2">Learn the basics with a private lesson</h3>
           <p className="text-gray-600 text-sm mb-4"></p>
-          <Button>Find a coach</Button>
+          <Button onClick={()=>{navigate('/review-coach')}}>Find a coach</Button>
         </div>
       </aside>
     </div>
