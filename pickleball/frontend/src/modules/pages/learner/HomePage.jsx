@@ -64,8 +64,8 @@ const HomePage = ({ userId }) => {
 
   return (
     <div className="w-[90%] mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 flex items-center justify-center sm:justify-start font-grandstander mt-5">
-        <MdOutlineLocalLibrary className="mr-3 text-indigo-400" /> Chương trình của tôi
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-8 font-grandstander flex items-center justify-center sm:justify-start font-grandstander mt-5">
+        <img src={'https://www.pickleheads.com/images/duotone-icons/paper-plane.svg'} className={'mr-3'}/> Chương trình của tôi
       </h1>
 
       {loading ? (
