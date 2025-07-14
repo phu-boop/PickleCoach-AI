@@ -1,0 +1,207 @@
+[33m700eac0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev-phu[m[33m)[m fix
+[33mfac49f8[m fix
+[33md25af26[m fix
+[33m2c1aa22[m fix"
+[33m7cee08d[m deploy
+[33m4573c89[m Add sweetalert2-react-content
+[33me13154c[m Add sweetalert2-react-content
+[33m3cbdf11[m[33m ([m[1;31morigin/dev-phu[m[33m)[m complete
+[33m5086167[m Merge branch 'main' into dev-phu
+[33m503d0a7[m fixx
+[33m658d0e1[m Merge pull request #80 from phu-boop/dev-Tri
+[33m35306c1[m[33m ([m[1;31morigin/dev-Tri[m[33m)[m update
+[33m5359593[m update
+[33mbf20776[m update bài học để xuất
+[33ma7df422[m edit frontend"
+[33m29522f6[m Merge branch 'dev-Trong-2' into main
+[33mc9fbfa9[m UPDATE CSS Dashboard.jsx
+[33m55e7553[m add biểu đồ tròn số lượng tài khoản cho Dashboard admin
+[33mdbe7b29[m Merge pull request #78 from phu-boop/dev-phu
+[33m452fccd[m  edit frontend
+[33m7988b48[m add dashboard booking cho admin
+[33m3582a50[m Merge pull request #77 from phu-boop/main
+[33m2fa3450[m fix call video
+[33m8b94569[m fix call video
+[33m58ed21b[m Merge pull request #76 from phu-boop/dev-phu
+[33m89a531d[m fix: video call
+[33m2767163[m Merge pull request #75 from phu-boop/dev-phu
+[33m2aa776e[m create call video session"
+[33maa080d9[m Merge pull request #74 from phu-boop/main
+[33m6910bff[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #73 from phu-boop/dev-Tri
+[33m46c38da[m Merge remote-tracking branch 'origin/main' into dev-Tri
+[33mec5bc0e[m Chỉnh sủa chức năng
+[33mb11d920[m Thêm tính năng
+[33m4eb778b[m Merge pull request #72 from phu-boop/dev-phu
+[33m9b1e1d8[m update pgae coach"
+[33m7c52cd5[m Merge pull request #71 from phu-boop/dev-Trong-2
+[33m491a49c[m Merge pull request #70 from phu-boop/main
+[33mf130bfb[m fix lỗi đăng nhập bằng google
+[33m142de3f[m Merge pull request #69 from phu-boop/dev-phu
+[33m791d9de[m update page dashboard coach
+[33m52c1717[m Merge branch 'main' of https://github.com/phu-boop/PickleCoach-AI into dev-Tri
+[33m601a5f0[m update
+[33mdab5f99[m Merge pull request #68 from phu-boop/dev-Trong-2
+[33m1b2b1e4[m update Home.jsx
+[33mda4b384[m Merge pull request #67 from phu-boop/main
+[33m2055850[m Merge pull request #66 from phu-boop/dev-phu
+[33mb6ef60e[m update usecase bokking coach
+[33m0763fa0[m Merge pull request #65 from phu-boop/dev-Trong-2
+[33m254dec8[m Merge pull request #64 from phu-boop/main
+[33mc0f1647[m update Home.jsx
+[33m1daf487[m Merge pull request #63 from phu-boop/dev-phu
+[33ma15178d[m edit frontennd
+[33mc567bc3[m Merge pull request #62 from phu-boop/main
+[33m339ea6a[m hi
+[33m4f55d37[m hi
+[33m3cda13b[m Merge pull request #61 from phu-boop/dev-phu
+[33m8e257c1[m complete CRUD coach
+[33m890450b[m Merge pull request #60 from phu-boop/dev-Trong-2
+[33m8518b18[m completed chức năng forgot password
+[33mfef59ed[m Merge branch 'dev-Trong-2' of https://github.com/phu-boop/PickleCoach-AI into dev-Trong-2
+[33m2a18206[m completed chức năng quên mật khâủ
+[33m8217736[m dev-Trong-2 --> main
+[33mee6bc66[m Merge branch 'main' into dev-Trong-2
+[33mea0065f[m update quên mật khẩu
+[33m157a3e1[m Merge pull request #57 from phu-boop/dev-Tri
+[33mefe6792[m fix lỗi sai khi merge main
+[33m8cd9d92[m Add chuc nang phan tich video
+[33m8b64151[m merge main vào nhánh
+[33m2954263[m thêm biến môi trường để bảo mật email và app_password
+[33m6df5b34[m Merge pull request #56 from phu-boop/dev-Trong-2
+[33mc824ffd[m Merge branch 'main' into dev-Trong-2
+[33me06100e[m thêm chức năng quên mật khẩu
+[33me616824[m Merge pull request #55 from phu-boop/dev-phu
+[33m211b135[m update
+[33m3790670[m Merge pull request #54 from phu-boop/dev-phu
+[33maae77cf[m meage
+[33m90649fd[m complete course
+[33m4c795b3[m update lesson
+[33me6c4ff9[m Merge pull request #53 from phu-boop/dev-phu
+[33mf02a36c[m Merge branch 'main' into dev-phu
+[33m16eff54[m fix
+[33mddbf98a[m fix
+[33mf901b36[m dev-Trong-2 --> main
+[33mc325ec7[m fix lỗi đăng nhập đăng ký và nâng cấp bảo mật đăng nhập bằng google
+[33md86907b[m main --> dev-Trong-2
+[33m773b77e[m Merge pull request #50 from phu-boop/dev-phu
+[33ma0c5481[m Merge branch 'main' into dev-phu
+[33mbc1e55d[m fix CRUD course
+[33mac2943b[m Merge pull request #49 from phu-boop/dev-Trong-2 (main --> dev-Trong-2)
+[33m85b11a1[m Merge pull request #48 from phu-boop/main
+[33m0f56caa[m Merge pull request #47 from phu-boop/dev-Tri
+[33m5321f55[m pull code branch main
+[33mdf92e98[m Hoàn thành tương đối chức năng phân tích video
+[33m8992dac[m Nâng cấp phân tích video
+[33mee4d3ab[m Complete VideoAnalusis
+[33m1a07452[m Merge pull request #45 from phu-boop/dev-phu
+[33m1193a7a[m CRUD course
+[33m7a5b116[m CRUD course
+[33m7629a1e[m Merge pull request #44 from phu-boop/dev-phu
+[33mb335ae5[m Merge branch 'main' into dev-phu
+[33mdaec07c[m CRUD learner
+[33me434ed7[m update API AI
+[33m536a9f9[m Save local changes before pull
+[33med3aee5[m Merge main --> dev-Trong-2
+[33md7acfc7[m merge main --> dev-Trong-2
+[33md3a7f2b[m Merge branch 'main' of https://github.com/phu-boop/PickleCoach-AI
+[33m4af6161[m Hoàn thành phần login và signup bằng google của tôi
+[33me7a0bea[m merge main vào dev-Trong-2
+[33m78f998c[m Merge pull request #40 from phu-boop/main
+[33m9091a68[m Merge pull request #39 from phu-boop/dev-phu
+[33mbc0d4a4[m API-Create learner
+[33m06213f1[m feat
+[33m15b3357[m Merge pull request #38 from phu-boop/dev-phu
+[33m0a1b568[m complete quiz for learner
+[33mc41799a[m update exam for learner
+[33m543bbf8[m Merge pull request #37 from phu-boop/dev-phu
+[33m5ce3202[m CRUD exam for learner
+[33mdaf323a[m Merge pull request #36 from phu-boop/dev-phu
+[33m3d98cb8[m fix and add page test admin
+[33m00fa353[m Merge pull request #35 from phu-boop/dev-phu
+[33m72b1766[m Merge pull request #34 from phu-boop/main
+[33me847f91[m Merge pull request #33 from phu-boop/dev-phu
+[33mfd9b88b[m merge"
+[33mab36dd5[m fix bug auth
+[33md277915[m Merge pull request #31 from phu-boop/main
+[33m02cd8ff[m Merge branch 'dev-Trong-2' into main
+[33m7cd944d[m Merge pull request #30 from phu-boop/dev-phu
+[33mb29a669[m Merge branch 'main' into dev-phu
+[33me537a55[m CRUD exam for learner
+[33mbaafcdc[m update AI
+[33m0d2158e[m update AI
+[33m004317c[m AI
+[33m5600904[m add logout
+[33m6c29b16[m Merge pull request #28 from phu-boop/dev-phu
+[33m5daea07[m fix
+[33m95b4ce8[m Merge pull request #27 from phu-boop/dev-phu
+[33m290b4bf[m feat: implement quiz API for learner
+[33mefa3132[m Merge pull request #26 from phu-boop/dev-phu
+[33m6bf4a1a[m fix(auth) minor"
+[33mc66c4a5[m Merge pull request #25 from phu-boop/dev-phu
+[33m5f08cc6[m fix bug after meger code form dev-phu
+[33m0461cf8[m chuyển lại phiên bản cũ (446cd43)
+[33m35e82ad[m Merge pull request #24 from phu-boop/dev-Trong-2
+[33m635586c[m Merge pull request #23 from phu-boop/main
+[33ma57c851[m Merge pull request #22 from phu-boop/dev-phu
+[33mffd754d[m Merge branch 'main' into dev-phu
+[33mf3ff73e[m CRUD user
+[33mab44b80[m Decentralization User
+[33m446cd43[m Merge pull request #20 from phu-boop/dev-Trong-2
+[33m9b6777b[m add đăng nhập, đăng ký bằng google
+[33m898dcfb[m fix backend/src/main/resources/application.properties
+[33me98db5e[m fix backend
+[33mc00d4ad[m fix lệnh chạy spring backend
+[33m3dbf6e5[m Merge branch 'main' of https://github.com/phu-boop/PickleCoach-AI
+[33m099a1ab[m Add admin layout updates and backend security configurations at 02:27 PM +07 31/05/2025
+[33m77bd63b[m create layout for admin_page
+[33m8881a7c[m add layout for page ADMIN
+[33m08ad3de[m Merge pull request #19 from phu-boop/dev-phu
+[33m5013c04[m complete auth
+[33mfe547be[m Merge pull request #18 from phu-boop/dev-phu
+[33mea7029d[m edit auth
+[33m09789b8[m Merge pull request #17 from phu-boop/phu-boop-patch-1
+[33m0957b65[m[33m ([m[1;31morigin/phu-boop-patch-1[m[33m)[m Update README.md
+[33mca7440c[m Update README.md
+[33m576c9a6[m Update README.md
+[33m736896b[m Merge pull request #16 from phu-boop/dev-phu
+[33ma8d0047[m feat: integrate frontend with API register
+[33md0f055a[m Merge pull request #15 from phu-boop/dev-phu
+[33mcb6e22f[m update login
+[33mabfecf6[m Merge pull request #14 from phu-boop/dev-phu
+[33m38d285b[m  create API register
+[33m2956172[m  create API register
+[33m113b5f1[m Fix merge conflict giữa main và dev-Tri
+[33m87b6fa4[m fix error
+[33ma178da3[m Merge pull request #13 from phu-boop/dev-phu
+[33m66d8c17[m connect mysql localhost
+[33mf120290[m update
+[33mbd5024e[m Merge pull request #11 from phu-boop/dev-phu
+[33m9a65c4d[m  update Login
+[33m4821eea[m add entity, controller, service, repository
+[33m6b35bd0[m Merge pull request #10 from phu-boop/dev-phu
+[33m463ab8b[m create page login
+[33me58d946[m add db
+[33m49df9b8[m Merge pull request #9 from phu-boop/dev-phu
+[33m25ed727[m  edit page home
+[33mda7c779[m Merge pull request #8 from phu-boop/dev-phu
+[33ma82391a[m add basic layout for home page
+[33m6e9cab6[m Merge pull request #7 from phu-boop/dev-phu
+[33mc5dca50[m edit Header and Footer
+[33md27fbe5[m Merge pull request #6 from phu-boop/dev-phu
+[33m59b2846[m creat Header and fotter
+[33m35ecc2d[m Merge pull request #5 from phu-boop/dev-phu
+[33m738adcc[m creat tre frontend
+[33mb54ce52[m Merge pull request #4 from phu-boop/dev-Trong
+[33mdad9fea[m[33m ([m[1;31morigin/dev-Trong[m[33m)[m qưdqssad
+[33m4309757[m Update README.md
+[33mcf58a69[m Merge pull request #3 from phu-boop/dev-phu
+[33mc374fe3[m Add initial Docker
+[33m57d2446[m Update README.md
+[33m1ab5dd2[m Phân tích yêu cầu của đề tài
+[33mca6d6db[m Merge pull request #2 from phu-boop/dev-phu
+[33m575c4c8[m edit fontend and backend
+[33m91432a7[m Merge pull request #1 from phu-boop/dev-phu
+[33m4982342[m Initial project structure with frontend and backend
+[33m1721d63[m Update README.md
+[33m31efc23[m Create README.md
+[33mf583a27[m Initial commit
