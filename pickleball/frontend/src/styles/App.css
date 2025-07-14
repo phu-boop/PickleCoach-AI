@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@400;600;800&family=Lexend+Variable:wght@300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wdth,wght@75..100,300..700&display=swap');
+@import "tailwindcss";
+:root {
+  --primary-color: #003b95;    /* Màu chính (xanh đậm) */
+  --blue-btn: #006ce4;         /* Màu xanh dương */
+  --font-primary: "Lexend Variable", sans-serif;      /* Font mặc định */
+  --font-secondary: 'Grandstander', cursive; /* Font phụ */
+}
+
+@layer components {
+  .container-main {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: var(--font-primary); /* dùng font chính */
+  }
+
+  .font-grandstander {
+  font-family: var(--font-secondary); /* dùng font Grandstander */
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e0e0;
+    border-top: 4px solid #4f46e5; /* Màu indigo */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fc .fc-timegrid-slot {
+  @apply h-15; 
+}
