@@ -52,8 +52,8 @@ public class CourseController {
     public ResponseEntity<List<Course>> getFeaturedCourses() {
         List<String> featuredTitles = List.of(
                 "Pickleball Cơ Bản – Làm Quen Và Làm Chủ Cơ Bản",
-                "Pickleball Trung Cấp – Chiến Thuật Và Phối Hợp Đội",
-                "Pickleball Nâng Cao – Chiến Lược Thi Đấu & Tâm Lý"
+                "Kỹ Thuật Nền Tảng – Cải Thiện Cú Đánh & Phản Xạ",
+                "Pickleball Trung Cấp – Chiến Thuật Và Phối Hợp Đội"
         );
         List<Course> courses = courseService.getCoursesByTitles(featuredTitles);
         return ResponseEntity.ok(courses);
