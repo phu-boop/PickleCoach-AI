@@ -3,6 +3,7 @@ import { FaVideo, FaFileAlt, FaCheckCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { getLessonById, createLearnerProgress, checkLearnerProgress, updateLessonComplete, checkCompleted } from '../../../api/learner/learningService';
 
+
 const LessonDetailPage = ({ userId }) => {
   const { id } = useParams();
   const [lesson, setLesson] = useState(null);
@@ -45,13 +46,13 @@ const LessonDetailPage = ({ userId }) => {
       const response = await createLearnerProgress(learnerProgress);
       setIdProgress(response.id);
       console.log('Create Progress Response:', response);
+
     } catch (error) {
       console.error('Error creating progress:', error);
     }
   };
 
   useEffect(() => {
-    // Tải script YouTube IFrame API
     const tag = document.createElement('script');
     tag.src = 'https://www.youtube.com/iframe_api';
     const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -59,7 +60,6 @@ const LessonDetailPage = ({ userId }) => {
 
     const fetchLessonAndProgress = async () => {
       try {
-        
         const progressInput = {
           lessonId: id,
           learnerId: userId,
@@ -131,7 +131,6 @@ const LessonDetailPage = ({ userId }) => {
       });
     }
   };
-
   if (loading) {
     return <div className="text-center text-gray-500">Đang tải...</div>;
   }
@@ -205,3 +204,4 @@ const LessonDetailPage = ({ userId }) => {
 };
 
 export default LessonDetailPage;
+

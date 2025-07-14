@@ -6,7 +6,6 @@ import { ClockIcon, PlayIcon } from '@heroicons/react/24/outline';
 const LessonByCourse = () => {
   const { id } = useParams();
   console.log('Course ID:', id);
-
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -93,5 +92,4 @@ const LessonByCourse = () => {
 };
 
 export default LessonByCourse;
-        
-        
+
