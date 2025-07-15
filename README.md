@@ -2,7 +2,7 @@
 
 Nền tảng học Pickleball ứng dụng trí tuệ nhân tạo (AI) và video call hỗ trợ kết nối huấn luyện viên trực tuyến. Hệ thống hỗ trợ Learner, Coach và Admin với giao diện riêng biệt.
 
----
+![trang chủ](pickleball/frontend/src/assets/images/Screenshot 2025-07-15 144318.png)
 
 ## 🚀 Tính năng nổi bật
 
@@ -59,19 +59,6 @@ Tạo file .env trong thư mục backend/ và frontend/ nếu cần. Ví dụ:
 
 backend/.env
 
-env
-Copy
-Edit
-SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/pickle
-SPRING_DATASOURCE_USERNAME=root
-SPRING_DATASOURCE_PASSWORD=yourpassword
-JWT_SECRET=secret123
-frontend/.env
-
-env
-Copy
-Edit
-VITE_API_URL=http://localhost:8080/api
 3. Build và chạy Docker
 bash
 Copy
