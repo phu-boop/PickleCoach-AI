@@ -2,7 +2,7 @@
 
 Nền tảng học Pickleball ứng dụng trí tuệ nhân tạo (AI) và video call hỗ trợ kết nối huấn luyện viên trực tuyến. Hệ thống hỗ trợ Learner, Coach và Admin với giao diện riêng biệt.
 
-![trang chủ](PickleCoach-AI/pickleball/frontend/src/assets/images/Screenshot 2025-07-15 144318.png)
+![trang chủ](https://raw.githubusercontent.com/phu-boop/PickleCoach-AI/refs/heads/main/pickleball/frontend/src/assets/images/Screenshot%202025-07-15%20144318.png)
 
 ## 🚀 Tính năng nổi bật
 
