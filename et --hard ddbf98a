@@ -1,8 +1,0 @@
-[33ma0c5481[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev-phu[m[33m, [m[1;31morigin/dev-phu[m[33m)[m HEAD@{0}: pull: Fast-forward
-[33mbc1e55d[m HEAD@{1}: reset: moving to HEAD~1
-[33mddbf98a[m HEAD@{2}: reset: moving to HEAD
-[33mddbf98a[m HEAD@{3}: reset: moving to HEAD
-[33mddbf98a[m HEAD@{4}: commit: fix
-[33mbc1e55d[m HEAD@{5}: commit: fix CRUD course
-[33m1193a7a[m HEAD@{6}: checkout: moving from main to dev-phu
-[33m0f56caa[m[33m ([m[1;32mmain[m[33m)[m HEAD@{7}: clone: from https://github.com/phu-boop/PickleCoach-AI.git
