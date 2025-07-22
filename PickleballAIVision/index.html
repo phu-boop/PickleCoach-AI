@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pickleball Video Analyzer</title>
+</head>
+<body>
+  <h2>Chọn video Pickleball để phân tích</h2>
+  <form id="upload-form">
+    <input type="file" id="video" name="file" accept="video/mp4" required />
+    <button type="submit">Gửi lên</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('video');
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('http://localhost:8000/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.video_url) {
+          result.innerHTML = `
+            <p><strong>Kết quả:</strong></p>
+            <video width="640" controls>
+              <source src="${data.video_url}" type="video/mp4">
+              Trình duyệt của bạn không hỗ trợ video.
+            </video>
+            <p><a href="${data.video_url}" target="_blank">Tải video kết quả</a></p>
+          `;
+        } else {
+          result.textContent = 'Phân tích thất bại.';
+        }
+
+      } catch (err) {
+        console.error(err);
+        result.textContent = 'Lỗi khi gửi video.';
+      }
+    });
+  </script>
+</body>
+</html>
