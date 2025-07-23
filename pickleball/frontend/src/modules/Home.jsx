@@ -404,7 +404,7 @@ export default function SearchSection() {
         <Button
         children={"upload video"}
         className={'absolute bottom-[-260px] left-[20%] transform -translate-x-1/2 mt-3 px-4 py-3'}
-        onClick={() => window.location.href = 'http://localhost:5173/upload-video'}
+        onClick={() => navigate('/aivideo')}
         ></Button>
         <div className="absolute bottom-[-60px] left-[50%] mt-3">
           {/* Đường dọc (từ trên xuống) */}
