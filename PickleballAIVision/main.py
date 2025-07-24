@@ -1,3 +1,5 @@
+import logging
+import warnings
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -5,10 +7,18 @@ from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import uuid
 import os
-from analyze import analyze_video, convert_to_browser_compatible
+import traceback
+from video_processor import process_video
+from converter import convert_to_browser_compatible
+
+# Configure logging to capture errors
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger('mediapipe').setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
 app = FastAPI()
 
+# Cấu hình CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -17,45 +27,60 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Thư mục lưu trữ
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# Mount thư mục outputs để truy cập file video
 app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...)):
+    # Tạo ID duy nhất cho file
     file_id = str(uuid.uuid4())
     input_path = os.path.join(UPLOAD_DIR, f"{file_id}.mp4")
-
-    # Tạo file tạm cho raw_output trong uploads
     raw_output_path = os.path.join(UPLOAD_DIR, f"{file_id}_raw.mp4")
-
-    # file đầu ra chuẩn browser
     final_output_filename = f"{file_id}_annotated.mp4"
     final_output_path = os.path.join(OUTPUT_DIR, final_output_filename)
 
-    # Lưu file gốc
-    with open(input_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
+        # Lưu file đầu vào
+        with open(input_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    # Phân tích video và xuất file raw tạm thời
-    result = analyze_video(input_path, raw_output_path)
+        # Xử lý video
+        result = process_video(input_path, raw_output_path)
 
-    # Chuyển định dạng và lưu file cuối ra outputs/
-    convert_to_browser_compatible(raw_output_path, final_output_path)
+        # Chuyển đổi video sang định dạng tương thích trình duyệt
+        convert_to_browser_compatible(raw_output_path, final_output_path)
 
-    # Dọn dẹp file tạm
-    os.remove(raw_output_path)
-    os.remove(input_path)
+        # Trả về URL video và chi tiết
+        video_url = f"/outputs/{final_output_filename}"
+        return JSONResponse({
+            "status": "success",
+            "video_url": video_url,
+            "details": result
+        })
 
-    # Trả link truy cập video đã phân tích
-    video_url = f"/outputs/{final_output_filename}"
+    except Exception as e:
+        # Log the full stack trace for debugging
+        logging.error(f"Error processing video: {str(e)}\n{traceback.format_exc()}")
+        return JSONResponse({
+            "status": "error",
+            "message": str(e),
+            "details": traceback.format_exc()
+        }, status_code=500)
 
-    return JSONResponse({
-        "status": "success",
-        "video_url": video_url,
-        "details": result
-    })
+    finally:
+        # Dọn dẹp file tạm
+        if os.path.exists(input_path):
+            os.remove(input_path)
+        if os.path.exists(raw_output_path):
+            os.remove(raw_output_path)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
