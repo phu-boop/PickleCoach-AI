@@ -7,11 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import uuid
 import os
+import traceback
 from video_processor import process_video
-from shadow_detector import ShadowDetector
 from converter import convert_to_browser_compatible
 
-# Suppress MediaPipe and Protobuf warnings
+# Configure logging to capture errors
+logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('mediapipe').setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
@@ -50,11 +51,8 @@ async def analyze(file: UploadFile = File(...)):
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Khởi tạo shadow detector
-        shadow_detector = ShadowDetector()
-
         # Xử lý video
-        result = process_video(input_path, raw_output_path, shadow_detector)
+        result = process_video(input_path, raw_output_path)
 
         # Chuyển đổi video sang định dạng tương thích trình duyệt
         convert_to_browser_compatible(raw_output_path, final_output_path)
@@ -68,10 +66,12 @@ async def analyze(file: UploadFile = File(...)):
         })
 
     except Exception as e:
-        # Xử lý lỗi
+        # Log the full stack trace for debugging
+        logging.error(f"Error processing video: {str(e)}\n{traceback.format_exc()}")
         return JSONResponse({
             "status": "error",
-            "message": str(e)
+            "message": str(e),
+            "details": traceback.format_exc()
         }, status_code=500)
 
     finally:

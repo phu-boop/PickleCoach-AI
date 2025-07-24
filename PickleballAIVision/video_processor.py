@@ -1,25 +1,23 @@
 import cv2
 import mediapipe as mp
-from config import (
-    BODY_LANDMARKS, BODY_CONNECTIONS, COLOR_RED, COLOR_WHITE,
-    COLOR_GREEN, COLOR_SHADOW, MAJOR_AXIS_FACTOR, MINOR_AXIS_FACTOR,
-    ELIPSE_THICKNESS, SHADOW_OFFSET_X, SHADOW_OFFSET_Y, ALPHA
-)
+from config import *
+from pose_utils import draw_pose_landmarks, draw_ellipse_under_player
+from ultralytics import YOLO
+from ball_tracker import BallTracker  
 
-def process_video(input_path, output_path, shadow_detector):
-    # Khởi tạo mediapipe
+def process_video(input_path, output_path):
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
 
-    # Đọc video
     cap = cv2.VideoCapture(input_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    # Khởi tạo video output
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
+    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+
+    model = YOLO("yolov8n.pt")
+    tracker = BallTracker(config=__import__("config"))  # Dùng module config
 
     frame_count = 0
     while True:
@@ -28,55 +26,74 @@ def process_video(input_path, output_path, shadow_detector):
             break
 
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(image_rgb)
-
-        # Tạo overlay cho độ trong suốt
+        results_pose = pose.process(image_rgb)
         overlay = frame.copy()
 
-        # Vẽ các hình nếu nhận diện được pose
-        if results.pose_landmarks:
-            landmarks = results.pose_landmarks.landmark
+        # Pose detection
+        if results_pose.pose_landmarks:
+            landmarks = results_pose.pose_landmarks.landmark
+            draw_pose_landmarks(overlay, landmarks, BODY_LANDMARKS, BODY_CONNECTIONS, w, h, COLOR_RED, COLOR_WHITE)
+            draw_ellipse_under_player(overlay, landmarks, mp_pose, w, h, COLOR_GREEN, MAJOR_AXIS_FACTOR, MINOR_AXIS_FACTOR, ELIPSE_THICKNESS)
 
-            # Vẽ đường kết nối cơ thể
-            for connection in BODY_CONNECTIONS:
-                start_idx = connection[0].value
-                end_idx = connection[1].value
-                start_point = landmarks[start_idx]
-                end_point = landmarks[end_idx]
-                start_coords = (int(start_point.x * w), int(start_point.y * h))
-                end_coords = (int(end_point.x * w), int(end_point.y * h))
-                cv2.line(overlay, start_coords, end_coords, COLOR_WHITE, 2)
+        # Bóng + vẽ trail (bằng MediaPipe HSV)
+        tracker.detect_and_draw_ball(frame, overlay, w, h)
 
-            # Vẽ chấm đỏ trên các điểm mốc cơ thể
-            for landmark in BODY_LANDMARKS:
-                point = landmarks[landmark]
-                x_point = int(point.x * w)
-                y_point = int(point.y * h)
-                cv2.circle(overlay, (x_point, y_point), 5, COLOR_RED, -1)
+        # YOLO detection
+        results_yolo = model.predict(source=frame, conf=0.3, classes=None, verbose=False)
 
-            # Tính trung điểm mắt cá chân và chiều cao cơ thể
-            left_ankle = landmarks[mp_pose.PoseLandmark.LEFT_ANKLE]
-            right_ankle = landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE]
-            left_shoulder = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER]
-            right_shoulder = landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER]
-            x = int((left_ankle.x + right_ankle.x) / 2 * w)
-            y = int((left_ankle.y + right_ankle.y) / 2 * h)
-            shoulder_y = (left_shoulder.y + right_shoulder.y) / 2 * h
-            ankle_y = (left_ankle.y + right_ankle.y) / 2 * h
-            body_height = abs(shoulder_y - ankle_y)
+        for result in results_yolo:
+            for box in result.boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                conf = float(box.conf)
+                cls = int(box.cls[0])
+                label = model.names[cls]
+                if label.lower() in ["sports ball", "ball", "pickleball"]:
+                    center_x = (x1 + x2) // 2
+                    center_y = (y1 + y2) // 2
+                    center = (center_x, center_y)
 
-            # Tính kích thước elip
-            major_axis = int(body_height * MAJOR_AXIS_FACTOR)
-            minor_axis = int(body_height * MINOR_AXIS_FACTOR)
+                    # Thêm bóng vào tracker
+                    tracker.ball_positions.append({'pos': center, 'age': 0})
 
-            # Vẽ elip chính
-            center = (x, y + 15)
-            axes = (major_axis, minor_axis)
-            cv2.ellipse(overlay, center, axes, 0, 0, 360, COLOR_GREEN, ELIPSE_THICKNESS)
+                    # Shadow
+                    shadow_center = (
+                        center_x + tracker.cfg.BALL_SHADOW_OFFSET_X,
+                        center_y + tracker.cfg.BALL_SHADOW_OFFSET_Y
+                    )
+                    cv2.ellipse(overlay, shadow_center,
+                                (tracker.cfg.BALL_SHADOW_MAJOR, tracker.cfg.BALL_SHADOW_MINOR),
+                                0, 0, 360, tracker.cfg.COLOR_SHADOW, 2)
 
-            # Áp dụng độ trong suốt
-            cv2.addWeighted(overlay, ALPHA, frame, 1 - ALPHA, 0, frame)
+                    # Vẽ khung YOLO
+                    cv2.rectangle(overlay, (x1, y1), (x2, y2), COLOR_BALL, 2)
+                    cv2.putText(overlay, f"{label} {conf:.2f}", (x1, y1 - 5),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR_BALL, 1)
+                    break
 
+        # Vẽ đường mờ dần từ YOLO (bổ sung vào)
+        max_len = min(len(tracker.ball_positions), tracker.cfg.TRAIL_LENGTH)
+        for i in range(1, max_len):
+            start_pt = tracker.ball_positions[i - 1]['pos']
+            end_pt = tracker.ball_positions[i]['pos']
+            age = tracker.ball_positions[i]['age']
+
+            if (0 <= start_pt[0] < w and 0 <= start_pt[1] < h and
+                0 <= end_pt[0] < w and 0 <= end_pt[1] < h):
+
+                fade = 1.0 - (age / tracker.cfg.TRAIL_LIFESPAN)
+                fade = max(0.0, fade) ** tracker.cfg.FADE_FACTOR
+
+                color = (
+                    int(tracker.cfg.COLOR_BALL_TRAIL[0] * fade),
+                    int(tracker.cfg.COLOR_BALL_TRAIL[1] * fade),
+                    int(tracker.cfg.COLOR_BALL_TRAIL[2] * fade)
+                )
+                thickness = max(1, int(tracker.cfg.TRAIL_THICKNESS * fade))
+
+                cv2.line(overlay, start_pt, end_pt, color, thickness, lineType=cv2.LINE_AA)
+
+        # Alpha blend
+        cv2.addWeighted(overlay, ALPHA, frame, 1 - ALPHA, 0, frame)
         out.write(frame)
         frame_count += 1
 
