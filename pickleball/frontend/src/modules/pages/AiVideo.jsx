@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import ReactPlayer from 'react-player';
 
 const AiVideo = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [resultUrl, setResultUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [details, setDetails] = useState(null); // 👈 Thêm state lưu đánh giá
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
         setResultUrl('');
         setErrorMsg('');
+        setDetails(null);
     };
 
     const handleSubmit = async (e) => {
@@ -34,6 +35,7 @@ const AiVideo = () => {
             console.log(data);
             if (data.video_url) {
                 setResultUrl(`http://localhost:8000${data.video_url}`);
+                setDetails(data.details); // 👈 Gán phản hồi từ backend
                 setErrorMsg('');
             } else {
                 setErrorMsg('Phân tích thất bại.');
@@ -72,6 +74,34 @@ const AiVideo = () => {
                         style={{ width: '100%', height: 'auto' }}
                     />
                     <p><a href={resultUrl} target="_blank" rel="noreferrer">Tải video kết quả</a></p>
+
+                    {details && (
+                        <div style={{ marginTop: 20 }}>
+                            <h4>Đánh giá kỹ thuật:</h4>
+
+                            {details.good_points?.length > 0 && (
+                                <>
+                                    <strong>✔️ Điểm tốt:</strong>
+                                    <ul>
+                                        {details.good_points.map((msg, i) => (
+                                            <li key={`good-${i}`}>{msg}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            )}
+
+                            {details.errors?.length > 0 && (
+                                <>
+                                    <strong>❌ Lỗi sai:</strong>
+                                    <ul style={{ color: 'red' }}>
+                                        {details.errors.map((msg, i) => (
+                                            <li key={`err-${i}`}>{msg}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

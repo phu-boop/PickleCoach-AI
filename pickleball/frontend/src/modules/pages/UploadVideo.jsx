@@ -107,7 +107,9 @@ function UploadVideo() {
                     foundError = true;
                     break;
                   }
-                } catch (e) {}
+                } catch (e) {
+                  console.log(e);
+                }
               }
             }
             if (!foundError) backendMsg = err.response.data;

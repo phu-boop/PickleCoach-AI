@@ -11,14 +11,14 @@ import traceback
 from video_processor import process_video
 from converter import convert_to_browser_compatible
 
-# Configure logging to capture errors
+# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('mediapipe').setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
 app = FastAPI()
 
-# Cấu hình CORS
+# CORS config
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -27,19 +27,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Thư mục lưu trữ
+# Folder setup
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
-
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Mount thư mục outputs để truy cập file video
 app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...)):
-    # Tạo ID duy nhất cho file
     file_id = str(uuid.uuid4())
     input_path = os.path.join(UPLOAD_DIR, f"{file_id}.mp4")
     raw_output_path = os.path.join(UPLOAD_DIR, f"{file_id}_raw.mp4")
@@ -47,27 +44,21 @@ async def analyze(file: UploadFile = File(...)):
     final_output_path = os.path.join(OUTPUT_DIR, final_output_filename)
 
     try:
-        # Lưu file đầu vào
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Xử lý video
         result = process_video(input_path, raw_output_path)
 
-        # Chuyển đổi video sang định dạng tương thích trình duyệt
         convert_to_browser_compatible(raw_output_path, final_output_path)
 
-        # Trả về URL video và chi tiết
-        video_url = f"/outputs/{final_output_filename}"
         return JSONResponse({
             "status": "success",
-            "video_url": video_url,
+            "video_url": f"/outputs/{final_output_filename}",
             "details": result
         })
 
     except Exception as e:
-        # Log the full stack trace for debugging
-        logging.error(f"Error processing video: {str(e)}\n{traceback.format_exc()}")
+        logging.error(f"Error: {str(e)}\n{traceback.format_exc()}")
         return JSONResponse({
             "status": "error",
             "message": str(e),
@@ -75,7 +66,6 @@ async def analyze(file: UploadFile = File(...)):
         }, status_code=500)
 
     finally:
-        # Dọn dẹp file tạm
         if os.path.exists(input_path):
             os.remove(input_path)
         if os.path.exists(raw_output_path):
