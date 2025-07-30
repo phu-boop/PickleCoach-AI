@@ -37,11 +37,6 @@ public class CourseController {
 
     @Autowired
     private LearnerProgressRepository learnerProgressRepository;
-
-    // @Autowired(required = false) // Bỏ dòng này
-    // private ModuleService moduleService; // Bỏ dòng này
-
-    // User endpoints (đã có từ trước)
     @GetMapping("/courses")
     public ResponseEntity<List<Course>> getAllCourses() {
         List<Course> courses = courseService.getAllCourses();

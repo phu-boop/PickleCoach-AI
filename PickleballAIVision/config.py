@@ -18,11 +18,11 @@ SHADOW_OFFSET_Y = 25      # Dịch bóng con người xuống dưới
 ALPHA = 1               # Độ trong suốt
 
 # Cấu hình nhận diện bóng pickleball
-BALL_LOWER = np.array([26, 180, 180], dtype=np.uint8)
-BALL_UPPER = np.array([32, 255, 255], dtype=np.uint8)
-BALL_MIN_AREA = 50                     # Diện tích tối thiểu của bóng
-BALL_MAX_AREA = 500                    # Diện tích tối đa của bóng
-BALL_CIRCULARITY = 0.85                 # Độ tròn tối thiểu (0-1)
+BALL_LOWER = np.array([61, 77, 78], dtype=np.uint8)
+BALL_UPPER = np.array([71, 97, 98], dtype=np.uint8)
+BALL_MIN_AREA = 80                     # Diện tích tối thiểu của bóng
+BALL_MAX_AREA = 80                    # Diện tích tối đa của bóng
+BALL_CIRCULARITY = 0.95                 # Độ tròn tối thiểu (0-1)
 
 # Cấu hình bóng của bóng pickleball
 BALL_SHADOW_MAJOR = 10    # Độ rộng elip bóng của bóng
