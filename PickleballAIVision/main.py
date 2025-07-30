@@ -10,6 +10,7 @@ import os
 import traceback
 from video_processor import process_video
 from converter import convert_to_browser_compatible
+from course_suggester import suggest_courses
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -48,14 +49,18 @@ async def analyze(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, buffer)
 
         result = process_video(input_path, raw_output_path)
-
         convert_to_browser_compatible(raw_output_path, final_output_path)
+
+        # 🧠 Gợi ý khóa học dựa trên lỗi
+        suggested_courses = suggest_courses(result["errors"])
 
         return JSONResponse({
             "status": "success",
             "video_url": f"/outputs/{final_output_filename}",
-            "details": result
+            "details": result,
+            "suggested_courses": suggested_courses
         })
+
 
     except Exception as e:
         logging.error(f"Error: {str(e)}\n{traceback.format_exc()}")
