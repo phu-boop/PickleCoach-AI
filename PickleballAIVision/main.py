@@ -1,6 +1,6 @@
 import logging
 import warnings
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,7 +37,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...)):
+async def analyze(file: UploadFile = File(...),left_handed: bool = Form(False)):
     file_id = str(uuid.uuid4())
     input_path = os.path.join(UPLOAD_DIR, f"{file_id}.mp4")
     raw_output_path = os.path.join(UPLOAD_DIR, f"{file_id}_raw.mp4")
@@ -48,7 +48,7 @@ async def analyze(file: UploadFile = File(...)):
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        result = process_video(input_path, raw_output_path)
+        result = process_video(input_path, raw_output_path, left_handed)
         convert_to_browser_compatible(raw_output_path, final_output_path)
 
         # 🧠 Gợi ý khóa học dựa trên lỗi

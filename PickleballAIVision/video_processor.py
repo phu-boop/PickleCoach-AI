@@ -16,7 +16,7 @@ def get_wrist_point(landmarks, w, h):
     wrist = landmarks[16] if landmarks[16].visibility > 0.6 else landmarks[15]
     return (int(wrist.x * w), int(wrist.y * h))
 
-def process_video(input_path, output_path):
+def process_video(input_path, output_path, left_handed):
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
 
@@ -84,7 +84,7 @@ def process_video(input_path, output_path):
 
             if distance < 80 and speed > 10 and frame_idx - last_detected_frame > 15:
                 current_second = frame_idx / fps
-                result = detect_shot_type_and_feedback(landmarks, ball_center, w, h, current_second)
+                result = detect_shot_type_and_feedback(landmarks, ball_center, w, h, current_second, left_handed)
                 shot_type = result["shot_type"]
                 feedback = result["feedback"]
 
