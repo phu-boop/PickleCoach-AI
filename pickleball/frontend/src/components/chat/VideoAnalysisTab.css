@@ -1,0 +1,241 @@
+.video-analysis-tab {
+  padding: 0 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-analysis-tab h2 {
+  color: #2c91aa;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.video-upload-label {
+  font-size: 1.35rem;
+  color: #2c91aa;
+  font-weight: 900;
+  margin-bottom: 26px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.video-upload-area {
+  width: 100%;
+  max-width: 420px;
+  min-height: 220px;
+  background: #f7fafc;
+  border: 2.5px dashed #43a047;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  margin-bottom: 18px;
+  text-align: center;
+  padding: 36px 18px 32px 18px;
+  box-shadow: 0 2px 16px rgba(67,160,71,0.08);
+  position: relative;
+}
+
+.video-upload-area:hover {
+  border-color: #2c91aa;
+  background: #e0f7fa;
+  box-shadow: 0 4px 24px rgba(44,145,170,0.12);
+}
+
+.video-upload-area.uploaded {
+  border-style: solid;
+  border-color: #43a047;
+  background: #e8f5e9;
+}
+
+.video-upload-icon {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-upload-text {
+  color: #217a9a;
+  font-size: 1.08rem;
+  margin-bottom: 10px;
+}
+
+.video-upload-main-text {
+  font-size: 1.12rem;
+  color: #217a9a;
+  font-weight: 600;
+}
+
+.video-upload-btn {
+  margin-top: 8px;
+  background: #43a047;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 14px 36px;
+  font-size: 1.12rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(44,145,170,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  outline: none;
+  margin-bottom: 8px;
+}
+
+.video-upload-btn:hover {
+  background: #2c91aa;
+  box-shadow: 0 4px 16px rgba(44,145,170,0.16);
+}
+
+.video-upload-or {
+  color: #888;
+  font-size: 1.01rem;
+  margin: 6px 0 2px 0;
+}
+
+.video-upload-desc {
+  color: #888;
+  font-size: 0.98rem;
+  margin-bottom: 2px;
+}
+
+.video-upload-link {
+  color: #43a047;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.video-upload-guide {
+  margin-top: 24px;
+  color: #217a9a;
+  font-size: 1.15rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.video-upload-guide ul {
+  margin: 0 auto;
+  padding-left: 0;
+  list-style: none;
+  max-width: 480px;
+  counter-reset: step;
+}
+
+.video-upload-guide li {
+  margin-bottom: 22px;
+  padding-left: 0;
+  position: relative;
+  font-size: 1.15rem;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  background: #f7fafc;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(44,145,170,0.07);
+  padding: 18px 22px 18px 56px;
+  min-height: 56px;
+}
+
+.video-upload-guide li::before {
+  content: counter(step);
+  counter-increment: step;
+  background: linear-gradient(135deg, #43a047 60%, #2c91aa 100%);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 18px;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 16px rgba(44,145,170,0.13);
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 3px solid #fff;
+}
+
+/* Icon minh họa cho từng bước */
+.video-upload-guide li:nth-child(1)::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background: url('data:image/svg+xml;utf8,<svg width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4v14m0 0l-5-5m5 5l5-5" stroke="%2343a047" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="20" width="20" height="4" rx="2" fill="%23e0f7fa"/></svg>') center/contain no-repeat;
+  margin-left: 12px;
+}
+.video-upload-guide li:nth-child(2)::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background: url('data:image/svg+xml;utf8,<svg width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="12" fill="%23e0f7fa"/><path d="M9 14l3 3 7-7" stroke="%2343a047" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
+  margin-left: 12px;
+}
+.video-upload-guide li:nth-child(3)::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background: url('data:image/svg+xml;utf8,<svg width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="12" fill="%23e0f7fa"/><path d="M14 9v6m0 0l-3-3m3 3l3-3" stroke="%2343a047" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
+  margin-left: 12px;
+}
+
+.video-guide-desc {
+  font-size: 1.08rem;
+  color: #2c91aa;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: 0.1px;
+}
+
+@media (max-width: 600px) {
+  .video-upload-area {
+    max-width: 98vw;
+    min-height: 120px;
+    padding: 14px 2px 14px 2px;
+  }
+  .video-upload-btn {
+    padding: 10px 16px;
+    font-size: 1rem;
+  }
+  .video-upload-label {
+    font-size: 1.08rem;
+    margin-bottom: 12px;
+  }
+  .video-upload-guide ul {
+    max-width: 98vw;
+  }
+  .video-upload-guide li {
+    font-size: 1rem;
+    padding: 12px 8px 12px 48px;
+    min-height: 44px;
+  }
+  .video-upload-guide li::before {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    left: 2px;
+  }
+  .video-upload-guide li:nth-child(1)::after,
+  .video-upload-guide li:nth-child(2)::after,
+  .video-upload-guide li:nth-child(3)::after {
+    width: 18px;
+    height: 18px;
+    margin-left: 6px;
+  }
+} 

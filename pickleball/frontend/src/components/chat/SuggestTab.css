@@ -1,0 +1,26 @@
+.suggest-tab-content {
+  padding: 12px 0;
+}
+.suggest-tab-content h2 {
+  color: #2c91aa;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.suggest-tab-content ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #333;
+  font-size: 1rem;
+}
+.suggest-tab-content li {
+  margin-bottom: 6px;
+}
+@media (max-width: 600px) {
+  .suggest-tab-content h2 {
+    font-size: 1.05rem;
+  }
+  .suggest-tab-content ul {
+    font-size: 0.95rem;
+  }
+} 
