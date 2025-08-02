@@ -8,6 +8,7 @@ const AiVideo = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [details, setDetails] = useState(null);
     const [suggestedCourses, setSuggestedCourses] = useState([]);
+    const [isLeftHanded, setIsLeftHanded] = useState(false); // ✅ Trạng thái tay thuận
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
@@ -15,6 +16,10 @@ const AiVideo = () => {
         setErrorMsg('');
         setDetails(null);
         setSuggestedCourses([]);
+    };
+
+    const handleToggleHandedness = () => {
+        setIsLeftHanded((prev) => !prev);
     };
 
     const handleSubmit = async (e) => {
@@ -26,6 +31,7 @@ const AiVideo = () => {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
+        formData.append('left_handed', isLeftHanded); // ✅ Gửi tay thuận lên backend
 
         try {
             setLoading(true);
@@ -33,7 +39,6 @@ const AiVideo = () => {
                 method: 'POST',
                 body: formData,
             });
-
             const data = await res.json();
             if (data.video_url) {
                 setResultUrl(`http://localhost:8000${data.video_url}`);
@@ -53,8 +58,10 @@ const AiVideo = () => {
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-gray-50 rounded-xl shadow-2xl">
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">🎾 Phân tích kỹ thuật Pickleball bằng AI</h2>
-            <form onSubmit={handleSubmit} className="mb-8">
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+                🎾 Phân tích kỹ thuật Pickleball bằng AI
+            </h2>
+            <form onSubmit={handleSubmit} className="mb-8 space-y-4">
                 <div className="flex items-center gap-6 bg-white p-4 rounded-lg shadow-md">
                     <input
                         type="file"
@@ -71,9 +78,24 @@ const AiVideo = () => {
                         {loading ? '⏳ Đang xử lý...' : '📤 Gửi lên'}
                     </button>
                 </div>
+                <div className="flex items-center justify-center">
+                    <button
+                        type="button"
+                        onClick={handleToggleHandedness}
+                        className={`px-4 py-2 rounded-full font-medium transition duration-300 ${
+                            isLeftHanded
+                                ? 'bg-purple-600 text-white hover:bg-purple-700'
+                                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                        }`}
+                    >
+                        {isLeftHanded ? '✅ Bạn thuận tay trái' : '🤚 Bạn thuận tay phải (mặc định)'}
+                    </button>
+                </div>
             </form>
 
-            {errorMsg && <p className="text-red-500 text-center mb-6 font-medium">{errorMsg}</p>}
+            {errorMsg && (
+                <p className="text-red-500 text-center mb-6 font-medium">{errorMsg}</p>
+            )}
 
             {resultUrl && (
                 <div className="mt-8">
@@ -100,10 +122,10 @@ const AiVideo = () => {
 
                             {details.errors?.length > 0 && (
                                 <>
-                                <p className="text-red-600 text-lg font-semibold">❌ Lỗi sai:</p>
-                                <p className="text-red-500 mt-1">
-                                    {details.errors.slice(0, 5).join(', ')}{details.errors.length > 5 ? '...' : ''}
-                                </p>
+                                    <p className="text-red-600 text-lg font-semibold">❌ Lỗi sai:</p>
+                                    <p className="text-red-500 mt-1">
+                                        {details.errors.slice(0, 5).join(', ')}{details.errors.length > 5 ? '...' : ''}
+                                    </p>
                                 </>
                             )}
 
@@ -143,19 +165,14 @@ const AiVideo = () => {
                                     ))}
                                 </div>
                             )}
+
                             {suggestedCourses.length > 0 && (
                                 <div className="mt-12">
                                     <h3 className="text-2xl font-semibold text-gray-700 mb-6">🎓 Khóa học phù hợp được gợi ý</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                        {suggestedCourses.length > 0 ? (
-                                            suggestedCourses.map((course) => (
-                                                <CourseCard key={course.id} course={course} />
-                                            ))
-                                        ) : (
-                                            <p className="text-gray-500 text-lg col-span-full text-center py-8">
-                                                Chưa có khóa học nào để hiển thị.
-                                            </p>
-                                        )}
+                                        {suggestedCourses.map((course) => (
+                                            <CourseCard key={course.id} course={course} />
+                                        ))}
                                     </div>
                                 </div>
                             )}
