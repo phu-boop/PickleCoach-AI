@@ -1,3 +1,4 @@
+
 import cv2
 import numpy as np
 from config import (
@@ -33,7 +34,6 @@ class BallTracker:
 
     def update_trail(self, ball_center, frame_idx):
         if ball_center:
-            # Tránh thêm trùng điểm liên tiếp
             if not self.ball_positions or self.ball_positions[-1]["pos"] != ball_center:
                 self.ball_positions.append({"pos": ball_center, "age": 0})
         for point in self.ball_positions:
@@ -66,3 +66,4 @@ class BallTracker:
         # Vẽ trail lên overlay để không bị blend che mất
         self.draw_ball_trail(overlay)
         return ball_center
+

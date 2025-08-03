@@ -15,7 +15,7 @@ MINOR_AXIS_FACTOR = 0.25  # Độ dẹt elip = body_height * 0.25 (tròn hơn)
 ELIPSE_THICKNESS = 4
 SHADOW_OFFSET_X = 20      # Dịch bóng con người sang phải
 SHADOW_OFFSET_Y = 25      # Dịch bóng con người xuống dưới
-ALPHA = 0.5               # Độ trong suốt
+ALPHA = 1               # Độ trong suốt
 
 # Cấu hình nhận diện bóng pickleball
 BALL_LOWER = np.array([26, 180, 180], dtype=np.uint8)
@@ -35,7 +35,7 @@ TRAIL_LENGTH = 50  # Nhiều frame hơn để mượt=
 TRAIL_FADE_OUT_FRAMES = 4
 TRAIL_LIFESPAN = 20        # Tuổi tối đa cho 1 đoạn trail (frame)
 FADE_FACTOR = 1          # Càng nhỏ thì mờ nhanh
-TRAIL_THICKNESS = 3
+TRAIL_THICKNESS = 
 COLOR_BALL_TRAIL = (27, 232, 27)
 
 
