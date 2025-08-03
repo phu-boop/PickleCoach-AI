@@ -1,0 +1,27 @@
+# 🏓 PickleballAIVision – AI for Pickleball Training
+
+## ✅ Yêu cầu
+- Python **3.10.x** đã cài sẵn trong máy
+- `uvicorn`, `fastapi`, `opencv-python`, `ultralytics`, `mediapipe`... (đã có trong `requirements.txt`)
+
+---
+
+## ⚙️ 1. Tạo và kích hoạt môi trường ảo
+
+> ⚠️ Chỉ thực hiện **lần đầu tiên** hoặc khi chưa có thư mục `venv310`.
+
+```bash
+# Bước 1: Di chuyển vào thư mục dự án
+cd PickleballAIVision
+
+# Bước 2: Kiểm tra phiên bản Python 3.10
+py -3.10 --version
+
+# Bước 3: Tạo môi trường ảo với Python 3.10
+py -3.10 -m venv venv310
+
+# Bước 4: Kích hoạt môi trường ảo (trên Windows Git Bash)
+source venv310/Scripts/activate
+
+# Bước 5: Cài các thư viện cần thiết
+pip install -r requirements.txt
