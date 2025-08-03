@@ -1,0 +1,373 @@
+/* Overlay toàn màn hình */
+.chatbox2-overlay {
+  position: fixed;
+  z-index: 9999;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Panel chatbox - gần full màn hình, bo góc nhẹ */
+.chatbox2-panel {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  width: 92vw;
+  height: 90vh;
+  max-width: 1200px;
+  max-height: 98vh;
+  min-width: 320px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Header */
+.chatbox2-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 40px 18px 40px;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f7fafc;
+}
+.chatbox2-header-info {
+  display: flex;
+  align-items: center;
+}
+.chatbox2-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  margin-right: 18px;
+  border: 2.5px solid #43a047;
+}
+.chatbox2-title {
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #2c91aa;
+  letter-spacing: 0.5px;
+}
+.chatbox2-close {
+  background: none;
+  border: none;
+  font-size: 2.2rem;
+  color: #ea6645;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0 8px;
+}
+.chatbox2-close:hover {
+  color: #b23c17;
+}
+
+/* Tab bar */
+.chatbox2-tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f7fafc;
+}
+.chatbox2-tabs button {
+  flex: 1;
+  padding: 18px 0 14px 0;
+  background: none;
+  border: none;
+  font-weight: 700;
+  color: #2c91aa;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-size: 1.15rem;
+  letter-spacing: 0.2px;
+}
+.chatbox2-tabs button.active {
+  background: #e0f7fa;
+  color: #43a047;
+  border-bottom: 3px solid #43a047;
+}
+
+/* Nội dung tab */
+.chatbox2-content {
+  flex: 1;
+  padding: 36px 48px 0 48px;
+  overflow-y: auto;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chat tab */
+.chatbox2-messages {
+  min-height: 180px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chatbox2-message {
+  display: inline-block;
+  margin-bottom: 0;
+  padding: 10px 18px;
+  border-radius: 18px;
+  max-width: 60%;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  word-break: break-word;
+  box-shadow: 0 1px 4px rgba(67,160,71,0.04);
+}
+.chatbox2-message.bot {
+  background: #eaf6fb;
+  color: #217a9a;
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+}
+.chatbox2-message.user {
+  background: linear-gradient(90deg, #43a047 80%, #388e3c 100%);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+  margin-left: auto;
+}
+
+/* Ô nhập liệu luôn sát dưới cùng */
+.chatbox2-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 16px 16px;
+  background: #f7fafc;
+  border-top: 1.5px solid #e0e0e0;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  margin-top: auto;
+}
+
+.chatbox2-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 24px;
+  border: none;
+  background: #fff;
+  font-size: 1.08rem;
+  outline: none;
+  box-shadow: 0 1px 4px rgba(67,160,71,0.04);
+  transition: box-shadow 0.2s;
+}
+
+.chatbox2-input input:focus {
+  box-shadow: 0 2px 8px rgba(67,160,71,0.10);
+}
+
+.chatbox2-emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #2c91aa;
+  margin-right: 4px;
+  transition: background 0.2s;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatbox2-emoji-btn:hover {
+  background: #e0f7fa;
+}
+
+.chatbox2-send-btn {
+  background: #43a047;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: background 0.2s;
+}
+
+.chatbox2-send-btn:hover {
+  background: #2c91aa;
+}
+
+.chatbox2-send-btn svg {
+  display: block;
+}
+
+/* Video tab */
+.chatbox2-video-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-top: 28px;
+}
+.chatbox2-video-upload input[type="file"] {
+  margin-bottom: 12px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .chatbox2-panel {
+    width: 99vw;
+    height: 98vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 0;
+  }
+  .chatbox2-content {
+    padding: 16px 6px 0 6px;
+  }
+  .chatbox2-header {
+    padding: 16px 8px 8px 8px;
+  }
+  .chatbox2-tabs button {
+    font-size: 1rem;
+    padding: 12px 0;
+  }
+  .chatbox2-input {
+    padding: 12px 0 16px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .chatbox2-panel {
+    width: 100vw;
+    height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  .chatbox2-content {
+    padding: 8px 2px 0 2px;
+  }
+  .chatbox2-header {
+    padding: 10px 4px 6px 4px;
+  }
+  .chatbox2-tabs button {
+    font-size: 0.95rem;
+    padding: 10px 0;
+  }
+  .chatbox2-input {
+    padding: 8px 0 10px 0;
+  }
+}
+
+/* Nút mở chatbox nhỏ */
+.chatbox2-toggle {
+  position: fixed;
+  z-index: 9998;
+  right: 32px;
+  bottom: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(67,160,71,0.18);
+  border-radius: 50%;
+  padding: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s;
+}
+.chatbox2-toggle:hover {
+  box-shadow: 0 8px 32px rgba(67,160,71,0.28);
+} 
+
+.video-analysis-tab {
+  padding: 0 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-analysis-tab h2 {
+  color: #2c91aa;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.video-upload-area {
+  width: 100%;
+  max-width: 420px;
+  min-height: 180px;
+  background: #f7fafc;
+  border: 2.5px dashed #43a047;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 18px;
+  text-align: center;
+  padding: 24px 12px;
+}
+
+.video-upload-area:hover {
+  border-color: #2c91aa;
+  background: #e0f7fa;
+}
+
+.video-upload-icon {
+  margin-bottom: 10px;
+}
+
+.video-upload-text {
+  color: #217a9a;
+  font-size: 1.08rem;
+}
+
+.video-upload-link {
+  color: #43a047;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.video-upload-guide {
+  margin-top: 8px;
+  color: #888;
+  font-size: 0.98rem;
+}
+
+.video-upload-guide ul {
+  margin: 0;
+  padding-left: 18px;
+  }
+
+@media (max-width: 600px) {
+  .video-upload-area {
+    max-width: 98vw;
+    min-height: 120px;
+    padding: 14px 2px;
+  }
+} 
