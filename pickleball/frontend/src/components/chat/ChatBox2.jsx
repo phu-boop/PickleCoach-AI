@@ -1,8 +1,6 @@
 import React, { useState, useRef } from "react";
 import "./chatbox2.css";
 import VideoAnalysisTab from "./VideoAnalysisTab";
-
-import VoiceToText from "./VoiceToText";
 import BotAvatar from '../../assets/images/Chat/8688154.jpg';
 import IconAvatar from '../../assets/images/Chat/8567230.jpg';
 

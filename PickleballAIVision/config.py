@@ -10,7 +10,7 @@ COLOR_BALL = (0, 255, 255)     # Vàng cho bóng pickleball
 COLOR_BALL_TRAIL = (0, 255, 0)  # Xanh lá cho đường di chuyển
 
 # Cấu hình elip xác nhận con người
-MAJOR_AXIS_FACTOR = 0.5   # Độ rộng elip = body_height * 0.5
+MAJOR_AXIS_FACTOR = 0.4   # Độ rộng elip = body_height * 0.5
 MINOR_AXIS_FACTOR = 0.25  # Độ dẹt elip = body_height * 0.25 (tròn hơn)
 ELIPSE_THICKNESS = 4
 SHADOW_OFFSET_X = 20      # Dịch bóng con người sang phải
@@ -18,11 +18,11 @@ SHADOW_OFFSET_Y = 25      # Dịch bóng con người xuống dưới
 ALPHA = 1               # Độ trong suốt
 
 # Cấu hình nhận diện bóng pickleball
-BALL_LOWER = np.array([61, 77, 78], dtype=np.uint8)
-BALL_UPPER = np.array([71, 97, 98], dtype=np.uint8)
-BALL_MIN_AREA = 80                     # Diện tích tối thiểu của bóng
-BALL_MAX_AREA = 80                    # Diện tích tối đa của bóng
-BALL_CIRCULARITY = 0.95                 # Độ tròn tối thiểu (0-1)
+BALL_LOWER = np.array([26, 180, 180], dtype=np.uint8)
+BALL_UPPER = np.array([32, 255, 255], dtype=np.uint8)
+BALL_MIN_AREA = 50                     # Diện tích tối thiểu của bóng
+BALL_MAX_AREA = 500                    # Diện tích tối đa của bóng
+BALL_CIRCULARITY = 0.85                 # Độ tròn tối thiểu (0-1)
 
 # Cấu hình bóng của bóng pickleball
 BALL_SHADOW_MAJOR = 10    # Độ rộng elip bóng của bóng
@@ -35,9 +35,13 @@ TRAIL_LENGTH = 50  # Nhiều frame hơn để mượt=
 TRAIL_FADE_OUT_FRAMES = 4
 TRAIL_LIFESPAN = 20        # Tuổi tối đa cho 1 đoạn trail (frame)
 FADE_FACTOR = 1          # Càng nhỏ thì mờ nhanh
-TRAIL_THICKNESS = 3
-COLOR_BALL_TRAIL = (0, 255, 0)
+TRAIL_THICKNESS = 
+COLOR_BALL_TRAIL = (27, 232, 27)
 
+
+# config.py
+SHOT_DEBOUNCE_FRAMES = 15  # Số khung hình tối thiểu giữa các cú đánh
+DISTANCE_THRESHOLD = 20   # Ngưỡng khoảng cách (pixel) từ bóng đến cổ tay
 
 # Danh sách điểm mốc cơ thể (loại bỏ điểm trên mặt)
 BODY_LANDMARKS = [
