@@ -1,22 +1,14 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-import config
 from config import *
 from pose_utils import draw_pose_landmarks, draw_ellipse_under_player
+from config import SHOT_DEBOUNCE_FRAMES  # Import hằng số
 from ultralytics import YOLO
 from ball_tracker import BallTracker
-from feedback import detect_player_feedback, detect_shot_type_and_feedback
+from feedback import detect_shot_type_and_feedback
 
-def euclidean_distance(p1, p2):
-    return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
-
-def get_wrist_point(landmarks, w, h):
-    # Ưu tiên tay phải, fallback tay trái
-    wrist = landmarks[16] if landmarks[16].visibility > 0.6 else landmarks[15]
-    return (int(wrist.x * w), int(wrist.y * h))
-
-def process_video(input_path, output_path, left_handed):
+def process_video(input_path, output_path):
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
 
@@ -32,9 +24,9 @@ def process_video(input_path, output_path, left_handed):
 
     feedback_good = []
     feedback_errors = []
-    shots_info = []
+    detected_shots = []  # Lưu danh sách {type: str, time: float}
+    last_shot_frame = 0
     frame_idx = 0
-    last_detected_frame = -30
 
     while True:
         ret, frame = cap.read()
@@ -45,21 +37,38 @@ def process_video(input_path, output_path, left_handed):
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results_pose = pose.process(image_rgb)
 
-        ball_center = None
-
         if results_pose.pose_landmarks:
             landmarks = results_pose.pose_landmarks.landmark
             draw_pose_landmarks(overlay, landmarks, BODY_LANDMARKS, BODY_CONNECTIONS, w, h, COLOR_RED, COLOR_WHITE)
             draw_ellipse_under_player(overlay, landmarks, mp_pose, w, h, COLOR_GREEN, MAJOR_AXIS_FACTOR, MINOR_AXIS_FACTOR, ELIPSE_THICKNESS)
 
-            errors, good_points = detect_player_feedback(landmarks, h, w)
-            feedback_good.extend(good_points)
-            feedback_errors.extend(msg for (_, _, msg) in errors)
-            for (x, y, msg) in errors:
-                cv2.putText(overlay, msg, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                cv2.circle(overlay, (x, y), 8, (0, 0, 255), -1)
+            ball_center = tracker.detect_ball(frame, frame_idx) or (w // 2, h // 2)
+            result = detect_shot_type_and_feedback(landmarks, ball_center, w, h, frame_idx / fps, False, last_shot_frame)
+            feedback_good.extend(result["feedback"]["good"])
+            feedback_errors.extend(result["feedback"]["bad"])
+            new_shots = result["shot_type"]
 
-        ball_center = tracker.detect_and_draw_ball(frame, overlay, w, h, frame_idx)
+            for shot_data in new_shots:
+                shot_type = shot_data["type"]
+                if not detected_shots or (frame_idx - last_shot_frame >= SHOT_DEBOUNCE_FRAMES and 
+                                         shot_type != [s["type"] for s in detected_shots[-1:]][0]):
+                    detected_shots.append(shot_data)
+                    last_shot_frame = frame_idx
+
+            for item in feedback_errors:
+                if isinstance(item, (tuple, list)) and len(item) == 3:
+                    x, y, msg = item
+                    cv2.putText(overlay, msg, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    cv2.circle(overlay, (x, y), 8, (0, 0, 255), -1)
+                else:
+                    print(f"[Warning] Invalid error format: {item}")
+
+            for i, shot_data in enumerate(detected_shots):
+                if i == 0 or shot_data["type"] != detected_shots[i - 1]["type"]:
+                    cv2.putText(overlay, f"Hit: {shot_data['type']} ({shot_data['time']}s)", 
+                              (10, 30 + i * 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (51, 0, 0), 2)
+
+        tracker.detect_and_draw_ball(frame, overlay, w, h, frame_idx)
 
         results_yolo = model.predict(source=frame, conf=0.3, classes=None, verbose=False)
         for result in results_yolo:
@@ -74,34 +83,7 @@ def process_video(input_path, output_path, left_handed):
                         tracker.ball_positions.append({'pos': center, 'age': 0})
                     cv2.rectangle(overlay, (x1, y1), (x2, y2), COLOR_BALL, 2)
                     cv2.putText(overlay, f"{label} {conf:.2f}", (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR_BALL, 1)
-                    ball_center = center
                     break
-
-        if results_pose.pose_landmarks and ball_center:
-            wrist_point = get_wrist_point(landmarks, w, h)
-            distance = euclidean_distance(ball_center, wrist_point)
-            speed = tracker.average_speed(frames=5)
-
-            if distance < 80 and speed > 10 and frame_idx - last_detected_frame > 15:
-                current_second = frame_idx / fps
-                result = detect_shot_type_and_feedback(landmarks, ball_center, w, h, current_second, left_handed)
-                shot_type = result["shot_type"]
-                feedback = result["feedback"]
-
-                shots_info.append({
-                    "type": shot_type,
-                    "time": round(result["time"], 2),
-                    "good": feedback["good"],
-                    "bad": feedback["bad"]
-                })
-
-                cv2.putText(overlay, f"Shot: {shot_type}", (50, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_GREEN, 2)
-                for idx, good in enumerate(feedback["good"]):
-                    cv2.putText(overlay, f"✔ {good}", (50, 80 + idx * 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                for idx, bad in enumerate(feedback["bad"]):
-                    cv2.putText(overlay, f"✘ {bad}", (50, 180 + idx * 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-
-                last_detected_frame = frame_idx
 
         cv2.addWeighted(overlay, ALPHA, frame, 1 - ALPHA, 0, frame)
         out.write(frame)
@@ -111,9 +93,12 @@ def process_video(input_path, output_path, left_handed):
     out.release()
     pose.close()
 
+    detected_shot = detected_shots[-1] if detected_shots else None
+
     return {
         "frame_count": total_frames,
-        "good_points": list(set(feedback_good)),
-        "errors": list(set(feedback_errors)),
-        "shots": shots_info
+        "good_points": feedback_good,
+        "errors": feedback_errors,
+        "detected_shots": detected_shots,  # Danh sách {type, time}
+        "detected_shot": detected_shot
     }

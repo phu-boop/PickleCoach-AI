@@ -44,7 +44,7 @@ class BallTracker:
 
     def draw_ball_trail(self, frame):
         max_age = TRAIL_LIFESPAN
-        base_color = (0, 0, 255)
+        base_color = (0, 0, 255)  # Đỏ đậm
         base_thickness = 8
         for i in range(1, len(self.ball_positions)):
             p1 = self.ball_positions[i - 1]["pos"]
@@ -59,20 +59,11 @@ class BallTracker:
             thickness = max(2, int(base_thickness * alpha))
             cv2.line(frame, p1, p2, color, thickness, lineType=cv2.LINE_AA)
 
-    def average_speed(self, frames=5):
-        if len(self.ball_positions) < frames:
-            return 0
-        total_distance = 0
-        recent = self.ball_positions[-frames:]
-        for i in range(1, len(recent)):
-            p1 = recent[i-1]["pos"]
-            p2 = recent[i]["pos"]
-            total_distance += np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
-        return total_distance / (frames - 1)
-
     def detect_and_draw_ball(self, frame, overlay, w, h, frame_idx):
         ball_center = self.detect_ball(frame, frame_idx)
         self.draw_ball(overlay, ball_center)
         self.update_trail(ball_center, frame_idx)
+        # Vẽ trail lên overlay để không bị blend che mất
         self.draw_ball_trail(overlay)
         return ball_center
+

@@ -7,19 +7,16 @@ const AiVideo = () => {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [details, setDetails] = useState(null);
-    const [suggestedCourses, setSuggestedCourses] = useState([]);
-    const [isLeftHanded, setIsLeftHanded] = useState(false); // ✅ Trạng thái tay thuận
+    const [detectedShots, setDetectedShots] = useState([]);
+    const [recommendedCourses, setRecommendedCourses] = useState([]);
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
         setResultUrl('');
         setErrorMsg('');
         setDetails(null);
-        setSuggestedCourses([]);
-    };
-
-    const handleToggleHandedness = () => {
-        setIsLeftHanded((prev) => !prev);
+        setDetectedShots([]);
+        setRecommendedCourses([]);
     };
 
     const handleSubmit = async (e) => {
@@ -31,7 +28,6 @@ const AiVideo = () => {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('left_handed', isLeftHanded); // ✅ Gửi tay thuận lên backend
 
         try {
             setLoading(true);
@@ -39,11 +35,14 @@ const AiVideo = () => {
                 method: 'POST',
                 body: formData,
             });
+
             const data = await res.json();
-            if (data.video_url) {
+            console.log(data);
+            if (data.status === 'success') {
                 setResultUrl(`http://localhost:8000${data.video_url}`);
                 setDetails(data.details);
-                setSuggestedCourses(data.suggested_courses || []);
+                setDetectedShots(data.detected_shots || []);
+                setRecommendedCourses(data.recommended_courses || []);
                 setErrorMsg('');
             } else {
                 setErrorMsg('Phân tích thất bại.');
@@ -57,129 +56,116 @@ const AiVideo = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-gray-50 rounded-xl shadow-2xl">
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-                🎾 Phân tích kỹ thuật Pickleball bằng AI
-            </h2>
-            <form onSubmit={handleSubmit} className="mb-8 space-y-4">
-                <div className="flex items-center gap-6 bg-white p-4 rounded-lg shadow-md">
-                    <input
-                        type="file"
-                        accept="video/mp4"
-                        onChange={handleFileChange}
-                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                    />
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                        {loading ? '⏳ Đang xử lý...' : '📤 Gửi lên'}
-                    </button>
-                </div>
-                <div className="flex items-center justify-center">
-                    <button
-                        type="button"
-                        onClick={handleToggleHandedness}
-                        className={`px-4 py-2 rounded-full font-medium transition duration-300 ${
-                            isLeftHanded
-                                ? 'bg-purple-600 text-white hover:bg-purple-700'
-                                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                        }`}
-                    >
-                        {isLeftHanded ? '✅ Bạn thuận tay trái' : '🤚 Bạn thuận tay phải (mặc định)'}
-                    </button>
-                </div>
-            </form>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-8">
+                    Phân tích Video Pickleball AI
+                </h2>
 
-            {errorMsg && (
-                <p className="text-red-500 text-center mb-6 font-medium">{errorMsg}</p>
-            )}
+                <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-6 mb-8 border border-gray-200">
+                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                        <input
+                            type="file"
+                            accept="video/mp4"
+                            onChange={handleFileChange}
+                            required
+                            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                        />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`px-6 py-3 rounded-lg text-white font-semibold ${
+                                loading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700'
+                            } transition duration-200`}
+                        >
+                            {loading ? 'Đang xử lý...' : 'Phân tích Video'}
+                        </button>
+                    </div>
+                </form>
 
-            {resultUrl && (
-                <div className="mt-8">
-                    <h3 className="text-2xl font-semibold text-gray-700 mb-6">✅ Video kết quả:</h3>
-                    <video src={resultUrl} controls className="w-full rounded-xl mb-4 shadow-lg" />
-                    <p className="text-blue-600 underline text-center">
-                        <a href={resultUrl} target="_blank" rel="noreferrer">📥 Tải video</a>
+                {errorMsg && (
+                    <p className="text-red-500 text-center font-medium mb-6 bg-red-50 p-3 rounded-lg">
+                        {errorMsg}
                     </p>
+                )}
 
-                    {details && (
-                        <div className="mt-10">
-                            <h3 className="text-2xl font-semibold text-gray-700 mb-6">📝 Đánh giá tổng quát</h3>
+                {resultUrl && (
+                    <div className="space-y-8">
+                        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Kết quả Phân tích</h3>
+                            <video
+                                src={resultUrl}
+                                controls
+                                className="w-full h-auto rounded-lg border border-gray-200"
+                            />
+                            <p className="mt-4 text-blue-600 hover:underline">
+                                <a href={resultUrl} target="_blank" rel="noreferrer">
+                                    Tải video kết quả
+                                </a>
+                            </p>
+                        </div>
 
-                            {details.good_points?.length > 0 && (
-                                <>
-                                    <strong className="text-green-600 text-lg">✔️ Điểm tốt:</strong>
-                                    <ul className="list-disc pl-8 mt-3 text-gray-800">
-                                        {details.good_points.map((msg, i) => (
-                                            <li key={`good-${i}`} className="mt-2">{msg}</li>
-                                        ))}
-                                    </ul>
-                                </>
-                            )}
+                        {details && (
+                            <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Đánh giá Kỹ thuật</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {details.good_points?.length > 0 && (
+                                        <div className="bg-green-50 p-4 rounded-lg">
+                                            <p className="font-medium text-green-700 mb-2">✔️ Điểm tốt</p>
+                                            <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                                                {details.good_points.map((msg, i) => (
+                                                    <li key={`good-${i}`}>{msg}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
 
-                            {details.errors?.length > 0 && (
-                                <>
-                                    <p className="text-red-600 text-lg font-semibold">❌ Lỗi sai:</p>
-                                    <p className="text-red-500 mt-1">
-                                        {details.errors.slice(0, 5).join(', ')}{details.errors.length > 5 ? '...' : ''}
-                                    </p>
-                                </>
-                            )}
+                                    {details.errors?.length > 0 && (
+                                        <div className="bg-red-50 p-4 rounded-lg">
+                                            <p className="font-medium text-red-700 mb-2">❌ Lỗi sai</p>
+                                            <ul className="list-disc pl-5 text-red-700 space-y-1">
+                                                {details.errors.map((msg, i) => (
+                                                    <li key={`err-${i}`}>{msg[2]}</li> // Giả định msg là tuple (x, y, msg)
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
-                            {details.shots?.length > 0 && (
-                                <div className="mt-10">
-                                    <h3 className="text-2xl font-semibold text-gray-700 mb-6">🎯 Các cú đánh đã phát hiện</h3>
-                                    {details.shots.map((shot, index) => (
+                        {detectedShots.length > 0 && (
+                            <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Các Cú Đánh Phát Hiện</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {detectedShots.map((shot, i) => (
                                         <div
-                                            key={`shot-${index}`}
-                                            className="border border-gray-200 rounded-xl p-6 mb-6 bg-white shadow-md hover:shadow-xl transition duration-300"
+                                            key={`shot-${i}`}
+                                            className="bg-blue-100 text-blue-800 font-medium py-2 px-4 rounded-lg flex justify-between items-center"
                                         >
-                                            <p className="font-medium text-gray-800">Loại cú đánh: {shot.type}</p>
-                                            <p className="font-medium text-gray-800">⏱ Thời điểm: {shot.time}s</p>
-
-                                            {shot.good?.length > 0 && (
-                                                <>
-                                                    <p className="font-medium text-green-600 mt-4">✔️ Kỹ thuật tốt:</p>
-                                                    <ul className="list-disc pl-8 mt-2 text-gray-700">
-                                                        {shot.good.map((msg, i) => (
-                                                            <li key={`shot-${index}-good-${i}`} className="mt-2">{msg}</li>
-                                                        ))}
-                                                    </ul>
-                                                </>
-                                            )}
-
-                                            {shot.bad?.length > 0 && (
-                                                <>
-                                                    <p className="font-medium text-red-600 mt-4">❌ Cần cải thiện:</p>
-                                                    <ul className="list-disc pl-8 mt-2 text-red-500">
-                                                        {shot.bad.map((msg, i) => (
-                                                            <li key={`shot-${index}-bad-${i}`} className="mt-2">{msg}</li>
-                                                        ))}
-                                                    </ul>
-                                                </>
-                                            )}
+                                            <span>{shot.type}</span>
+                                            <span className="text-sm text-gray-600">({shot.time}s)</span>
                                         </div>
                                     ))}
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {suggestedCourses.length > 0 && (
-                                <div className="mt-12">
-                                    <h3 className="text-2xl font-semibold text-gray-700 mb-6">🎓 Khóa học phù hợp được gợi ý</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                        {suggestedCourses.map((course) => (
-                                            <CourseCard key={course.id} course={course} />
-                                        ))}
-                                    </div>
+                        {recommendedCourses.length > 0 && (
+                            <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Khóa học Đề xuất</h3>
+                                <div className="grid gap-6">
+                                    {recommendedCourses.map((course, index) => (
+                                        <CourseCard key={`recommended-course-${index}`} course={course} />
+                                    ))}
                                 </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

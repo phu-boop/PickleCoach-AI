@@ -1,6 +1,6 @@
 import logging
 import warnings
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +10,7 @@ import os
 import traceback
 from video_processor import process_video
 from converter import convert_to_browser_compatible
-from course_suggester import suggest_courses
+from course_analyzer import recommend_courses
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -37,7 +37,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...),left_handed: bool = Form(False)):
+async def analyze(file: UploadFile = File(...)):
     file_id = str(uuid.uuid4())
     input_path = os.path.join(UPLOAD_DIR, f"{file_id}.mp4")
     raw_output_path = os.path.join(UPLOAD_DIR, f"{file_id}_raw.mp4")
@@ -48,26 +48,38 @@ async def analyze(file: UploadFile = File(...),left_handed: bool = Form(False)):
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        result = process_video(input_path, raw_output_path, left_handed)
+        result = process_video(input_path, raw_output_path)
+
         convert_to_browser_compatible(raw_output_path, final_output_path)
 
-        # 🧠 Gợi ý khóa học dựa trên lỗi
-        suggested_courses = suggest_courses(result["errors"])
+        feedback_errors = result.get("errors", [])
+        detected_shots = result.get("detected_shots", [])  # Danh sách {type, time}
+        detected_shot = result.get("detected_shot")  # Lấy cú đánh cuối
+
+        recommendations = recommend_courses(feedback_errors, detected_shot)
 
         return JSONResponse({
             "status": "success",
             "video_url": f"/outputs/{final_output_filename}",
-            "details": result,
-            "suggested_courses": suggested_courses
+            "details": {
+                "frame_count": result.get("frame_count", 0),
+                "good_points": result.get("good_points", []),
+                "errors": feedback_errors,
+                "detected_shots": detected_shots,  # Bao gồm timestamp
+                "detected_shot": detected_shot
+            },
+            "detected_shots": detected_shots,  # Trả về riêng
+            "recommended_courses": recommendations
         })
-
 
     except Exception as e:
         logging.error(f"Error: {str(e)}\n{traceback.format_exc()}")
         return JSONResponse({
             "status": "error",
             "message": str(e),
-            "details": traceback.format_exc()
+            "details": traceback.format_exc(),
+            "recommended_courses": [],
+            "detected_shots": []
         }, status_code=500)
 
     finally:
@@ -75,7 +87,3 @@ async def analyze(file: UploadFile = File(...),left_handed: bool = Form(False)):
             os.remove(input_path)
         if os.path.exists(raw_output_path):
             os.remove(raw_output_path)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
