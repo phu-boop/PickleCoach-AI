@@ -1,0 +1,46 @@
+
+# 🏓 PickleballAIVision – AI for Pickleball Training
+
+## ✅ Yêu cầu
+- Python **3.10.x** đã cài sẵn trong máy
+- `uvicorn`, `fastapi`, `opencv-python`, `ultralytics`, `mediapipe`... (đã có trong `requirements.txt`)
+
+---
+
+## ⚙️ 1. Tạo và kích hoạt môi trường ảo
+
+> ⚠️ Chỉ thực hiện **lần đầu tiên** hoặc khi chưa có thư mục `venv`.
+
+Cài đặt ffmpeg
+Tải ffmpeg về tại https://www.gyan.dev/ffmpeg/builds/
+ffmpeg-7.1.1-essentials_build
+Set biến môi trường trong enviroment variable
+Gán trong path của system variable
+VD: C:\Program Files\ffmpeg-7.1.1-essentials_build\bin
+
+Sau đó vào file converter.py sửa lại đường dẫn đúng của mình dòng 5
+VD:     ffmpeg_path = "C:/Program Files/ffmpeg-7.1.1-essentials_build/bin/ffmpeg.exe"
+
+
+```bash
+# Bước 1: Di chuyển vào thư mục dự án
+cd PickleballAIVision
+
+# Bước 2: Kiểm tra phiên bản Python 3.10
+py --version
+
+# Bước 3: Tạo môi trường ảo với Python 3.10
+py -m venv venv
+
+# Bước 4: Kích hoạt môi trường ảo (trên Windows Git Bash)
+source venv310/Scripts/activate
+
+Trường hợp chạy trên terminal
+.\venv\Scripts\Activate.ps1
+
+# Bước 5: Cài các thư viện cần thiết
+pip install -r requirements.txt
+
+# Bước 6: Chạy ứng dụng
+uvicorn main:app --reload
+

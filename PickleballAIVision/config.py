@@ -35,7 +35,7 @@ TRAIL_LENGTH = 50  # Nhiều frame hơn để mượt=
 TRAIL_FADE_OUT_FRAMES = 4
 TRAIL_LIFESPAN = 20        # Tuổi tối đa cho 1 đoạn trail (frame)
 FADE_FACTOR = 1          # Càng nhỏ thì mờ nhanh
-TRAIL_THICKNESS = 
+TRAIL_THICKNESS = 3
 COLOR_BALL_TRAIL = (27, 232, 27)
 
 
