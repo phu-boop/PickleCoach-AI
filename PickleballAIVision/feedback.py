@@ -1,11 +1,18 @@
-import cv2
+# feedback.py
 import numpy as np
 from typing import List, Tuple, Optional, Dict
-from ball_tracker import BallTracker
-from config import SHOT_DEBOUNCE_FRAMES, DISTANCE_THRESHOLD
 
-COLOR_RED = (0, 0, 255)
-COLOR_GREEN = (0, 255, 0)
+# Ngưỡng, hằng số có thể lấy từ config nếu cần
+DISTANCE_THRESHOLD = 20
+
+def make_error(title: str, description: str, position: Optional[Tuple[int, int]] = None) -> Dict:
+    item = {"title": title, "description": description}
+    if position is not None:
+        item["position"] = {"x": int(position[0]), "y": int(position[1])}
+    return item
+
+def make_good(title: str, description: str) -> Dict:
+    return {"title": title, "description": description}
 
 def detect_shot_type_and_feedback(
     landmarks: List,
@@ -16,25 +23,38 @@ def detect_shot_type_and_feedback(
     left_handed: bool,
     last_shot_frame: int = 0
 ) -> Dict:
+    """
+    Trả về:
+    {
+      "shot_type": [ {"type": "Forehand", "time": 1.23}, ... ],
+      "feedback": { "good": [ {title, description}, ... ], "bad": [ {title, description, position?}, ... ] },
+      "time": 1.23
+    }
+    """
     feedback_good = []
     feedback_bad = []
     detected_shots = []
 
-    if len(landmarks) < 17:
+    if not landmarks or len(landmarks) < 17:
+        feedback_bad.append(make_error("Landmarks không đủ", "Không đủ điểm mốc để phân tích chuyển động"))
         return {
             "shot_type": [],
-            "feedback": {"good": [], "bad": ["Dữ liệu landmarks không đủ"]},
+            "feedback": {"good": feedback_good, "bad": feedback_bad},
             "time": round(current_second, 2)
         }
 
-    # Các vị trí cơ thể
-    left_shoulder = (int(landmarks[11].x * width), int(landmarks[11].y * height))
-    right_shoulder = (int(landmarks[12].x * width), int(landmarks[12].y * height))
-    left_elbow = (int(landmarks[13].x * width), int(landmarks[13].y * height))
-    right_elbow = (int(landmarks[14].x * width), int(landmarks[14].y * height))
-    left_wrist = (int(landmarks[15].x * width), int(landmarks[15].y * height))
-    right_wrist = (int(landmarks[16].x * width), int(landmarks[16].y * height))
-    nose = (int(landmarks[0].x * width), int(landmarks[0].y * height))
+    # Lấy tọa độ cơ bản
+    def pt(idx):
+        return (int(landmarks[idx].x * width), int(landmarks[idx].y * height))
+
+    left_shoulder = pt(11)
+    right_shoulder = pt(12)
+    left_elbow = pt(13)
+    right_elbow = pt(14)
+    left_wrist = pt(15)
+    right_wrist = pt(16)
+    nose = pt(0)
+
     body_center_x = (left_shoulder[0] + right_shoulder[0]) // 2
     avg_shoulder_y = (left_shoulder[1] + right_shoulder[1]) // 2
 
@@ -43,72 +63,59 @@ def detect_shot_type_and_feedback(
     shoulder = left_shoulder if left_handed else right_shoulder
 
     if ball_pos is None or ball_pos == (0, 0):
-        # Không xác định được bóng
-        feedback_bad.append("Không nhận diện được bóng – không xác định cú đánh")
+        feedback_bad.append(make_error("Bóng không xác định", "Không thể phát hiện bóng trong khung hình"))
         return {
             "shot_type": [],
             "feedback": {"good": feedback_good, "bad": feedback_bad},
             "time": round(current_second, 2)
         }
 
-    # Nếu bóng hợp lệ thì mới tính distance
     ball_distance = np.linalg.norm(np.array(ball_pos) - np.array(wrist))
 
+    # Nếu bóng gần cổ tay (ngưỡng) => coi là cú đánh
     if ball_distance < DISTANCE_THRESHOLD:
-        if int(current_second * 30) - last_shot_frame >= SHOT_DEBOUNCE_FRAMES:
-            shot_type = None
-
-            if ball_pos[1] < nose[1]:
-                shot_type = "Smash"
-                if elbow[1] < shoulder[1]:
-                    feedback_good.append("Khuỷu tay cao – Smash tốt")
-                else:
-                    feedback_bad.append((elbow[0], elbow[1], "Khuỷu tay quá thấp cho Smash"))
-
-            elif ball_pos[1] > avg_shoulder_y:
-                shot_type = "Dink"
-                if elbow[1] > shoulder[1]:
-                    feedback_good.append("Khuỷu tay thấp – Dink kiểm soát tốt")
-                else:
-                    feedback_bad.append((elbow[0], elbow[1], "Khuỷu tay quá cao cho Dink"))
-
-            # Forehand/Backhand theo vị trí bóng so với cơ thể
-            threshold_x = 30
-            if left_handed:
-                if ball_pos[0] > body_center_x + threshold_x:
-                    detected_shots.append({"type": "Forehand", "time": round(current_second, 2)})
-                elif ball_pos[0] < body_center_x - threshold_x:
-                    detected_shots.append({"type": "Backhand", "time": round(current_second, 2)})
+        # Tạo shot_type theo chiều cao bóng so với mũi
+        shot_type = None
+        if ball_pos[1] < nose[1]:
+            shot_type = "Smash"
+            if elbow[1] < shoulder[1]:
+                feedback_good.append(make_good("Khuỷu tay cao", "Khuỷu tay nâng cao phù hợp cho Smash"))
             else:
-                if ball_pos[0] < body_center_x - threshold_x:
-                    detected_shots.append({"type": "Forehand", "time": round(current_second, 2)})
-                elif ball_pos[0] > body_center_x + threshold_x:
-                    detected_shots.append({"type": "Backhand", "time": round(current_second, 2)})
+                feedback_bad.append(make_error("Khuỷu tay thấp cho Smash", "Khuỷu tay quá thấp khi thực hiện Smash", position=elbow))
+        elif ball_pos[1] > avg_shoulder_y:
+            shot_type = "Dink"
+            if elbow[1] > shoulder[1]:
+                feedback_good.append(make_good("Khuỷu tay thấp cho Dink", "Khuỷu tay ở vị trí phù hợp cho Dink"))
+            else:
+                feedback_bad.append(make_error("Khuỷu tay cao cho Dink", "Khuỷu tay quá cao cho cú Dink", position=elbow))
 
-            if shot_type:
-                detected_shots.append({"type": shot_type, "time": round(current_second, 2)})
+        # Forehand / Backhand theo trục X so với body center
+        threshold_x = 30
+        if left_handed:
+            if ball_pos[0] > body_center_x + threshold_x:
+                detected_shots.append({"type": "Forehand", "time": round(current_second, 2)})
+            elif ball_pos[0] < body_center_x - threshold_x:
+                detected_shots.append({"type": "Backhand", "time": round(current_second, 2)})
+        else:
+            if ball_pos[0] < body_center_x - threshold_x:
+                detected_shots.append({"type": "Forehand", "time": round(current_second, 2)})
+            elif ball_pos[0] > body_center_x + threshold_x:
+                detected_shots.append({"type": "Backhand", "time": round(current_second, 2)})
 
+        if shot_type:
+            detected_shots.append({"type": shot_type, "time": round(current_second, 2)})
+
+        # Một vài check bổ sung (ví dụ tư thế vai / đầu gối)
+        # Vai lệch nhiều -> lỗi
+        shoulder_diff = abs(left_shoulder[1] - right_shoulder[1])
+        if shoulder_diff > 30:
+            feedback_bad.append(make_error("Vai không thẳng", "Vai giữa hai bên không thẳng, ảnh hưởng đến kỹ thuật đánh", position=((left_shoulder[0]+right_shoulder[0])//2, (left_shoulder[1]+right_shoulder[1])//2)))
+        else:
+            feedback_good.append(make_good("Vai cân đối", "Vai ở vị trí tương đối cân đối"))
+
+    # Nếu ball_distance >= ngưỡng, không coi là cú đánh -> không thêm shot
     return {
         "shot_type": detected_shots,
         "feedback": {"good": feedback_good, "bad": feedback_bad},
         "time": round(current_second, 2)
     }
-
-
-
-if __name__ == "__main__":
-    import random
-    class Point:
-        def __init__(self, x, y): self.x, self.y = x, y
-
-    fake_landmarks = [Point(random.random(), random.random()) for _ in range(33)]
-    tracker = BallTracker()
-    frame = np.zeros((720, 1280, 3), dtype=np.uint8)
-
-    errors, good, shot = detect_player_feedback(fake_landmarks, 720, 1280, tracker, 0, frame)
-    result = detect_shot_type_and_feedback(fake_landmarks, (640, 360), 1280, 720, 0.0, left_handed=False, last_shot_frame=0)
-
-    print("Lỗi:", errors)
-    print("Điểm tốt:", good)
-    print("Cú đánh đơn lẻ:", shot)
-    print("Phân tích cú đánh:", result)

@@ -1,94 +1,90 @@
+# course_analyzer.py
 import logging
 import requests
-from urllib.parse import urlparse
 
 def is_valid_url(url):
-    """Kiểm tra xem URL có hợp lệ không (bắt đầu bằng http:// hoặc https://)."""
     return isinstance(url, str) and (url.startswith("http://") or url.startswith("https://"))
 
+# Map từ khóa lỗi sang skill types tương ứng (chuẩn hóa)
+KEYWORD_TO_SKILL = {
+    "khuỷu tay": ["SMASH", "DINK"],
+    "khuỷu tay thấp": ["SMASH"],
+    "khuỷu tay cao": ["SMASH", "DINK"],
+    "vai": ["FOREHAND", "BACKHAND", "VOLLEY"],
+    "vai không thẳng": ["FOREHAND", "BACKHAND"],
+    "wrist": ["FOREHAND", "BACKHAND"],
+    "dink": ["DINK"],
+    "smash": ["SMASH"],
+    "forehand": ["FOREHAND"],
+    "backhand": ["BACKHAND"]
+}
+
 def recommend_courses(feedback_errors, detected_shot):
-    """Đề xuất khóa học dựa trên lỗi tư thế và loại cú đánh."""
+    """
+    feedback_errors: list of {title, description, position?}
+    detected_shot: dict like {"type": "...", "time": 1.23} or None
+    """
     try:
         backend_url = "http://localhost:8080/api/courses"
-        response = requests.get(backend_url, timeout=5)
-        response.raise_for_status()
-
+        resp = requests.get(backend_url, timeout=5)
+        resp.raise_for_status()
         try:
-            courses = response.json()
-        except ValueError as e:
-            logging.error(f"[ERROR] Invalid JSON response: {response.text}")
+            courses = resp.json()
+        except ValueError:
+            logging.error("[course_analyzer] Invalid JSON from courses endpoint")
             return []
 
+        user_level = "BEGINNER"  # could be dynamic
+        shot_type = None
+        if isinstance(detected_shot, dict):
+            shot_type = detected_shot.get("type", "").upper()
+
         recommendations = []
-        added_course_ids = set()  # Tránh thêm trùng khóa học
+        added = set()
 
-        # Bản đồ lỗi sang skill
-        error_to_skill = {
-            "Shoulders not aligned": ["FOREHAND", "BACKHAND", "SERVE", "VOLLEY", "SMASH", "DRIVE"],
-            "Hips not rotated enough": ["FOREHAND", "BACKHAND", "SERVE", "SMASH", "DRIVE"],
-            "Wrist not firm enough": ["RETURN", "VOLLEY", "DRIVE"],
-            "Wrist not soft enough for dink": ["DINK"],
-            "Wrist angle incorrect for backhand": ["BACKHAND"],
-            "Shoulder not raised enough": ["LOB"],
-            "Wrist not snapped enough": ["SMASH"],
-            "Shoulders too high for drop shot": ["DROP_SHOT"],
-            "Lead foot should be forward": ["SERVE"],
-            "Knees not bent enough": ["VOLLEY", "BLOCK"]
-        }
+        # Tạo set skill candidates từ các lỗi
+        skill_candidates = set()
+        for e in feedback_errors:
+            text = (e.get("description","") + " " + e.get("title","")).lower()
+            for kw, skills in KEYWORD_TO_SKILL.items():
+                if kw in text:
+                    for s in skills:
+                        skill_candidates.add(s)
 
-        user_level = "BEGINNER"  # Giả định mặc định
+        # Nếu có detected shot, thêm vào candidates
+        if shot_type:
+            skill_candidates.add(shot_type.upper())
 
-        # Lấy loại cú đánh từ detected_shot (nếu là dict, lấy type)
-        shot_type = (detected_shot["type"].upper() if isinstance(detected_shot, dict) and "type" in detected_shot 
-                     else detected_shot.upper() if isinstance(detected_shot, str) else None)
-
+        # Duyệt khóa học, match nếu lesson.skillType in candidates
         for course in courses:
-            if course.get("levelRequired") != user_level:
+            if course.get("levelRequired") and course.get("levelRequired") != user_level:
+                # skip courses not for this user level (optional)
                 continue
 
-            course_id = course.get("id", "unknown")
-            matched_by_error = False
-            matched_by_shot = False
-
+            course_id = course.get("id")
+            matched_reasons = []
             for lesson in course.get("lessons", []):
-                skill_type = lesson.get("skillType")
+                skill = lesson.get("skillType", "").upper()
                 video_url = lesson.get("videoUrl")
-
                 if not is_valid_url(video_url):
                     continue
+                if skill in skill_candidates:
+                    matched_reasons.append(skill)
 
-                # Kiểm tra lỗi tư thế
-                for error in feedback_errors:
-                    error_message = error[2]  # Lấy thông điệp lỗi từ tuple (x, y, msg)
-                    for error_key, related_skills in error_to_skill.items():
-                        if error_key.lower() in error_message.lower() and skill_type in related_skills:
-                            matched_by_error = True
-                            break
-                    if matched_by_error:
-                        break
-
-                # Kiểm tra theo cú đánh
-                if shot_type and skill_type == shot_type:
-                    matched_by_shot = True
-
-            # Nếu có match và chưa được thêm
-            if (matched_by_error or matched_by_shot) and course_id not in added_course_ids:
+            if matched_reasons and course_id not in added:
                 recommendations.append({
                     "id": course_id,
                     "title": course.get("title", ""),
                     "description": course.get("description", ""),
                     "thumbnailUrl": course.get("thumbnailUrl", ""),
                     "levelRequired": course.get("levelRequired", ""),
-                    "matchedReason": "Error" if matched_by_error else "Detected Shot"
+                    "matchedReason": ", ".join(sorted(set(matched_reasons)))
                 })
-                added_course_ids.add(course_id)
+                added.add(course_id)
 
-        print(f"[INFO] Found {len(recommendations)} course(s) matching errors or shot.")
-        for c in recommendations:
-            print(f" - {c['title']} ({c['matchedReason']})")
-
+        logging.info(f"[course_analyzer] {len(recommendations)} recommendations found")
         return recommendations
 
     except requests.RequestException as e:
-        logging.error(f"[ERROR] Failed to fetch courses: {str(e)}. Response: {getattr(e.response, 'text', 'No response')}")
+        logging.error(f"[course_analyzer] Failed to fetch courses: {e}")
         return []
