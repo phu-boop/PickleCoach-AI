@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import warnings
 from fastapi import FastAPI, UploadFile, File
@@ -13,7 +14,11 @@ from converter import convert_to_browser_compatible
 from course_analyzer import recommend_courses
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    encoding="utf-8"
+)
 logging.getLogger('mediapipe').setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
@@ -64,13 +69,13 @@ async def analyze(file: UploadFile = File(...)):
             "details": {
                 "frame_count": result.get("frame_count", 0),
                 "good_points": result.get("good_points", []),
-                "errors": feedback_errors,
-                "detected_shots": detected_shots,  # Bao gồm timestamp
-                "detected_shot": detected_shot
+                "errors": result.get("errors", []),
+                "detected_shots": result.get("detected_shots", []),
+                "detected_shot": result.get("detected_shot")
             },
-            "detected_shots": detected_shots,  # Trả về riêng
             "recommended_courses": recommendations
         })
+
 
     except Exception as e:
         logging.error(f"Error: {str(e)}\n{traceback.format_exc()}")
