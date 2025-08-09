@@ -3,7 +3,7 @@ import numpy as np
 from typing import List, Tuple, Optional, Dict
 
 # Ngưỡng, hằng số có thể lấy từ config nếu cần
-DISTANCE_THRESHOLD = 20
+DISTANCE_THRESHOLD = 60
 
 def make_error(title: str, description: str, position: Optional[Tuple[int, int]] = None) -> Dict:
     item = {"title": title, "description": description}

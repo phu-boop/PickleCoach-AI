@@ -1,6 +1,8 @@
 # course_analyzer.py
 import logging
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 def is_valid_url(url):
     return isinstance(url, str) and (url.startswith("http://") or url.startswith("https://"))
@@ -19,20 +21,33 @@ KEYWORD_TO_SKILL = {
     "backhand": ["BACKHAND"]
 }
 
+def fetch_courses():
+    backend_url = "http://localhost:8080/api/courses"
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=3,  # Thử lại 3 lần
+        backoff_factor=1,  # Chờ 1s, 2s, 4s trước mỗi lần thử lại
+        status_forcelist=[500, 502, 503, 504],  # Thử lại với các mã lỗi server
+        allowed_methods=["GET"]  # Chỉ áp dụng cho GET
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("http://", adapter)
+    try:
+        resp = session.get(backend_url, timeout=10)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as e:
+        logging.error(f"[course_analyzer] Failed to fetch courses: {e}")
+        return []
+
 def recommend_courses(feedback_errors, detected_shot):
     """
     feedback_errors: list of {title, description, position?}
     detected_shot: dict like {"type": "...", "time": 1.23} or None
     """
     try:
-        backend_url = "http://localhost:8080/api/courses"
-        resp = requests.get(backend_url, timeout=5)
-        resp.raise_for_status()
-        try:
-            courses = resp.json()
-        except ValueError:
-            logging.error("[course_analyzer] Invalid JSON from courses endpoint")
-            return []
+        # Sử dụng kết quả từ fetch_courses thay vì gọi lại requests.get
+        courses = fetch_courses()
 
         user_level = "BEGINNER"  # could be dynamic
         shot_type = None
@@ -85,6 +100,6 @@ def recommend_courses(feedback_errors, detected_shot):
         logging.info(f"[course_analyzer] {len(recommendations)} recommendations found")
         return recommendations
 
-    except requests.RequestException as e:
-        logging.error(f"[course_analyzer] Failed to fetch courses: {e}")
+    except Exception as e:
+        logging.error(f"[course_analyzer] Error in recommend_courses: {e}")
         return []
