@@ -48,6 +48,9 @@ import PaymentSettings from '../modules/pages/learner/detail_profile/PaymentSett
 import SessionList from '../modules/pages/learner/detail_profile/SessionList';
 import Groups from '../modules/pages/learner/detail_profile/Groups';
 import AiVideo from '../modules/pages/AiVideo';
+import PaymentPage from '../components/PaymentPage.jsx';
+import PaymentReturnPage from '../components/payment_return.jsx';
+
 
 function AppRoutesUser() {
     const { id_user } = useAuth();
@@ -57,7 +60,7 @@ function AppRoutesUser() {
         <Routes>
             {/* Public routes */}
             <Route path="/" element={<LayoutMain />}>
-                <Route path="aivideo" element={<AiVideo />} />
+                <Route path="PaymentReturnPage" element={<PaymentReturnPage />} />
                 <Route path="earn" element={<Earn />} />
                 <Route path="organize" element={<Organize />} />
                 <Route path="gear" element={<Gear />} />
@@ -98,6 +101,8 @@ function AppRoutesUser() {
                     </ProtectedRoute>
                 }
             >
+                <Route path="aivideo" element={<AiVideo />} />
+                <Route path="payment" element={<PaymentPage />} />
                 <Route path="input-assessment" element={<InputAssessment />} />
                 
             </Route>
