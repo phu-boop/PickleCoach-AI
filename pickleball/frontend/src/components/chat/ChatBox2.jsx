@@ -3,7 +3,7 @@ import "./chatbox2.css";
 import VideoAnalysisTab from "./VideoAnalysisTab";
 import BotAvatar from '../../assets/images/Chat/8688154.jpg';
 import IconAvatar from '../../assets/images/Chat/8567230.jpg';
-
+import QuizTab from "./QuizTab";
 import { FaPlus, FaGoogleDrive, FaMicrosoft, FaRegImage } from "react-icons/fa";
 const TABS = [
   { key: "chat", label: "Chat" },
@@ -198,8 +198,7 @@ export default function ChatBox2() {
               {tab === "video" && <VideoAnalysisTab />}
               {tab === "quiz" && (
                 <div className="chatbox2-tab-content quiz">
-                  <h2>Quiz Pickleball</h2>
-                  <p>Chức năng kiểm tra kiến thức về Pickleball sẽ xuất hiện ở đây.</p>
+                  <QuizTab userId={sessionStorage.getItem("id_user")}></QuizTab>
                 </div>
               )}
               {tab === "suggest" && (

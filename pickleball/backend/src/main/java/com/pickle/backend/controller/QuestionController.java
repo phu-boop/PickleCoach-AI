@@ -1,30 +1,32 @@
 package com.pickle.backend.controller;
 
-import com.pickle.backend.dto.AnswerDTO;
-import com.pickle.backend.dto.OptionDTO;
-import com.pickle.backend.dto.QuestionDTO;
+import com.pickle.backend.dto.*;
+import com.pickle.backend.entity.QuizResult;
 import com.pickle.backend.entity.test.Option;
 import com.pickle.backend.entity.test.Question;
 import com.pickle.backend.repository.OptionRepository;
 import com.pickle.backend.repository.QuestionRepository;
+import com.pickle.backend.repository.QuizResultsRepository;
+import com.pickle.backend.service.QuestionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/questions")
+@CrossOrigin(origins = "*")
 public class QuestionController {
 
-    // Khởi tạo Logger
     private static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
     @Autowired
@@ -33,148 +35,97 @@ public class QuestionController {
     @Autowired
     private OptionRepository optionRepo;
 
+    @Autowired
+    private QuizResultsRepository quizResultsRepository;
+
+    @Autowired
+    private QuestionService questionService;
+
     @GetMapping
     public List<QuestionDTO> getAllQuestions() {
-        logger.info("Received GET request to fetch all questions at {}", java.time.LocalDateTime.now());
-
-        // Ghi log trước khi gọi repository
-        logger.debug("Fetching all questions from repository");
-        List<Question> questions;
-        try {
-            questions = questionRepo.findAll();
-            logger.debug("Successfully fetched {} questions from repository", questions.size());
-        } catch (Exception e) {
-            logger.error("Failed to fetch questions from repository: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to fetch questions: " + e.getMessage());
-        }
-
-        // Ghi log quá trình ánh xạ (mapping) sang DTO
-        logger.debug("Mapping {} questions to DTOs", questions.size());
+        logger.info("Received GET request for all questions");
+        List<Question> questions = questionRepo.findAll();
         List<QuestionDTO> questionDTOs = questions.stream().map(question -> {
-            QuestionDTO dto = new QuestionDTO();
-            try {
-                dto.setId(question.getId());
-                dto.setContent(question.getContent());
-                logger.trace("Mapping question ID: {}, content: {}", question.getId(), question.getContent());
+            List<OptionDTO> optionDTOs = question.getOptions().stream().map(option -> {
+                OptionDTO optionDTO = new OptionDTO();
+                optionDTO.setId(option.getId());
+                optionDTO.setText(option.getText());
+                optionDTO.setCorrect(option.isCorrect());
+                return optionDTO;
+            }).collect(Collectors.toList());
 
-                // Ghi log chi tiết cho options
-                List<OptionDTO> optionDTOs = question.getOptions().stream().map(option -> {
-                    OptionDTO optionDTO = new OptionDTO();
-                    optionDTO.setOptionId(option.getId());
-                    optionDTO.setText(option.getText());
-                    optionDTO.setCorrect(option.isCorrect());
-                    logger.trace("Mapped option: text={}, correct={}",option.getId(), option.getText(), option.isCorrect());
-                    return optionDTO;
-                }).collect(Collectors.toList());
-                dto.setOptions(optionDTOs);
-                logger.trace("Mapped {} options for question ID: {}", optionDTOs.size(), question.getId());
-            } catch (Exception e) {
-                logger.error("Error mapping question ID {} to DTO: {}", question.getId(), e.getMessage(), e);
-                throw new RuntimeException("Error mapping question to DTO: " + e.getMessage());
-            }
-            return dto;
+            QuestionDTO questionDTO = new QuestionDTO();
+            questionDTO.setId(question.getId());
+            questionDTO.setContent(question.getContent());
+            questionDTO.setLevel(question.getLevel());
+            questionDTO.setOptions(optionDTOs);
+            return questionDTO;
         }).collect(Collectors.toList());
 
-        // Ghi log kết quả cuối cùng
-        logger.info("Successfully returned {} question DTOs", questionDTOs.size());
+        logger.info("Returning {} questions", questionDTOs.size());
         return questionDTOs;
     }
 
-
-    // CREATE - Tạo câu hỏi mới
     @PostMapping
     public Question createQuestion(@RequestBody QuestionDTO dto) {
-        logger.info("Received POST request to create question: {}", dto);
-        try {
-            Question question = new Question();
-            question.setContent(dto.getContent());
-            logger.debug("Question content set to: {}", dto.getContent());
+        logger.info("Received POST request to create question: {}", dto.getContent());
+        Question question = new Question();
+        question.setContent(dto.getContent());
+        question.setLevel(dto.getLevel());
 
-            List<Option> options = dto.getOptions().stream().map(optDto -> {
-                Option option = new Option();
-                option.setContent(optDto.getText());
-                option.setCorrect(optDto.isCorrect());
-                option.setQuestion(question);
-                logger.debug("Option created - Text: {}, Correct: {}", optDto.getText(), optDto.isCorrect());
-                return option;
-            }).toList();
-
-            question.setOptions(options);
-            logger.debug("Options set for question, count: {}", options.size());
-
-            Question savedQuestion = questionRepo.save(question);
-            logger.info("Question saved successfully with ID: {}", savedQuestion.getId());
-            return savedQuestion;
-        } catch (Exception e) {
-            logger.error("Error while creating question: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create question: " + e.getMessage());
-        }
+        Question savedQuestion = questionRepo.save(question);
+        logger.info("Question created with ID: {}", savedQuestion.getId());
+        return savedQuestion;
     }
 
-    // UPDATE - Sửa câu hỏi
     @PutMapping("/{id}")
     public Question updateQuestion(@PathVariable Long id, @RequestBody QuestionDTO dto) {
         logger.info("Received PUT request to update question ID: {}", id);
-        try {
-            Question question = questionRepo.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy câu hỏi"));
+        Optional<Question> optionalQuestion = questionRepo.findById(id);
+        if (optionalQuestion.isPresent()) {
+            Question question = optionalQuestion.get();
             question.setContent(dto.getContent());
-            logger.debug("Question content updated to: {}", dto.getContent());
-
-            // Xoá option cũ
-            question.getOptions().clear();
-            logger.debug("Old options cleared for question ID: {}", id);
-
-            // Thêm option mới
-            List<Option> options = dto.getOptions().stream().map(optDto -> {
-                Option option = new Option();
-                option.setContent(optDto.getText());
-                option.setCorrect(optDto.isCorrect());
-                option.setQuestion(question);
-                logger.debug("New option - Text: {}, Correct: {}", optDto.getText(), optDto.isCorrect());
-                return option;
-            }).toList();
-
-            question.setOptions(options);
-            logger.debug("New options set for question, count: {}", options.size());
+            question.setLevel(dto.getLevel());
 
             Question updatedQuestion = questionRepo.save(question);
-            logger.info("Question updated successfully with ID: {}", updatedQuestion.getId());
+            logger.info("Question updated with ID: {}", updatedQuestion.getId());
             return updatedQuestion;
-        } catch (Exception e) {
-            logger.error("Error while updating question ID {}: {}", id, e.getMessage(), e);
-            throw new RuntimeException("Failed to update question: " + e.getMessage());
+        } else {
+            logger.warn("Question with ID {} not found for update", id);
+            throw new RuntimeException("Question not found");
         }
     }
 
-    // DELETE - Xoá câu hỏi
     @DeleteMapping("/{id}")
     public void deleteQuestion(@PathVariable Long id) {
         logger.info("Received DELETE request for question ID: {}", id);
-        try {
+        if (questionRepo.existsById(id)) {
             questionRepo.deleteById(id);
-            logger.info("Question deleted successfully with ID: {}", id);
-        } catch (Exception e) {
-            logger.error("Error while deleting question ID {}: {}", id, e.getMessage(), e);
-            throw new RuntimeException("Failed to delete question: " + e.getMessage());
+            logger.info("Question deleted with ID: {}", id);
+        } else {
+            logger.warn("Question with ID {} not found for deletion", id);
+            throw new RuntimeException("Question not found");
         }
     }
 
     @GetMapping("/{id}")
     public Question getQuestion(@PathVariable Long id) {
-        logger.info("Received GET request to get question by ID: {}", id);
-        Question question = questionRepo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
-        logger.info("Question retrieved successfully with ID: {}", id);
-        return question;
+        logger.info("Received GET request for question ID: {}", id);
+        Optional<Question> question = questionRepo.findById(id);
+        if (question.isPresent()) {
+            logger.info("Question found with ID: {}", id);
+            return question.get();
+        } else {
+            logger.warn("Question with ID {} not found", id);
+            throw new RuntimeException("Question not found");
+        }
     }
 
     @GetMapping("/quiz")
     public List<Question> getQuiz() {
-        logger.info("Received GET request for quiz questions");
-        Pageable pageable = PageRequest.of(0, 10);
-        List<Question> questions = questionRepo.findRandomQuestions(pageable);
-        logger.info("Found {} random questions for quiz", questions.size());
+        logger.info("Received GET request for random quiz questions");
+        List<Question> questions = questionRepo.findRandomQuestions(PageRequest.of(0, 5));
+        logger.info("Returning {} random questions for quiz", questions.size());
         return questions;
     }
 
@@ -193,5 +144,64 @@ public class QuestionController {
         }
         logger.info("Quiz submitted, score: {}", score);
         return score;
+    }
+
+    // === AI-POWERED ADAPTIVE QUIZ ENDPOINTS ===
+
+    @PostMapping("/ai/generate")
+    public ResponseEntity<QuizResponseDTO> generateAIGeneratedQuiz(@RequestBody QuizRequestDTO request) {
+        logger.info("🤖 Received request for AI-generated adaptive quiz: learnerId={}, topic={}, level={}",
+                request.getLearnerId(), request.getTopic(), request.getLevel());
+        try {
+            QuizResponseDTO response = questionService.generateQuiz(request);
+            logger.info("✅ AI quiz generated successfully for learner: {}", request.getLearnerId());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("❌ Error generating AI quiz for learner {}: {}", request.getLearnerId(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
+    @PostMapping("/ai/save-result")
+    public ResponseEntity<String> saveQuizResult(@RequestBody QuizResultDTO resultDTO) {
+        logger.info("💾 Saving quiz result for learner: {}, question: {}, isCorrect: {}",
+                resultDTO.getLearnerId(),
+                resultDTO.getQuestionText() != null ? resultDTO.getQuestionText().substring(0, Math.min(50, resultDTO.getQuestionText().length())) + "..." : "null",
+                resultDTO.getIsCorrect());
+        try {
+            QuizResult result = new QuizResult();
+            result.setLearnerId(resultDTO.getLearnerId());
+            result.setQuestionText(resultDTO.getQuestionText());
+            result.setSelectedOptionText(resultDTO.getSelectedOptionText());
+            result.setCorrectOptionText(resultDTO.getCorrectOptionText());
+            result.setExplanation(resultDTO.getExplanation());
+            result.setTopic(resultDTO.getTopic());
+            result.setLevel(resultDTO.getLevel());
+            result.setIsCorrect(resultDTO.getIsCorrect());
+            result.setCreatedAt(LocalDateTime.now());
+
+            quizResultsRepository.save(result);
+            logger.info("✅ Quiz result saved successfully for learner: {}", resultDTO.getLearnerId());
+            return ResponseEntity.ok("Quiz result saved successfully");
+        } catch (Exception e) {
+            logger.error("❌ Error saving quiz result for learner {}: {}", resultDTO.getLearnerId(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to save quiz result");
+        }
+    }
+
+    // Endpoint để xem thống kê learner (optional, for debugging)
+    @GetMapping("/learner-stats/{learnerId}")
+    public ResponseEntity<Map<String, Object>> getLearnerStatistics(@PathVariable String learnerId) {
+        logger.info("📊 Getting statistics for learner: {}", learnerId);
+        try {
+            Map<String, Object> stats = questionService.getLearnerStatistics(learnerId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            logger.error("❌ Error getting learner statistics for {}: {}", learnerId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to get learner statistics"));
+        }
     }
 }
