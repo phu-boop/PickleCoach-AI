@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification - PickleHeads</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            margin: 0;
+            padding: 40px 0;
+            color: #333;
+        }
+        .container {
+            max-width: 620px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .header {
+            background-color: #2c91aa;
+            text-align: center;
+            padding: 40px 30px 30px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .header img {
+            width: 300px;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .content {
+            padding: 35px 45px;
+            text-align: center;
+        }
+        .content p {
+            font-size: 17px;
+            line-height: 1.8;
+            margin: 14px 0;
+        }
+        .otp-box {
+            display: inline-block;
+            background-color: #e6f4f8;
+            padding: 20px 36px;
+            border-radius: 14px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c91aa;
+            letter-spacing: 5px;
+            margin: 28px 0;
+            box-shadow: 0 2px 8px rgba(44, 145, 170, 0.2);
+        }
+        .footer {
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 20px 28px;
+            font-size: 13px;
+            color: #999;
+            border-top: 1px solid #eee;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        .footer a {
+            color: #2c91aa;
+            text-decoration: none;
+            margin: 0 8px;
+            font-weight: 500;
+        }
+        @media (max-width: 620px) {
+            .container {
+                margin: 20px;
+            }
+            .content {
+                padding: 24px;
+            }
+            .header img {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="cid:logoImage" alt="PickleHeads Logo" />
+        <h1>Xác nhận OTP</h1>
+    </div>
+    <div class="content">
+        <p>Xin chào,</p>
+        <p>Bạn hoặc ai đó vừa yêu cầu đặt lại mật khẩu tài khoản PickleHeads của bạn.</p>
+        <p>Vui lòng sử dụng mã OTP bên dưới để tiếp tục:</p>
+        <div class="otp-box" th:text="${otp}">123456</div>
+        <p>Mã này chỉ có hiệu lực trong vòng <strong>10 phút</strong>.</p>
+        <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ với chúng tôi qua <a href="mailto:support@pickleheads.com">support@pickleheads.com</a>.</p>
+    </div>
+    <div class="footer">
+        <p>© 2025 PickleHeads. All rights reserved.</p>
+        <p>
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Use</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

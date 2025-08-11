@@ -1,0 +1,21 @@
+.quiz-tab-content {
+  padding: 12px 0;
+}
+.quiz-tab-content h2 {
+  color: #2c91aa;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.quiz-tab-content p {
+  color: #333;
+  font-size: 1rem;
+}
+@media (max-width: 600px) {
+  .quiz-tab-content h2 {
+    font-size: 1.05rem;
+  }
+  .quiz-tab-content p {
+    font-size: 0.95rem;
+  }
+} 

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+opencv-python
+mediapipe
+python-multipart
+ultralytics>=8.0.0
+requests
+sentence-transformers
