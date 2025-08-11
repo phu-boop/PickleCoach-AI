@@ -2,5 +2,8 @@
   "dependencies": {
     "sweetalert2": "^11.22.2",
     "sweetalert2-react-content": "^5.1.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }

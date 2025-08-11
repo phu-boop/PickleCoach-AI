@@ -79,3 +79,6 @@ application.properties  # Xóa comment "# Keep..." và giữ dòng này
 # Frontend build files
 dist/
 dist-ssr/
+
+PickleballAIVision/outputs/
+PickleballAIVision/uploads/
