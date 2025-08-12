@@ -113,6 +113,7 @@ public class CoachService {
         newCoach.setCertifications(coach.getCertifications());
         newCoach.setAvailability(coach.getAvailability());
         newCoach.setSpecialties(coach.getSpecialties());
+        newCoach.setLevel(Coach.Level.BEGINNER);
 
         logger.info("Coach before save: userId={}, user.email={}",
                 newCoach.getUserId(), newCoach.getUser().getEmail());
@@ -124,14 +125,24 @@ public class CoachService {
         return savedCoach;
     }
     public Coach updateCoach(String coachId, Coach coachDetails) {
-        logger.info("Updating coach with id: {}", coachId);
-        return coachRepository.findById(coachId).map(coach -> {
+    logger.info("Updating coach with id: {}", coachId);
+    return coachRepository.findById(coachId).map(coach -> {
+        if (coachDetails.getCertifications() != null) {
             coach.setCertifications(coachDetails.getCertifications());
+        }
+        if (coachDetails.getAvailability() != null) {
             coach.setAvailability(coachDetails.getAvailability());
+        }
+        if (coachDetails.getSpecialties() != null) {
             coach.setSpecialties(coachDetails.getSpecialties());
-            return coachRepository.save(coach);
-        }).orElseThrow(() -> new ResourceNotFoundException("Coach not found with id " + coachId));
-    }
+        }
+        if (coachDetails.getLevel() != null) {
+            coach.setLevel(coachDetails.getLevel());
+        }
+        return coachRepository.save(coach);
+    }).orElseThrow(() -> new ResourceNotFoundException("Coach not found with id " + coachId));
+}
+
 
     public void deleteCoach(String coachId) {
         logger.info("Deleting coach with id: {}", coachId);

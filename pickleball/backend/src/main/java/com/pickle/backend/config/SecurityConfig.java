@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/sessions/status/**").hasRole("coach")
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/signal/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws/**","/api/debts/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,

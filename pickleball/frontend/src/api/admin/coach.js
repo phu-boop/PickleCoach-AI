@@ -36,3 +36,30 @@ export const fetchCoachById = async (userId) => {
         throw error;
     }
 }
+
+export const updateCoach = async (userId, coachData) => {
+    try {
+        const response = await fetch(`http://localhost:8080/api/coaches/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json', // QUAN TRỌNG: Phải set content-type này
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                name: coachData.name,
+                level: coachData.level,
+                // Thêm các trường khác nếu cần
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error || 'Failed to update coach');
+        }
+
+        return response;
+    } catch (error) {
+        console.error('Error updating coach:', error);
+        throw error;
+    }
+};

@@ -47,10 +47,11 @@ import Courts from '../modules/pages/learner/detail_profile/Courts';
 import PaymentSettings from '../modules/pages/learner/detail_profile/PaymentSettings';
 import SessionList from '../modules/pages/learner/detail_profile/SessionList';
 import Groups from '../modules/pages/learner/detail_profile/Groups';
+import DebtList from '../modules/pages/learner/detail_profile/DebtList';
 import AiVideo from '../modules/pages/AiVideo';
 import PaymentPage from '../components/PaymentPage.jsx';
 import PaymentReturnPage from '../components/payment_return.jsx';
-
+import EditCoach from "../modules/admin/coach/CoachEdit.jsx";
 
 function AppRoutesUser() {
     const { id_user } = useAuth();
@@ -82,7 +83,7 @@ function AppRoutesUser() {
                 <Route path="courts" element={<Courts />}/>
                 <Route path="payments" element={<PaymentSettings />}/>
                 <Route path="groups" element={<Groups />}/>
-
+                <Route path="debtList" element={<DebtList />} />
             </Route>
             {/* Auth routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -147,6 +148,7 @@ function AppRoutesUser() {
                 <Route index element={<Dashboard />} />
                 <Route path="dashboards" element={<Dashboard />} />
                 <Route path="users" element={<Users />} />
+                <Route path="coaches/edit/:userId" element={<EditCoach />} />
                 <Route path="users/edit/:userId" element={<UserEdit />} />
                 <Route path="tests" element={<Tests />} />
                 <Route path="tests/edit/:id" element={<EditQuestion />} />
