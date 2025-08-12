@@ -54,6 +54,7 @@ const menuItems = [
     ? [{ label: "ListLearner", icon: "fa-users", path: "/ListLearner" }]
     : [{ label: "Groups", icon: "fa-users", path: "/groups" }]
   ),
+  { label: "DebtList", icon: "fa-money", path: "/debtList" },
   { label: "Payments", icon: "fa-credit-card", path: "/payments" },
 ];
 

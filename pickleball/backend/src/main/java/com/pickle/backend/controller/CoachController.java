@@ -52,8 +52,9 @@ public class CoachController {
 
     @PutMapping("/{coachId}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Coach> updateCoach(@PathVariable String coachId, @RequestBody Coach coachDetails) {
-        return ResponseEntity.ok(coachService.updateCoach(coachId, coachDetails));
+    public ResponseEntity<String> updateCoach(@PathVariable String coachId, @RequestBody Coach coachDetails) {
+        coachService.updateCoach(coachId, coachDetails);
+        return ResponseEntity.ok("Coach updated");
     }
 
     @DeleteMapping("/{coachId}")

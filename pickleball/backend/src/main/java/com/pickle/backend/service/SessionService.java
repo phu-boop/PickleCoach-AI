@@ -1,11 +1,15 @@
 package com.pickle.backend.service;
 
+import com.pickle.backend.dto.DebtDTO;
 import com.pickle.backend.dto.LearnerDTO;
 import com.pickle.backend.dto.SessionResponseDTO;
+import com.pickle.backend.entity.Coach;
+import com.pickle.backend.entity.Debt;
 import com.pickle.backend.entity.Learner;
 import com.pickle.backend.entity.Session;
 import com.pickle.backend.exception.ResourceNotFoundException;
 import com.pickle.backend.repository.CoachRepository;
+import com.pickle.backend.repository.DebtRepository;
 import com.pickle.backend.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +33,9 @@ public class SessionService {
 
     @Autowired
     private CoachRepository coachRepository; // Thay CoachService bằng CoachRepository
+
+    @Autowired
+    private DebtRepository debtRepository;
 
     public List<Session> getAllSessions() {
         logger.info("Fetching all sessions");
@@ -52,12 +60,36 @@ public class SessionService {
     public SessionResponseDTO createSession(Session session) {
         logger.info("Creating session with coach: {} at {}",
                 session.getCoach().getUserId(), session.getDatetime());
-        // Kiểm tra huấn luyện viên bằng CoachRepository
+
+        // Kiểm tra tồn tại coach
         coachRepository.findById(session.getCoach().getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Coach not found with id " + session.getCoach().getUserId()));
+
+        // Tạo id session
         session.setSessionId(UUID.randomUUID().toString());
         Session savedSession = sessionRepository.save(session);
+
+        // Tạo công nợ mặc định
+        Debt debt = new Debt();
+        debt.setCoach(savedSession.getCoach());
+        debt.setLearner(savedSession.getLearner());
+        debt.setSession(savedSession);
+        Coach coach = coachRepository.findCoachByUserId(session.getCoach().getUserId());
+        if(coach.getLevel() != null) {
+            switch(coach.getLevel()) {
+                case BEGINNER: debt.setAmount(BigDecimal.valueOf(3000000)); break;
+                case INTERMEDIATE: debt.setAmount(BigDecimal.valueOf(9000000)); break;
+                case ADVANCED: debt.setAmount(BigDecimal.valueOf(15000000)); break;
+                default: debt.setAmount(BigDecimal.ZERO);
+            }
+        } else {
+            debt.setAmount(BigDecimal.ZERO);
+        }
+        debt.setStatus(DebtDTO.DebtStatus.PENDING);
+
+        debtRepository.save(debt);
+
         return new SessionResponseDTO(savedSession);
     }
 

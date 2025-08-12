@@ -40,4 +40,15 @@ public class Coach {
     @CollectionTable(name = "coach_specialties", joinColumns = @JoinColumn(name = "userId"))
     @Column(name = "specialty")
     private List<String> specialties;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "level")
+    private Level level;
+
+    public enum Level {
+    BEGINNER,
+    INTERMEDIATE,
+    ADVANCED
+    }
+
 }
