@@ -66,6 +66,7 @@ lerna-debug.log*
 __pycache__/
 *.pyc
 venv/
+.venv/
 
 # Temporary or error files
 *.stackdump

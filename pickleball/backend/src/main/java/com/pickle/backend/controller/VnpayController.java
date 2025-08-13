@@ -1,7 +1,9 @@
 package com.pickle.backend.controller;
 
+import com.pickle.backend.dto.DebtDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,9 @@ import java.text.SimpleDateFormat;
 @RequestMapping("/api/vnpay")
 public class VnpayController {
 
+    @Autowired
+    DebtController debtController;
+
     @Value("${vnpay.tmn-code}")
     private String vnp_TmnCode;
 
@@ -34,14 +39,16 @@ public class VnpayController {
     @Value("${vnpay.return-url}")
     private String vnp_ReturnUrl;
 
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
+
     @GetMapping("/create_payment")
     public ResponseEntity<Map<String, String>> createPayment(HttpServletRequest req,
                                                              @RequestParam String orderId,
                                                              @RequestParam long amount) throws UnsupportedEncodingException {
 
         String clientIp = req.getRemoteAddr();
-        log.info("=== CREATE PAYMENT ===");
-        log.info("OrderId='{}' amount='{}' clientIp='{}'", orderId, amount, clientIp);
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
@@ -80,11 +87,7 @@ public class VnpayController {
 
         String secureHash = hmacSHA512(vnp_HashSecret, hashData.toString());
 
-        log.info("HashData  : {}", hashData);
-        log.info("SecureHash: {}", secureHash);
-
         String paymentUrl = vnp_PayUrl + "?" + query + "&vnp_SecureHashType=HmacSHA512&vnp_SecureHash=" + secureHash;
-        log.info("Payment URL: {}", paymentUrl);
 
         Map<String, String> res = new HashMap<>();
         res.put("paymentUrl", paymentUrl);
@@ -108,49 +111,83 @@ public class VnpayController {
     }
     @GetMapping("/payment_return")
     public void paymentReturn(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, String> fields = new HashMap<>();
-        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = params.nextElement();
-            String fieldValue = request.getParameter(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                fields.put(fieldName, fieldValue);
-            }
+        // 1) Lấy toàn bộ params từ VNPay
+        Map<String, String> params = new HashMap<>();
+        for (Enumeration<String> e = request.getParameterNames(); e.hasMoreElements();) {
+            String k = e.nextElement();
+            String v = request.getParameter(k);
+            if (v != null && !v.isEmpty()) params.put(k, v);
         }
 
-        String vnp_SecureHash = fields.remove("vnp_SecureHash");
-        fields.remove("vnp_SecureHashType");
+        // 2) Xác thực chữ ký
+        String vnp_SecureHash = params.get("vnp_SecureHash");
+        String vnp_ResponseCode = params.get("vnp_ResponseCode");
+        String orderId = params.get("vnp_TxnRef");
+        String amount = params.get("vnp_Amount");
+        String txnNo = params.get("vnp_TransactionNo");
+        String bankCode = params.get("vnp_BankCode");
 
-        List<String> fieldNames = new ArrayList<>(fields.keySet());
+        // 3) Verify signature (giữ nguyên phần xác thực chữ ký)
+        Map<String, String> verify = new HashMap<>(params);
+        verify.remove("vnp_SecureHash");
+        verify.remove("vnp_SecureHashType");
+
+        List<String> fieldNames = new ArrayList<>(verify.keySet());
         Collections.sort(fieldNames);
 
         StringBuilder hashData = new StringBuilder();
         for (int i = 0; i < fieldNames.size(); i++) {
-            String fieldName = fieldNames.get(i);
-            String fieldValue = fields.get(fieldName);
-            hashData.append(fieldName).append('=')
-                    .append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
-            if (i < fieldNames.size() - 1) {
-                hashData.append('&');
+            String name = fieldNames.get(i);
+            String value = verify.get(name);
+            if (value != null && !value.isEmpty()) {
+                hashData.append(name).append('=')
+                       .append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+                if (i < fieldNames.size() - 1) hashData.append('&');
             }
         }
 
         String mySecureHash = hmacSHA512(vnp_HashSecret, hashData.toString());
+        boolean validSignature = mySecureHash.equalsIgnoreCase(vnp_SecureHash);
+        boolean paid = "00".equals(vnp_ResponseCode);
 
-        log.info("=== PAYMENT RETURN DEBUG ===");
-        log.info("HashData from VNPAY: {}", hashData);
-        log.info("SecureHash from VNPAY: {}", vnp_SecureHash);
-        log.info("SecureHash from system: {}", mySecureHash);
+        // 4) Redirect về FE với URL dạng path
+        if (validSignature && paid) {
+            // Chuyển đổi amount từ VNPay (đã nhân 100) về giá trị thực
+            String actualAmount = amount != null ? String.valueOf(Long.parseLong(amount) / 100) : "0";
 
-        // Nếu hash hợp lệ -> redirect sang FE
-        if (mySecureHash.equalsIgnoreCase(vnp_SecureHash)) {
-            String redirectUrl = "http://localhost:5173/PaymentReturnPage?" + request.getQueryString();
+            String redirectUrl = String.format(
+                "%s/PaymentReturnPage/success/%s/%s/%s/%s/%s",
+                frontendUrl,
+                encodePathSegment(orderId),
+                encodePathSegment(actualAmount),
+                encodePathSegment(txnNo),
+                encodePathSegment(bankCode),
+                encodePathSegment(vnp_ResponseCode)
+            );
+            // update debt
+            DebtDTO debt = new DebtDTO();
+            debt.setStatus(DebtDTO.DebtStatus.PAID);
+            debt.setMethod(DebtDTO.Method.CREDIT_CARD);
+            debtController.updateDebt(Long.parseLong(orderId),debt);
             response.sendRedirect(redirectUrl);
         } else {
-            // Redirect tới trang thất bại
-            response.sendRedirect("http://localhost:5173/PaymentReturnPage?status=fail");
+            String redirectUrl = String.format(
+                "%s/PaymentReturnPage/fail/%s/%s/%s",
+                frontendUrl,
+                encodePathSegment(orderId),
+                encodePathSegment(vnp_ResponseCode),
+                encodePathSegment(validSignature ? "payment_failed" : "invalid_signature")
+            );
+            response.sendRedirect(redirectUrl);
         }
     }
 
+    private String encodePathSegment(String value) {
+        return value != null ? URLEncoder.encode(value, StandardCharsets.UTF_8) : "";
+    }
 
+    private String nvl(String value) {
+        return value != null ? value : "";
+    }
 
 }

@@ -1,10 +1,9 @@
-import React from "react";
+import React, {} from "react";
 import { useNavigate } from "react-router-dom";
 import "./DebtList.css";
-
+import {createPayment} from "../../../../api/learner/paymentService.js";
 const DebtDetailModal = ({ isOpen, onClose, debt }) => {
     const navigate = useNavigate();
-
     if (!isOpen || !debt) return null;
 
     const formatCurrency = (amount) => {
@@ -17,7 +16,19 @@ const DebtDetailModal = ({ isOpen, onClose, debt }) => {
     const handleViewCoach = () => {
         navigate(`/DetailCoach/${debt.coach.userId}`);
     };
-
+    const handlePayment = async () => {
+        try {
+            const data = await createPayment(debt.id, debt.amount);
+            if (data.paymentUrl) {
+                window.location.href = data.paymentUrl; // Redirect sang trang thanh toán VNPAY
+            } else {
+                alert("Lỗi tạo link thanh toán");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Lỗi khi gọi API thanh toán");
+        }
+    };
     return (
         <div className="modal-overlay">
             <div className="debt-detail-modal">
@@ -27,7 +38,7 @@ const DebtDetailModal = ({ isOpen, onClose, debt }) => {
 
                 <div className="modal-header">
                     <h3>Debt Details</h3>
-                    <div className="debt-id"></div>
+                    <button className="debt-id p-4" onClick={onClose}></button>
                 </div>
 
                 <div className="modal-sections">
@@ -140,7 +151,7 @@ const DebtDetailModal = ({ isOpen, onClose, debt }) => {
                         Close
                     </button>
                     {debt.status === "PENDING" && (
-                        <button className="pay-btn">
+                        <button className="pay-btn" onClick={() => handlePayment()}>
                             Pay Now
                         </button>
                     )}
