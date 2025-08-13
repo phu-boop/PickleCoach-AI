@@ -31,17 +31,20 @@ public class Debt {
     @Column(nullable = false)
     private DebtDTO.DebtStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "method",nullable = true)
+    private DebtDTO.Method method;
+
     public Debt() {}
 
-    public Debt(Coach coach, Learner learner, Session session, BigDecimal amount, DebtDTO.DebtStatus status) {
+    public Debt(Coach coach, Learner learner, Session session, BigDecimal amount, DebtDTO.DebtStatus status, DebtDTO.Method method) {
         this.coach = coach;
         this.learner = learner;
         this.session = session;
         this.amount = amount;
         this.status = status;
+        this.method = method;
     }
-
-    // Getter - Setter
 
     public Long getId() {
         return id;
@@ -85,5 +88,13 @@ public class Debt {
 
     public void setStatus(DebtDTO.DebtStatus status) {
         this.status = status;
+    }
+
+    public DebtDTO.Method getMethod() {
+        return this.method;
+    }
+
+    public void setMethod(DebtDTO.Method method) {
+        this.method = method;
     }
 }

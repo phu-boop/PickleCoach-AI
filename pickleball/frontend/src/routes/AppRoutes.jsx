@@ -23,7 +23,6 @@ import LearnerProgress from '../modules/admin/Learnerning/LearnerProgress';
 import ForgotPasswordEmail from '../modules/auth/ForgotPasswordEmail'; // (note: thêm mới)
 import EnterOTP from '../modules/auth/EnterOTP'; // (note: thêm mới)
 import ResetPassword from '../modules/auth/ResetPassword'; // (note: thêm mới)
-import CourseCard from'../modules/pages/learner/CourseCard';
 import LessonByCourse from'../modules/pages/learner/LessonByCourse';
 import Register from '../modules/pages/user/Register';
 import Verifying from '../modules/pages/user/Verifying';
@@ -31,9 +30,9 @@ import Coach from '../modules/admin/coach/Coach';
 import CoachDashboard from '../modules/pages/coach/CoachDashboard';
 import CoachSchedule from '../modules/pages/coach/CoachSchedule';
 import CoachBookingPage from '../modules/pages/learner/lCoachBookingPage';
-import UploadVideo from '../modules/pages/UploadVideo'; 
-import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails'; 
-import Alert from '../modules/pages/learner/detail_profile/Alert'; 
+import UploadVideo from '../modules/pages/UploadVideo';
+import ProfileDetail from '../modules/pages/learner/detail_profile/ProfileDetails';
+import Alert from '../modules/pages/learner/detail_profile/Alert';
 import ReviewCoach from '../modules/pages/learner/ReviewCoach';
 import DetailCoach from '../modules/pages/DetailCoach';
 import CoachVideoCall from '../modules/pages/coach/CoachVideoCall';
@@ -49,8 +48,7 @@ import SessionList from '../modules/pages/learner/detail_profile/SessionList';
 import Groups from '../modules/pages/learner/detail_profile/Groups';
 import DebtList from '../modules/pages/learner/detail_profile/DebtList';
 import AiVideo from '../modules/pages/AiVideo';
-import PaymentPage from '../components/PaymentPage.jsx';
-import PaymentReturnPage from '../components/payment_return.jsx';
+import PaymentReturnPage from '../components/PaymentReturnPage.jsx';
 import EditCoach from "../modules/admin/coach/CoachEdit.jsx";
 
 function AppRoutesUser() {
@@ -61,7 +59,10 @@ function AppRoutesUser() {
         <Routes>
             {/* Public routes */}
             <Route path="/" element={<LayoutMain />}>
-                <Route path="PaymentReturnPage" element={<PaymentReturnPage />} />
+                <Route
+                    path="/PaymentReturnPage/:status/:orderId/:amount/:transactionNo/:bankCode/:responseCode"
+                    element={<PaymentReturnPage />}
+                />
                 <Route path="earn" element={<Earn />} />
                 <Route path="organize" element={<Organize />} />
                 <Route path="gear" element={<Gear />} />
@@ -103,38 +104,37 @@ function AppRoutesUser() {
                 }
             >
                 <Route path="aivideo" element={<AiVideo />} />
-                <Route path="payment" element={<PaymentPage />} />
                 <Route path="input-assessment" element={<InputAssessment />} />
-                
+
             </Route>
-      {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute requiredRole="ROLE_learner">
-            <LayoutMain />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="DetailCoach/:id" element={<DetailCoach />} />
-        <Route path="review-coach" element={<ReviewCoach />} />
-        <Route path="learner" element={<HomePage userId={userId} />} />
-        <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
-        <Route path="course/:id" element={<LessonByCourse/>}/>
-        <Route path="learner_CoachBookingPage" element={<CoachBookingPage />} />
-      </Route>
-        {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_coach) */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute requiredRole="ROLE_coach">
-            <LayoutMain />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="Detail_coach/:id" element={<DetailCoach />} />
-        <Route path="ListLearner" element={<SessionList/>}/>
-      </Route>
+            {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_learner) */}
+            <Route
+                path="/"
+                element={
+                    <ProtectedRoute requiredRole="ROLE_learner">
+                        <LayoutMain />
+                    </ProtectedRoute>
+                }
+            >
+                <Route path="DetailCoach/:id" element={<DetailCoach />} />
+                <Route path="review-coach" element={<ReviewCoach />} />
+                <Route path="learner" element={<HomePage userId={userId} />} />
+                <Route path="lessons/:id" element={<LessonDetailPage userId={userId} />} />
+                <Route path="course/:id" element={<LessonByCourse/>}/>
+                <Route path="learner_CoachBookingPage" element={<CoachBookingPage />} />
+            </Route>
+            {/* Protected routes - Yêu cầu người dùng role là learner (ROLE_coach) */}
+            <Route
+                path="/"
+                element={
+                    <ProtectedRoute requiredRole="ROLE_coach">
+                        <LayoutMain />
+                    </ProtectedRoute>
+                }
+            >
+                <Route path="Detail_coach/:id" element={<DetailCoach />} />
+                <Route path="ListLearner" element={<SessionList/>}/>
+            </Route>
             {/* Admin routes - Yêu cầu ROLE_ADMIN */}
             <Route
                 path="/admin"

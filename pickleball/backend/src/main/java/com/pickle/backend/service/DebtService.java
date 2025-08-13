@@ -42,7 +42,7 @@ public class DebtService {
                 .orElseThrow(() -> new RuntimeException("Session not found with id " + dto.getSessionId()));
 
         Debt debt = new Debt(coach, learner, session, dto.getAmount(),
-                dto.getStatus() != null ? dto.getStatus() : DebtDTO.DebtStatus.PENDING);
+                dto.getStatus() != null ? dto.getStatus() : DebtDTO.DebtStatus.PENDING,null);
 
         return debtRepository.save(debt);
     }
@@ -79,6 +79,10 @@ public class DebtService {
 
         if (dto.getStatus() != null) {
             debt.setStatus(dto.getStatus());
+        }
+
+        if(dto.getMethod() != null) {
+            debt.setMethod(dto.getMethod());
         }
 
         return debtRepository.save(debt);

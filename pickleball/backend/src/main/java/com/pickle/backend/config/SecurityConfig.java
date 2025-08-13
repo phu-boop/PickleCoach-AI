@@ -38,6 +38,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/signal/**").permitAll()
+                        .requestMatchers("/api/vnpay/**").permitAll()
                         // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả OPTIONS
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/ai/full-analysis").permitAll()
@@ -50,6 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/profile").hasRole("USER")
                         .requestMatchers("/signal/**").permitAll()
                         .requestMatchers("/ws/**","/api/debts/**").permitAll()
+                        .requestMatchers("/api/payments",  // Cho phép truy cập không cần xác thực
+                    "/api/payments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,
