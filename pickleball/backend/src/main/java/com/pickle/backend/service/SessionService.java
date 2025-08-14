@@ -58,8 +58,8 @@ public class SessionService {
     }
 
     public SessionResponseDTO createSession(Session session) {
-        logger.info("Creating session with coach: {} at {}",
-                session.getCoach().getUserId(), session.getDatetime());
+        logger.info("Creating session with coach phu: {} at {} pakege {}",
+                session.getCoach().getUserId(), session.getDatetime(), session.getPakage());
 
         // Kiểm tra tồn tại coach
         coachRepository.findById(session.getCoach().getUserId())
@@ -76,13 +76,40 @@ public class SessionService {
         debt.setLearner(savedSession.getLearner());
         debt.setSession(savedSession);
         Coach coach = coachRepository.findCoachByUserId(session.getCoach().getUserId());
-        if(coach.getLevel() != null) {
-            switch(coach.getLevel()) {
-                case BEGINNER: debt.setAmount(BigDecimal.valueOf(3000000)); break;
-                case INTERMEDIATE: debt.setAmount(BigDecimal.valueOf(9000000)); break;
-                case ADVANCED: debt.setAmount(BigDecimal.valueOf(15000000)); break;
-                default: debt.setAmount(BigDecimal.ZERO);
+        if (coach.getLevel() != null && session.getPakage() != null) {
+            BigDecimal coefficient;
+            switch (coach.getLevel()) {
+                case BEGINNER:
+                    coefficient = new BigDecimal("1.0");
+                    break;
+                case INTERMEDIATE:
+                    coefficient = new BigDecimal("1.2");
+                    break;
+                case ADVANCED:
+                    coefficient = new BigDecimal("1.4");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid coach level: " + coach.getLevel());
             }
+
+            // Tính giá dựa trên gói dịch vụ
+            BigDecimal basePrice;
+            switch (session.getPakage()) {
+                case PAKAGE_5SESION:
+                    logger.info("vao roi");
+                    basePrice = new BigDecimal("2000000"); // 2,000,000 VND
+                    break;
+                case PAKAGE_10SESION:
+                    basePrice = new BigDecimal("3500000"); // 3,500,000 VND
+                    break;
+                case PAKAGE_20SESION:
+                    basePrice = new BigDecimal("6500000"); // 6,500,000 VND
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid package: " + session.getPakage());
+            }
+            BigDecimal finalPrice = basePrice.multiply(coefficient);
+            debt.setAmount(finalPrice);
         } else {
             debt.setAmount(BigDecimal.ZERO);
         }

@@ -45,6 +45,24 @@ public class Session {
     @Column(name = "feedback")
     private String feedback;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pakage")
+    private Pakage pakage;
+
+    public enum Pakage {
+        PAKAGE_5SESION,
+        PAKAGE_10SESION,
+        PAKAGE_20SESION,
+    }
+
+    public Pakage getPakage() {
+        return this.pakage;
+    }
+
+    public void setPakage(Pakage pakage) {
+        this.pakage = pakage;
+    }
+
     // Thêm trường created_at
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

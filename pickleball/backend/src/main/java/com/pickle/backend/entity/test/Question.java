@@ -9,6 +9,15 @@ public class Question {
 
     private String content;
     private String level; // EASY, MEDIUM, HARD
+    private String topic;
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Option> options;

@@ -71,13 +71,14 @@ function QuizForm() {
       if (respond.status === 200) {
         Swal.fire({
           title: "Success",
-          text: "Your skill assessment has been submitted successfully!",
+          text: "Your skill assessment has been submitted successfully! please log in again.",
           icon: "success",
           confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/login");
+          logout();
         });
-      };
-      logout();
-      navigate("/login");
+      }
     } catch (error) {
       console.error("Submission error:", error.response ? error.response.data : error.message);
       setError(`Failed to submit. Error: ${error.response?.data?.message || error.message}`);
