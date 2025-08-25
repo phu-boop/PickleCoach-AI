@@ -1,6 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./chatbox2.css";
 import VideoAnalysisTab from "./VideoAnalysisTab";
+import CourseCard from "../../modules/pages/learner/CourseCard";
+import { getAllCourses } from "../../api/learner/learningService";
 import BotAvatar from '../../assets/images/Chat/8688154.jpg';
 import IconAvatar from '../../assets/images/Chat/8567230.jpg';
 import QuizTab from "./QuizTab";
@@ -33,6 +35,12 @@ export default function ChatBox2() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(OPENROUTER_MODELS[0].value);
+  const [videoAnalyses, setVideoAnalyses] = useState(null);
+  const [quizStats, setQuizStats] = useState(null);
+  const [suggestion, setSuggestion] = useState(null);
+  const [loadingSuggestion, setLoadingSuggestion] = useState(false);
+  const [suggestionError, setSuggestionError] = useState(null);
+  const [allCourses, setAllCourses] = useState([]);
   const [listening, setListening] = useState(false);
   const fileInputRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -108,6 +116,127 @@ export default function ChatBox2() {
     }
   };
 
+  // Fetch user's video analyses from backend
+  const fetchVideoAnalyses = async (userId) => {
+    try {
+      const res = await fetch(`/api/ai/analyses/user/${userId}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error('Error fetching video analyses', err);
+      return null;
+    }
+  };
+
+  // Fetch quiz stats / recent quiz results via backend learner-stats endpoint
+  const fetchQuizStats = async (userId) => {
+    try {
+      const res = await fetch(`/api/questions/learner-stats/${userId}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error('Error fetching quiz stats', err);
+      return null;
+    }
+  };
+
+  // When user opens the Suggest tab, preload data (video analyses, quiz stats, all courses)
+  useEffect(() => {
+    if (tab !== 'suggest') return;
+    const userId = sessionStorage.getItem('id_user');
+    if (!userId) return;
+
+    let mounted = true;
+    (async () => {
+      try {
+        const [videos, quizzes, coursesFromDb] = await Promise.all([
+          fetchVideoAnalyses(userId),
+          fetchQuizStats(userId),
+          (async () => { try { return await getAllCourses(); } catch(e){ console.warn('Failed to load courses', e); return []; } })()
+        ]);
+        if (!mounted) return;
+        if (videos) setVideoAnalyses(videos);
+        if (quizzes) setQuizStats(quizzes);
+        setAllCourses(coursesFromDb || []);
+      } catch (err) {
+        console.warn('Failed to preload suggestion data', err);
+      }
+    })();
+
+    return () => { mounted = false; };
+  }, [tab]);
+
+  // Build prompt and call OpenRouter to generate personalized training plan
+  const generateSuggestion = async () => {
+    const userId = sessionStorage.getItem('id_user');
+    if (!userId) {
+      setSuggestionError('Vui lòng đăng nhập để tạo gợi ý.');
+      return;
+    }
+    setLoadingSuggestion(true);
+    setSuggestionError(null);
+    setSuggestion(null);
+
+    try {
+      // ensure we have latest data
+      const [videos, quizzes] = await Promise.all([fetchVideoAnalyses(userId), fetchQuizStats(userId)]);
+      setVideoAnalyses(videos);
+      setQuizStats(quizzes);
+      // also fetch all courses (for matching recommended ones)
+      try {
+        const coursesFromDb = await getAllCourses();
+        setAllCourses(coursesFromDb || []);
+      } catch (err) {
+        console.warn('Failed to load courses from backend', err);
+        setAllCourses([]);
+      }
+
+      // Compose prompt with three arrays: chat history, video analyses summary, quiz stats
+      const chatSummary = messages.map(m => `${m.from === 'user' ? 'User' : 'Bot'}: ${m.text}`).join('\n');
+
+      const videoSummary = videos ? (Array.isArray(videos) ? videos.slice(0,5).map(v=> JSON.stringify(v)).join('\n') : JSON.stringify(videos)) : 'Không có dữ liệu phân tích video.';
+      const quizSummary = quizzes ? JSON.stringify(quizzes) : 'Không có dữ liệu quiz.';
+
+      const userPrompt = `Bạn là trợ lý huấn luyện Pickleball. Hãy tổng hợp dữ liệu dưới đây và tạo một kế hoạch luyện tập cá nhân hoá (3-5 buổi, mục tiêu, bài tập chi tiết, cách đo lường tiến bộ) phù hợp cho người dùng.
+\n--- Chat history ---\n${chatSummary}\n\n--- Video analyses (mới nhất) ---\n${videoSummary}\n\n--- Quiz / learner stats ---\n${quizSummary}`;
+
+      // Call OpenRouter chat completion
+      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'PickleCoach-AI'
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: 'Bạn là trợ lý AI chuyên tạo giáo án tập luyện Pickleball dựa trên phân tích video và kết quả quiz.' },
+            { role: 'user', content: userPrompt }
+          ]
+        })
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        console.error('Suggestion API error', data);
+        setSuggestionError(data.error?.message || 'Lỗi khi gọi API gợi ý.');
+      } else {
+  const plan = data.choices?.[0]?.message?.content || 'AI không trả về gợi ý.';
+  setSuggestion(plan);
+      }
+
+    } catch (err) {
+      console.error('Exception generating suggestion', err);
+      setSuggestionError('Có lỗi khi tạo gợi ý.');
+    } finally {
+      setLoadingSuggestion(false);
+    }
+  };
+ 
   const handleSend = () => {
     if (input.trim() === "") return;
     setMessages([...messages, { from: "user", text: input }]);
@@ -204,11 +333,121 @@ export default function ChatBox2() {
               {tab === "suggest" && (
                 <div className="chatbox2-tab-content suggest">
                   <h2>Gợi ý luyện tập</h2>
-                  <ul>
-                    <li>Bài tập kỹ thuật cơ bản</li>
-                    <li>Video hướng dẫn Pickleball</li>
-                    <li>Gợi ý giáo án cá nhân hóa</li>
-                  </ul>
+                  <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                    <p>Nhập vào dữ liệu hiện có (chat, phân tích video, kết quả quiz) để AI sinh kế hoạch luyện tập cá nhân hóa.</p>
+                    <div style={{display:'flex',gap:8}}>
+                      <button onClick={generateSuggestion} disabled={loadingSuggestion} className="btn-primary">
+                        {loadingSuggestion ? 'Đang tạo...' : 'Tạo gợi ý AI'}
+                      </button>
+                      <button onClick={() => { setSuggestion(null); setSuggestionError(null); }} className="btn-secondary">Làm mới</button>
+                    </div>
+
+                    {suggestionError && (
+                      <div style={{color:'red'}}>{suggestionError}</div>
+                    )}
+
+                    {suggestion && (
+                      <div style={{background:'#fff',borderRadius:8,padding:12,border:'1px solid #e6e6e6'}}>
+                        <h4>Kế hoạch luyện tập (AI)</h4>
+                        <pre style={{whiteSpace:'pre-wrap',fontFamily:'inherit'}}>{suggestion}</pre>
+                      </div>
+                    )}
+
+                    {/* Recommended courses from latest video analysis */}
+                    {videoAnalyses && (() => {
+                      // determine courses array from videoAnalyses (latest if array)
+                      let rawCourses = [];
+                      const pickLatest = (arr) => (arr && arr.length ? arr[arr.length - 1] : null);
+                      const latest = Array.isArray(videoAnalyses) ? pickLatest(videoAnalyses) : videoAnalyses;
+
+                      // backend VideoAnalysis stores recommendations as JSON string in `recommendations`
+                      if (latest) {
+                        if (latest.recommended_courses) rawCourses = latest.recommended_courses;
+                        else if (latest.recommendedCourses) rawCourses = latest.recommendedCourses;
+                        else if (latest.recommendations) {
+                          try {
+                            rawCourses = typeof latest.recommendations === 'string' ? JSON.parse(latest.recommendations) : latest.recommendations;
+                          } catch (e) {
+                            console.warn('Failed to parse recommendations JSON', e);
+                            rawCourses = [];
+                          }
+                        } else if (latest.result && latest.result.recommendations) {
+                          rawCourses = latest.result.recommendations;
+                        }
+                      }
+
+                      // normalize items to shape CourseCard expects
+                      const normalize = (item, idx) => {
+                        if (!item) return null;
+                        // already looks like a course with id
+                        if (item.id || item.courseId || item.videoLessonId) {
+                          return {
+                            id: item.id || item.courseId || item.videoLessonId,
+                            title: item.title || item.name || 'Khóa học',
+                            description: item.description || item.summary || '',
+                            thumbnailUrl: item.thumbnailUrl || item.image || item.url || '',
+                            levelRequired: item.levelRequired || item.level || ''
+                          };
+                        }
+                        // recommendation item from backend: { title, description, url }
+                        return {
+                          id: null,
+                          title: item.title || item.name || 'Khóa học đề xuất',
+                          description: item.description || '',
+                          thumbnailUrl: item.thumbnailUrl || item.image || '',
+                          levelRequired: item.level || '',
+                          courseUrl: item.url || item.courseUrl || item.link || null,
+                          url: item.url || item.courseUrl || item.link || null
+                        };
+                      };
+
+                      const normalized = (rawCourses || []).map((it, i) => normalize(it, i)).filter(Boolean);
+
+                      // Try to match normalized recommendations to DB courses
+                      const matched = [];
+                      const titlesSet = new Set();
+                      if (allCourses && allCourses.length > 0) {
+                        normalized.forEach(rec => {
+                          const recTitle = (rec.title || '').toLowerCase().trim();
+                          const recUrl = (rec.thumbnailUrl || rec.url || '').toLowerCase();
+                          const found = allCourses.find(c => {
+                            const ct = (c.title || '').toLowerCase().trim();
+                            const curl = (c.courseUrl || c.thumbnailUrl || '').toLowerCase();
+                            return ct === recTitle || (recTitle && ct.includes(recTitle)) || (recUrl && curl.includes(recUrl));
+                          });
+                          if (found && !titlesSet.has(found.id)) {
+                            matched.push(found);
+                            titlesSet.add(found.id);
+                          }
+                        });
+                      }
+
+                      // If we have DB matches, show those. Otherwise show normalized recommendations (maybe external links)
+                      const toRender = matched.length > 0 ? matched : normalized;
+
+                      // If still empty, fallback to showing top DB courses (so UI isn't blank)
+                      const fallback = (allCourses && allCourses.length > 0) ? allCourses.slice(0, 4) : [];
+                      const finalRender = toRender.length > 0 ? toRender : fallback;
+
+                      if (finalRender.length > 0) {
+                        return (
+                          <div style={{background:'#fff',borderRadius:8,padding:12,border:'1px solid #e6e6e6'}}>
+                            <h4 style={{marginBottom:8}}>Khóa học đề xuất</h4>
+                            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>
+                              {finalRender.map((c, idx) => (
+                                <CourseCard key={c.id || c.url || idx} course={c} />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {!suggestion && !loadingSuggestion && (
+                      <div style={{color:'#666'}}>Chưa có gợi ý nào. Nhấn "Tạo gợi ý AI" để bắt đầu.</div>
+                    )}
+                  </div>
                 </div>
               )}
               {tab === "history" && (
