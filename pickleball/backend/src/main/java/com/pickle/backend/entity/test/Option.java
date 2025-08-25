@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 @Table(name = "question_options")
 public class Option {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String content;
@@ -30,7 +30,7 @@ public class Option {
     public void setQuestion(Question question){
         this.question = question;
     }
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
