@@ -2,7 +2,7 @@ import React from 'react';
 import { FaBook, FaStar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-const CourseCard = ({ course }) => {
+const CourseCard = ({ course, onClick }) => {
   if (!course) return null;
 
   const title = course.title || course.name || 'Khóa học';
@@ -37,19 +37,19 @@ const CourseCard = ({ course }) => {
   // If we have an internal course id, link to internal route. Otherwise if an external URL exists, open it in new tab.
   if (course.id) {
     return (
-      <Link to={`/course/${course.id}`} className="block h-full">{content}</Link>
+      <Link to={`/course/${course.id}`} className="block h-full" onClick={onClick}>{content}</Link>
     );
   }
 
   const externalUrl = course.courseUrl || course.url || course.thumbnailUrl || null;
   if (externalUrl) {
     return (
-      <a href={externalUrl} target="_blank" rel="noreferrer" className="block h-full">{content}</a>
+      <a href={externalUrl} target="_blank" rel="noreferrer" className="block h-full" onClick={onClick}>{content}</a>
     );
   }
 
-  // Fallback: render non-clickable card with same style
-  return <div className="block h-full">{content}</div>;
+  // Fallback: render non-clickable card with same style (but still support onClick if provided)
+  return <div className="block h-full" onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>{content}</div>;
 };
 
 export default CourseCard;
