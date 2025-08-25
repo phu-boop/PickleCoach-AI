@@ -70,7 +70,7 @@ export default function VideoAnalysisTab() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:8000/analyze", {
+      const res = await fetch("http://aivision:8000/analyze", {
         method: "POST",
         body: formData,
       });

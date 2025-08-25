@@ -1,6 +1,10 @@
 import requests
+import os
 
-API_URL = "http://localhost:8080/api/courses"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8080")
+
+
+API_URL = BACKEND_URL + "/api/courses"
 
 def fetch_courses():
     try:

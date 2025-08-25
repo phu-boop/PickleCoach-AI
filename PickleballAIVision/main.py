@@ -25,9 +25,16 @@ warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.
 app = FastAPI()
 
 # CORS config
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost", "http://localhost:80"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],  # cho phép mọi origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

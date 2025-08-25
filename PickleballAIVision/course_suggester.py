@@ -1,13 +1,17 @@
 # course_suggester.py
 import requests
 from sentence_transformers import SentenceTransformer, util
+import os
 
 # Load mô hình transform
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
+# Lấy URL từ environment variable hoặc dùng mặc định
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8080")
+
 def suggest_courses(errors: list, top_k=3):
     try:
-        res = requests.get("http://localhost:8080/api/courses")
+        res = requests.get(f"{BACKEND_URL}/api/courses")
         res.raise_for_status()
         courses = res.json()
     except Exception as e:

@@ -23,7 +23,8 @@ const OPENROUTER_MODELS = [
 ];
 
 export default function ChatBox2() {
-  const apiKey = import.meta.env.VITE_OPENAI_KEY;
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  console.log("key",apiKey);
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("chat");
   const [messages, setMessages] = useState([

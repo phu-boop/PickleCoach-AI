@@ -24,3 +24,31 @@ $env:GEMINI_API_KEY
 # Trong thư mục project với .venv đã kích hoạt
 py -m uvicorn quiz_generator:app --reload --host 0.0.0.0 --port 8000
 
+
+
+
+
+
+
+
+Dừng và xóa container cũ (nếu còn chạy):
+
+docker-compose down
+
+
+Build lại image (do bạn đã sửa file):
+
+docker-compose build
+
+
+Chạy lại toàn bộ hệ thống:
+
+docker-compose up -d
+
+
+Xem log container (nếu cần debug):
+
+docker logs <container_id hoặc container_name>
+
+
+👉 Thường bạn không cần docker run thủ công, chỉ cần docker-compose up -d thôi.

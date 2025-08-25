@@ -1,0 +1,44 @@
+#day la command run docker
+#1 terminal cd vao foder Pickleball
+#2 tao file moi truong .env (lien he phunal2784@gmail.com de lay file .env)
+#3 chay lenh "docker compose up --build"
+#4 truy cap localhost:7174 de su dung
+
+
+
+
+Khi bật máy lại và muốn khởi động hệ thống:
+
+cd ~/Downloads/learning/TTNT/PickleCoach-AI/pickleball/docker
+docker compose up -d
+docker compose up -d --build
+
+Khi bạn thay đổi code (backend / frontend / aivision):
+
+docker compose up -d --build
+
+
+Xem log của một service cụ thể (ví dụ aivision):
+
+docker compose logs -f aivision
+
+
+Tắt hệ thống:
+
+docker compose down
+
+
+
+
+
+
+docker compose restart docker-backend-1
+
+
+
+
+
+
+
+
+docker compose up -d --build aivision
