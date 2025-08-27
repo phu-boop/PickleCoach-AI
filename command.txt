@@ -57,3 +57,37 @@ docker compose up -d --build aivision
 
 docker-compose down
 docker system prune -f
+
+
+
+
+#thaycode
+docker-compose up --build -d
+
+
+
+#build laij image
+
+
+
+
+
+Nếu bạn đã thay đổi code backend (hoặc application.yml, Dockerfile) và muốn build lại:
+docker-compose build backend
+docker-compose up -d backend
+
+
+
+
+
+
+
+
+# 1. Dừng và xóa tất cả container + network + volume (chỉ trong project này)
+docker compose down -v --remove-orphans
+
+# 2. Xây dựng lại toàn bộ image (build lại từ Dockerfile)
+docker compose build --no-cache
+
+# 3. Khởi động lại tất cả container
+docker compose up -d

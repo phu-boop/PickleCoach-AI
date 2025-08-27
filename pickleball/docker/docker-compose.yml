@@ -19,6 +19,7 @@ services:
       - Vnp_HashSecret=${Vnp_HashSecret}
       - Vnp_TmnCode=${Vnp_TmnCode}
       - Vnp_Url=${Vnp_Url}
+      - AI_SERVICE_URL=${AI_SERVICE_URL}
     depends_on:
       - mysql
     networks:
@@ -39,20 +40,17 @@ services:
     networks:
       - app-network
     restart: unless-stopped
-
   mysql:
     image: mysql:8.0
     container_name: pickleball_mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ../mysql-init:/docker-entrypoint-initdb.d  
+      - ../mysql-init:/docker-entrypoint-initdb.d
     networks:
       - app-network
     restart: unless-stopped
@@ -88,6 +86,8 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    env_file:
+      - .env
 networks:
   app-network:
     driver: bridge

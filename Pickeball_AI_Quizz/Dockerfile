@@ -1,31 +1,22 @@
-# Dockerfile for quiz-generator
-
-# 1. Chọn base image Python nhẹ
+# Dockerfile
 FROM python:3.11-slim
 
-# 2. Set thư mục làm việc trong container
+# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# 3. Copy file requirements.txt (tạo trước trong thư mục project)
-# Nếu chưa có, tạo nội dung như:
-# fastapi
-# uvicorn[standard]
-# python-dotenv
-# google-genai
+# Sao chép requirements và cài đặt dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Cài đặt dependencies
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+# Sao chép mã nguồn
+COPY quiz_generator.py .
 
-# 5. Copy toàn bộ source code vào container
-COPY . .
+# Thiết lập biến môi trường (có thể ghi đè khi chạy container)
+ENV GEMINI_API_KEY="key-geinimi-ai"
+ENV PYTHONPATH=/app
 
-# 6. Set biến môi trường cho Python (log sẽ xuất thẳng ra console)
-ENV PYTHONUNBUFFERED=1
-
-# 7. Expose port quiz-generator
+# Expose port 8001
 EXPOSE 8001
 
-# 8. Lệnh chạy server FastAPI
-CMD ["uvicorn", "quiz_generator:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+# Chạy ứng dụng trên port 8001
+CMD ["uvicorn", "quiz_generator:app", "--host", "0.0.0.0", "--port", "8001"]

@@ -172,13 +172,9 @@ Mức độ yêu cầu: {request.level}, nhưng được điều chỉnh dựa t
 
 
 def get_gemini_client() -> Client:
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "GEMINI_API_KEY không tồn tại. Hãy tạo file .env và thêm GEMINI_API_KEY=<YOUR_API_KEY>."
-        )
+    # Thay thế bằng khóa API THỰC SỰ của bạn
+    api_key = "AIzaSyB2G_ptivaXlKuOMxVkcOQ28cu_gZha2VQ" 
     return Client(api_key=api_key)
-
 
 @app.post("/generate-quiz")
 def generate_quiz(request: QuizRequest):
@@ -275,4 +271,4 @@ if __name__ == "__main__":
     import uvicorn
 
     print("🚀 Starting Adaptive Quiz Generator API Server...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
