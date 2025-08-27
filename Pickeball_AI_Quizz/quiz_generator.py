@@ -172,9 +172,13 @@ Mức độ yêu cầu: {request.level}, nhưng được điều chỉnh dựa t
 
 
 def get_gemini_client() -> Client:
-    # Thay thế bằng khóa API THỰC SỰ của bạn
-    api_key = "AIzaSyB2G_ptivaXlKuOMxVkcOQ28cu_gZha2VQ" 
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY không tồn tại. Hãy tạo file .env và thêm GEMINI_API_KEY=<YOUR_API_KEY>."
+        )
     return Client(api_key=api_key)
+
 
 @app.post("/generate-quiz")
 def generate_quiz(request: QuizRequest):

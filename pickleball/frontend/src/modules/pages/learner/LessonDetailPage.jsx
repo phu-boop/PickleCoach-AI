@@ -119,6 +119,7 @@ const LessonDetailPage = ({ userId }) => {
       return () => clearInterval(interval);
     }
   };
+  console.log("phu ",lesson);
 
   window.onYouTubeIframeAPIReady = () => {
     if (lesson) {

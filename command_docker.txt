@@ -1,0 +1,32 @@
+## Hướng dẫn chạy project bằng Docker
+
+### 1. Cài đặt trước
+
+* Cài Docker: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+* Cài Docker Compose: [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
+* Kiểm tra phiên bản:
+
+```bash
+docker --version
+docker-compose --version
+```
+
+### 2. Tạo biến môi trường(file .env)
+tạo file .env (file đồng cấp với pickleball/docker/docker-compose.yml. nghĩa là nằm trong foder docker)
+
+### 3. Cấu hình biến môi trường
+tui gửi trong zalo copy pase và file .env
+
+### 4. run docker
+(terminal : PickleCoach-AI/pickleball/docker$)
+##chạy 1 lệnh trong 2 lệnh này
+-Lần đầu: docker-compose up --build
+
+-Lần sau (mở máy lại): docker-compose up -d
+
+### 5.(các port phải trống)
+import database localhost 3306.
+
+### 6. Truy cập
+
+* Frontend: [http://localhost](http://localhost)
