@@ -38,7 +38,22 @@ docker compose restart docker-backend-1
 
 
 
+docker compose up --build
+
+
 
 
 
 docker compose up -d --build aivision
+
+
+
+
+
+
+
+
+
+
+docker-compose down
+docker system prune -f

@@ -7,8 +7,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - FRONTEND_URL=${FRONTEND_URL}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - CLIENT_ID=${CLIENT_ID}
@@ -74,7 +74,20 @@ services:
       - ./data:/app/data
     depends_on:
       - backend
-
+  quiz-generator:
+    build:
+      context: ../../Pickeball_AI_Quizz
+      dockerfile: Dockerfile
+    image: quiz-generator
+    ports:
+      - "8001:8001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - backend
 networks:
   app-network:
     driver: bridge
