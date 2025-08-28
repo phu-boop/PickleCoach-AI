@@ -72,14 +72,14 @@ export default function VideoAnalysisTab() {
 
         try {
             setLoading(true);
-            const res = await fetch("http://0.0.0.0:8000/analyze", {
+            const res = await fetch("http://localhost:8000/analyze", {
                 method: "POST",
                 body: formData,
             });
 
             const data = await res.json();
             if (data.status === "success") {
-                setResultUrl(`http://0.0.0.0:8000${data.video_url}`);
+                setResultUrl(`http://localhost:8000${data.video_url}`);
                 setDetails(data.details);
                 setDetectedShots(data.details.detected_shots || []);
                 setRecommendedCourses(data.recommended_courses || []);
