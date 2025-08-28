@@ -54,7 +54,6 @@ services:
     networks:
       - app-network
     restart: unless-stopped
-
   aivision:
     build:
       context: ../../PickleballAIVision
@@ -63,7 +62,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - FFMPEG_PATH=${FFMPEG_PATH}
       - BACKEND_URL=${BACKEND_URL}
     networks:
       - app-network

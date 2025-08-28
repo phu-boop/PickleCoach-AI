@@ -132,14 +132,14 @@ const ReviewCoach = () => {
                         </p>
                         <div className="flex flex-wrap justify-center gap-2 mb-4">
                         {coach.specialties &&
-                            coach.specialties.map((specialty, idx) => (
+                          coach.specialties.slice(0, 4).map((specialty, idx) => (
                             <span
-                                key={idx}
-                                className="bg-[#2d93ad] text-white text-xs px-3 py-1 rounded-full font-medium hover:bg-[#1a6f8c] transition-colors duration-200 cursor-default"
+                              key={idx}
+                              className="bg-[#2d93ad] text-white text-xs px-3 py-1 rounded-full font-medium hover:bg-[#1a6f8c] transition-colors duration-200 cursor-default"
                             >
-                                {specialty}
+                              {specialty}
                             </span>
-                            ))}
+                          ))}
                         </div>
                         <button
                         className="bg-[#2d93ad] hover:bg-[#1a6f8c] text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 w-full text-center cursor-pointer"

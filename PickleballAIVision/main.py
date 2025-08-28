@@ -23,18 +23,9 @@ logging.getLogger('mediapipe').setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf.symbol_database")
 
 app = FastAPI()
-
-# CORS config
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost", "http://localhost:80"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # cho phép mọi origin
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
