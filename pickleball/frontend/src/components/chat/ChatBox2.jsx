@@ -22,8 +22,8 @@ const OPENROUTER_MODELS = [
   { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku" }
 ];
 
-export default function ChatBox2() {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+export default function ChatBox2() {  
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
   console.log("key",apiKey);
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("chat");
