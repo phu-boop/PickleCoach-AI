@@ -1,15 +1,6 @@
-# Compiled class file
+# ==== Java / Spring Boot ====
+target/
 *.class
-
-# Log file
-*.log
-logs/
-
-# Java virtual machine crash logs
-hs_err_pid*
-replay_pid*
-
-# Package Files
 *.jar
 *.war
 *.nar
@@ -17,69 +8,51 @@ replay_pid*
 *.zip
 *.tar.gz
 *.rar
+*.log
+hs_err_pid*
+replay_pid*
 
-# Maven build files
-target/
-!**/src/main/**/target/  # Loại bỏ ngoại lệ này trừ khi cần
-!**/src/test/**/target/  # Loại bỏ ngoại lệ này trừ khi cần
-
-# Maven wrapper (keep if used)
-!.mvn/wrapper/maven-wrapper.jar
-
-# IDE files
+# IDE / Editor
 .idea/
 .vscode/
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-*.iws
 *.iml
 *.ipr
+*.iws
+.classpath
+.project
+.settings/
+.sts4-cache
+.apt_generated
+.factorypath
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
+/nb-gradle/
 build/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 
-# Node.js files
+# ==== Node.js / Frontend ====
 node_modules/
-package.json
-package-lock.json
+dist/
+dist-ssr/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Python files
+# ==== Python / AI ====
 __pycache__/
 *.pyc
 venv/
 .venv/
 
-# Temporary or error files
-*.stackdump
-et --hard ddbff98a
-sage 1
-
-# Sensitive files (should not be committed)
+# ==== Sensitive / Config ====
 .env
-application.properties  # Xóa comment "# Keep..." và giữ dòng này
+.env.local
+.env.*.local
+application.properties
 
-# Frontend build files
-dist/
-dist-ssr/
-
-PickleballAIVision/outputs/
-PickleballAIVision/uploads/
+# ==== Project-specific ====
+PickleballAIVision/
