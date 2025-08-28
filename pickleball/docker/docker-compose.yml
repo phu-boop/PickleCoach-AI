@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   backend:
     build:
@@ -8,10 +7,19 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/pickleball_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - EMAIL=${EMAIL}
+      - Frontend_url=${Frontend_url}
+      - Return_url=${Return_url}
+      - Vnp_HashSecret=${Vnp_HashSecret}
+      - Vnp_TmnCode=${Vnp_TmnCode}
+      - Vnp_Url=${Vnp_Url}
+      - AI_SERVICE_URL=${AI_SERVICE_URL}
     depends_on:
       - mysql
     networks:
@@ -23,6 +31,8 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
     image: picklecoach-frontend
+    environment:
+      - VITE_OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     ports:
       - "80:80"
     depends_on:
@@ -30,24 +40,52 @@ services:
     networks:
       - app-network
     restart: unless-stopped
-
   mysql:
     image: mysql:8.0
     container_name: pickleball_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: pickleball_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ../mysql-init:/docker-entrypoint-initdb.d  
+      - ../mysql-init:/docker-entrypoint-initdb.d
     networks:
       - app-network
     restart: unless-stopped
-
+  aivision:
+    build:
+      context: ../../PickleballAIVision
+      dockerfile: Dockerfile
+    image: picklecoach-aivision
+    ports:
+      - "8000:8000"
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    networks:
+      - app-network
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - backend
+  quiz-generator:
+    build:
+      context: ../../Pickeball_AI_Quizz
+      dockerfile: Dockerfile
+    image: quiz-generator
+    ports:
+      - "8001:8001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+    env_file:
+      - .env
 networks:
   app-network:
     driver: bridge

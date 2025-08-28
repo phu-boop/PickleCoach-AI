@@ -12,20 +12,19 @@ const TABS = [
   { key: "video", label: "Phân tích Video" },
   { key: "quiz", label: "Quiz" },
   { key: "suggest", label: "Gợi ý" },
-  { key: "history", label: "Lịch sử" },
 ];
 
-// Danh sách model phổ biến của OpenRouter
 const OPENROUTER_MODELS = [
   { value: "openai/gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
-  { value: "openai/gpt-4-turbo", label: "GPT-4 Turbo" },
-  { value: "google/gemini-pro", label: "Gemini Pro" },
+  { value: "deepseek/deepseek-chat-v3-0324:free", label: "DeepSeek V3" },
   { value: "meta-llama/llama-3-70b-instruct", label: "Llama 3 70B" },
-  { value: "mistralai/mixtral-8x7b", label: "Mixtral 8x7B" },
+  { value: "mistralai/mixtral-8x7b-instruct", label: "Mixtral 8x7B " },
+  { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku" }
 ];
 
 export default function ChatBox2() {
-  const apiKey = import.meta.env.VITE_OPENAI_KEY;
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  console.log("key",apiKey);
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("chat");
   const [messages, setMessages] = useState([

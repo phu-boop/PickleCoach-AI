@@ -3,6 +3,7 @@ import logging
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+import os
 
 def is_valid_url(url):
     return isinstance(url, str) and (url.startswith("http://") or url.startswith("https://"))
@@ -20,9 +21,9 @@ KEYWORD_TO_SKILL = {
     "forehand": ["FOREHAND"],
     "backhand": ["BACKHAND"]
 }
-
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8080")
 def fetch_courses():
-    backend_url = "http://localhost:8080/api/courses"
+    backend_url = f"{BACKEND_URL}/api/courses"
     session = requests.Session()
     retry_strategy = Retry(
         total=3,  # Thử lại 3 lần
@@ -33,7 +34,7 @@ def fetch_courses():
     adapter = HTTPAdapter(max_retries=retry_strategy)
     session.mount("http://", adapter)
     try:
-        resp = session.get(backend_url, timeout=10)
+        resp = session.get(backend_url, timeout=60)
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as e:

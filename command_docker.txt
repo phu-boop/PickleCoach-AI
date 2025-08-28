@@ -1,0 +1,82 @@
+Hướng dẫn chạy project bằng Docker
+1. Cài đặt trước
+
+Cài Docker: https://docs.docker.com/get-docker/
+
+Cài Docker Compose: https://docs.docker.com/compose/install/
+
+Kiểm tra cài đặt thành công:
+
+docker --version
+docker-compose --version
+
+2. Tạo file .env
+
+File .env phải đặt cùng cấp với pickleball/docker/docker-compose.yml (tức là trong thư mục docker).
+
+Nội dung file .env mình đã gửi (copy từ Zalo và paste vào file .env).
+
+3. Cấu hình biến môi trường
+
+Các biến như DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, FRONTEND_URL, AI_SERVICE_URL, … cần được khai báo trong .env.
+
+Mọi người chỉ cần copy template .env.example (mình sẽ gửi kèm repo) → đổi tên thành .env và chỉnh lại giá trị cho phù hợp.
+
+4. Chạy Docker
+
+Mở terminal tại thư mục:
+
+cd PickleCoach-AI/pickleball/docker
+
+
+Lần đầu build (hoặc khi có thay đổi code):
+
+docker-compose up --build  -d
+
+(nếu lỗi port thì chạy lệnh
+    "
+    for /l %p in (80,1,80) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
+    for /l %p in (8080,1,8080) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
+    for /l %p in (3306,1,3306) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
+    for /l %p in (8000,1,8000) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
+    for /l %p in (8001,1,8001) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
+    "
+)
+
+Lần sau (khi máy đã build sẵn):
+
+docker-compose up -d
+
+
+Dừng server:
+
+docker-compose down
+
+6. Truy cập ứng dụng
+
+Frontend: http://localhost
+
+Backend API (Spring Boot): http://localhost:8080
+
+AI Vision Service: http://localhost:8000
+
+Quiz Generator: http://localhost:8001
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
