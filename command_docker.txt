@@ -24,24 +24,15 @@ Mọi người chỉ cần copy template .env.example (mình sẽ gửi kèm rep
 
 4. Chạy Docker
 
+đảm bảo cổng (8080,80,3306,8000,8001) chưa bị chiếm
+
 Mở terminal tại thư mục:
 
 cd PickleCoach-AI/pickleball/docker
 
-
 Lần đầu build (hoặc khi có thay đổi code):
 
 docker-compose up --build  -d
-
-(nếu lỗi port thì chạy lệnh
-    "
-    for /l %p in (80,1,80) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
-    for /l %p in (8080,1,8080) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
-    for /l %p in (3306,1,3306) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
-    for /l %p in (8000,1,8000) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
-    for /l %p in (8001,1,8001) do for /f "tokens=5" %a in ('netstat -ano ^| findstr :%p') do taskkill /PID %a /F
-    "
-)
 
 Lần sau (khi máy đã build sẵn):
 
