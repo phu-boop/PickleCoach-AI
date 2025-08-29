@@ -30,6 +30,8 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+      args:
+        - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     image: picklecoach-frontend
     environment:
       - VITE_OPENROUTER_API_KEY=${OPENROUTER_API_KEY}

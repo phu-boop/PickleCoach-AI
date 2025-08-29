@@ -10,6 +10,11 @@ RUN npm install
 # Copy toàn bộ source
 COPY . .
 
+# Allow passing the OpenRouter API key at build time so Vite can embed it into the bundle
+# Usage: docker build --build-arg OPENROUTER_API_KEY=...  OR docker-compose build with build.args
+ARG OPENROUTER_API_KEY
+ENV VITE_OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+
 # Build production
 RUN npm run build
 
