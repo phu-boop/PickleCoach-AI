@@ -30,6 +30,8 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+      args:
+        - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     image: picklecoach-frontend
     environment:
       - VITE_OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
@@ -47,7 +49,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ../mysql-init:/docker-entrypoint-initdb.d
